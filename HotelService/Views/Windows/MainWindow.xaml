@@ -1,0 +1,114 @@
+﻿<Window x:Class="HotelService.Views.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HotelService.Views.Windows"
+        mc:Ignorable="d"
+        Title="Управление гостиницей" 
+        Height="720" 
+        Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Style="{DynamicResource CustomWindowStyle}"
+        MouseDown="Window_MouseDown">
+    <Border Background="{StaticResource BackgroundPrimaryColor}" CornerRadius="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                        <TextBlock Text="Гостиница Улан-Удэ" Foreground="White" FontSize="18" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
+                        <Border Width="36" Height="36" Background="{StaticResource AccentColor}" CornerRadius="18" VerticalAlignment="Center">
+                            <TextBlock x:Name="UserInitialsTextBlock" Text="АИ" Foreground="White" FontWeight="SemiBold" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="UserNameTextBlock" Text="Администратор Иванов" Foreground="White" FontWeight="Medium"/>
+                            <TextBlock x:Name="UserRoleTextBlock" Text="Администратор системы" Foreground="#E0FFFFFF" FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Button x:Name="MinimizeButton" Style="{StaticResource DarkMinimizeButtonStyle}" Click="MinimizeButton_Click"/>
+                        <Button x:Name="MaximizeButton" Style="{StaticResource DarkMaximizeButtonStyle}" Click="MaximizeButton_Click" 
+                                Visibility="Visible"/>
+                        <Button x:Name="RestoreButton" Style="{StaticResource DarkRestoreButtonStyle}" Click="RestoreButton_Click" 
+                                Visibility="Collapsed"/>
+                        <Button x:Name="CloseButton" Style="{StaticResource DarkCloseButtonStyle}" Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="{StaticResource PrimaryDarkColor}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="0,10,0,0">
+                                <!--<Button x:Name="DashboardButton" Content="Панель управления" Style="{StaticResource ActiveMenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/control-panel.png" Margin="10,5,10,5"/>-->
+
+                                <Button x:Name="BookingButton" Content="Управление бронированием" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/appointment.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="GuestsButton" Content="Гости и клиенты" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/traveling.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="RoomsButton" Content="Номерной фонд" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/key-card.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="CheckInButton" Content="Стойка регистрации" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/concierge.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="PaymentsButton" Content="Платежи и счета" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/payment.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="ReportsButton" Content="Отчеты и аналитика" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/report.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="UsersButton" Content="Пользователи системы" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/group.png" Margin="10,5,10,5"/>
+
+                                <Button x:Name="HandBookButton" Content="Справочники" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                        Tag="/Resources/Images/book.png" Margin="10,5,10,5"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                       
+
+                        <Border Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="#30FFFFFF" Padding="0,10,0,15">
+                            <Button x:Name="LogoutButton" Content="Выход из системы" Style="{StaticResource MenuButtonStyle}" Click="LogoutButton_Click"
+                                    Tag="/Resources/Images/exit.png" Margin="10,5,10,5"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" Background="{StaticResource BackgroundPrimaryColor}" CornerRadius="0,0,10,0">
+                    <ContentControl x:Name="MainContent" Margin="0"/>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
