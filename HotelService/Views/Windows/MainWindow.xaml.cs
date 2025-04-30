@@ -35,7 +35,7 @@ namespace HotelService.Views.Windows
                 }
                 else
                 {
-                    UserInitialsTextBlock.Text = "ГО"; 
+                    UserInitialsTextBlock.Text = "ГО";
                 }
             }
             else
@@ -126,7 +126,7 @@ namespace HotelService.Views.Windows
                 else if (clickedButton == UsersButton)
                     LoadUsersContent();
                 else if (clickedButton == HandBookButton)
-                    LoadSettingsContent();
+                    LoadHandBookContent();
             }
         }
 
@@ -149,157 +149,91 @@ namespace HotelService.Views.Windows
             }
         }
 
-        #endregion
-
-        #region Методы загрузки контента
-
-        private void LoadDashboardContent()
-        {
-            // Временная реализация для демонстрации
-            // В реальной системе здесь должно быть:
-            // MainContent.Content = new DashboardView();
-
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Панель управления",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
-        }
-
         private void LoadBookingContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Управление бронированием",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            MainContent.Content = new Pages.BookingPage();
         }
 
         private void LoadGuestsContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Гости и клиенты",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            //MainContent.Content = new Pages.GuestsPage();
         }
 
         private void LoadRoomsContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Номерной фонд",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            // MainContent.Content = new Pages.RoomsPage();
+            MessageBox.Show("Модуль 'Номерной фонд' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void LoadCheckInContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Стойка регистрации",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            // MainContent.Content = new Pages.CheckInPage();
+            MessageBox.Show("Модуль 'Стойка регистрации' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void LoadPaymentsContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Платежи и счета",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            // MainContent.Content = new Pages.PaymentsPage();
+            MessageBox.Show("Модуль 'Платежи и счета' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void LoadReportsContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
-            {
-                Text = "Отчеты и аналитика",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            MainContent.Content = tempContent;
+            // MainContent.Content = new Pages.ReportsPage();
+            MessageBox.Show("Модуль 'Отчеты и аналитика' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void LoadUsersContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
+            if (App.CurrentUser.RoleId != 1)
             {
-                Text = "Пользователи системы",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+                MessageBox.Show("У вас нет прав доступа к модулю 'Пользователи системы'.",
+                    "Доступ запрещен", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-            MainContent.Content = tempContent;
+                _currentActiveButton.Style = (Style)FindResource("MenuButtonStyle");
+                BookingButton.Style = (Style)FindResource("ActiveMenuButtonStyle");
+                _currentActiveButton = BookingButton;
+
+                LoadBookingContent();
+                return;
+            }
+
+            // MainContent.Content = new Pages.UsersPage();
+            MessageBox.Show("Модуль 'Пользователи системы' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void LoadSettingsContent()
+        private void LoadHandBookContent()
         {
-            // Временная реализация
-            TextBlock tempContent = new TextBlock
+            // Проверка прав доступа - только администратор системы и администратор стойки
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
             {
-                Text = "Настройки системы",
-                FontSize = 24,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#322A28")),
-                FontWeight = FontWeights.SemiBold,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+                MessageBox.Show("У вас нет прав доступа к модулю 'Справочники'.",
+                    "Доступ запрещен", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-            MainContent.Content = tempContent;
+                // Возвращаем выделение на предыдущую кнопку
+                _currentActiveButton.Style = (Style)FindResource("MenuButtonStyle");
+                BookingButton.Style = (Style)FindResource("ActiveMenuButtonStyle");
+                _currentActiveButton = BookingButton;
+
+                LoadBookingContent();
+                return;
+            }
+
+            // MainContent.Content = new Pages.HandBookPage();
+            MessageBox.Show("Модуль 'Справочники' находится в разработке.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        private void LoadDashboardContent()
+        {
+            // Загружаем страницу бронирований по умолчанию
+            MainContent.Content = new Pages.BookingPage();
+        }
         #endregion
     }
 }

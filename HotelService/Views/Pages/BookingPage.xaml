@@ -1,0 +1,195 @@
+﻿<Page x:Class="HotelService.Views.Pages.BookingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HotelService.Views.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="1200"
+      Title="Управление бронированием">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" 
+                   Text="Управление бронированием"
+                   Style="{StaticResource PageTitleStyle}"
+                   Margin="20,15,20,10"/>
+
+        <Border Grid.Row="1" 
+                Background="{StaticResource BackgroundSecondaryColor}"
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Margin="20,5,20,15"
+                Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,15,0">
+                    <TextBlock Text="Статус бронирования" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="StatusFilterComboBox" 
+                              Style="{StaticResource FilterComboBoxStyle}" 
+                              Width="180"
+                              SelectionChanged="StatusFilterComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+                        <ComboBoxItem Content="Подтверждено"/>
+                        <ComboBoxItem Content="Ожидает подтверждения"/>
+                        <ComboBoxItem Content="Заезд"/>
+                        <ComboBoxItem Content="Выезд"/>
+                        <ComboBoxItem Content="Отменено"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,15,0">
+                    <TextBlock Text="Дата от" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
+                    <DatePicker x:Name="StartDatePicker" 
+                                Width="130" 
+                                SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Vertical" Margin="0,0,15,0">
+                    <TextBlock Text="Дата до" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
+                    <DatePicker x:Name="EndDatePicker" 
+                                Width="130" 
+                                SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                </StackPanel>
+
+                <!-- Поиск по гостю -->
+                <StackPanel Grid.Column="3" Orientation="Vertical" Margin="0,0,0,0">
+                    <TextBlock Text="Поиск гостя" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="SearchGuestTextBox" 
+                             Style="{StaticResource SearchTextBoxStyle}" 
+                             Width="200"
+                             TextChanged="SearchGuestTextBox_TextChanged"/>
+                </StackPanel>
+
+                <!-- Кнопки управления -->
+                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
+
+
+                    <Button x:Name="AddBookingButton" 
+                            Style="{StaticResource PrimaryButtonStyle}" 
+                            Content="Новое бронирование" 
+                            Width="180"
+                            Click="AddBookingButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Таблица бронирований -->
+        <Border Grid.Row="2"
+                Background="{StaticResource BackgroundSecondaryColor}"
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Margin="20,0,20,20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid x:Name="BookingsDataGrid"
+                          Grid.Row="0"
+                          Margin="2"
+                          Style="{StaticResource DefaultDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource DataGridRowStyle}"
+                          CellStyle="{StaticResource DataGridCellStyle}"
+                          RowHeight="40"
+                          AutoGenerateColumns="False"
+                          VerticalScrollBarVisibility="Hidden"
+                          HorizontalScrollBarVisibility="Hidden"
+                          SelectionChanged="BookingsDataGrid_SelectionChanged"
+                          MouseDoubleClick="BookingsDataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="№" Binding="{Binding BookingId}" Width="60"/>
+                        <DataGridTextColumn Header="Гость" Binding="{Binding GuestFullName}" Width="200"/>
+                        <DataGridTextColumn Header="Номер" Binding="{Binding RoomNumber}" Width="80"/>
+                        <DataGridTextColumn Header="Заезд" Binding="{Binding CheckInDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                        <DataGridTextColumn Header="Выезд" Binding="{Binding CheckOutDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                        <DataGridTextColumn Header="Взр." Binding="{Binding Adults}" Width="60"/>
+                        <DataGridTextColumn Header="Дети" Binding="{Binding Children}" Width="60"/>
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="140"/>
+                        <DataGridTextColumn Header="Сумма" Binding="{Binding TotalAmount, StringFormat={}{0:N2} ₽}" Width="120"/>
+                        <DataGridTemplateColumn Header="Действия" Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Style="{StaticResource InfoButtonIconStyle}" 
+                                                Width="32" Height="32" 
+                                                ToolTip="Просмотр бронирования"
+                                                Click="ViewBookingButton_Click"
+                                                Margin="2,0">
+                                            <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
+                                                  Fill="White" 
+                                                  Stretch="Uniform" 
+                                                  Width="16" Height="16"/>
+                                        </Button>
+                                        <Button Style="{StaticResource ActionButtonIconStyle}" 
+                                                Width="32" Height="32" 
+                                                ToolTip="Редактировать бронирование" 
+                                                Click="EditBookingButton_Click"
+                                                Margin="2,0">
+                                            <Path Data="M12,2 L2,12 L1,15 L4,14 L14,4 L12,2 M12,2 L14,4" 
+                                                  Stroke="White" 
+                                                  StrokeThickness="1.5"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  Width="16" Height="16"/>
+                                        </Button>
+                                        <Button Style="{StaticResource DeleteButtonIconStyle}" 
+                                                Width="32" Height="32" 
+                                                ToolTip="Отменить бронирование" 
+                                                Click="CancelBookingButton_Click"
+                                                Margin="2,0">
+                                            <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10" 
+                                                  Stroke="White" 
+                                                  StrokeThickness="1.5"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  Width="16" Height="16"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Статусная строка с количеством записей -->
+                <Border Grid.Row="1" 
+                        Background="{StaticResource PrimaryColor}" 
+                        BorderThickness="0,1,0,0" 
+                        BorderBrush="{StaticResource PrimaryDarkColor}">
+                    <Grid Margin="10,5">
+                        <TextBlock x:Name="StatusTextBlock" 
+                                   Text="Всего записей: 0" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"/>
+
+                        <TextBlock x:Name="FilterStatusTextBlock" 
+                                   Text="" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,10,0"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

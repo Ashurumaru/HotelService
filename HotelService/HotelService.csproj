@@ -185,11 +185,31 @@
     <Compile Include="Data\User.cs">
       <DependentUpon>database.tt</DependentUpon>
     </Compile>
+    <Compile Include="Utils\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Utils\InverseBooleanConverter.cs" />
+    <Compile Include="Views\Pages\BookingPage.xaml.cs">
+      <DependentUpon>BookingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\BookingEditWindow.xaml.cs">
+      <DependentUpon>BookingEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\BookingViewWindow.xaml.cs">
+      <DependentUpon>BookingViewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\GuestEditWindow.xaml.cs">
+      <DependentUpon>GuestEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\GuestSelectWindow.xaml.cs">
+      <DependentUpon>GuestSelectWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\RoomSelectWindow.xaml.cs">
+      <DependentUpon>RoomSelectWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -232,6 +252,26 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\Pages\BookingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\BookingEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\BookingViewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\GuestEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\GuestSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -240,11 +280,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\RoomSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-    <Folder Include="Views\Pages\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Data\database.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

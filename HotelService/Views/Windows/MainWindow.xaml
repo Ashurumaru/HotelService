@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Управление гостиницей" 
         Height="720" 
-        Width="1280"
+        Width="1380"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
@@ -55,7 +55,7 @@
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="258"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -72,28 +72,28 @@
                                         Tag="/Resources/Images/control-panel.png" Margin="10,5,10,5"/>-->
 
                                 <Button x:Name="BookingButton" Content="Управление бронированием" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/appointment.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/appointment.png" Margin="5,5,5,5"/>
 
                                 <Button x:Name="GuestsButton" Content="Гости и клиенты" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/traveling.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/traveling.png"  Margin="5,5,5,5"/>
 
                                 <Button x:Name="RoomsButton" Content="Номерной фонд" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/key-card.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/key-card.png" Margin="5,5,5,5"/>
 
                                 <Button x:Name="CheckInButton" Content="Стойка регистрации" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/concierge.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/concierge.png"  Margin="5,5,5,5"/>
 
                                 <Button x:Name="PaymentsButton" Content="Платежи и счета" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/payment.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/payment.png" Margin="5,5,5,5"/>
 
                                 <Button x:Name="ReportsButton" Content="Отчеты и аналитика" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/report.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/report.png" Margin="5,5,5,5"/>
 
                                 <Button x:Name="UsersButton" Content="Пользователи системы" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/group.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/group.png"  Margin="5,5,5,5"/>
 
                                 <Button x:Name="HandBookButton" Content="Справочники" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/book.png" Margin="10,5,10,5"/>
+                                        Tag="/Resources/Images/book.png" Margin="5,5,5,5"/>
                             </StackPanel>
                         </ScrollViewer>
                        
@@ -106,7 +106,7 @@
                 </Border>
 
                 <Border Grid.Column="1" Background="{StaticResource BackgroundPrimaryColor}" CornerRadius="0,0,10,0">
-                    <ContentControl x:Name="MainContent" Margin="0"/>
+                    <Frame x:Name="MainContent" Margin="0"/>
                 </Border>
             </Grid>
         </Grid>

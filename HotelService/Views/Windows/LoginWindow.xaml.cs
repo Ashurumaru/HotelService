@@ -69,6 +69,7 @@ namespace HotelService.Views.Windows
                 ShowError("Введите имя пользователя и пароль");
                 return;
             }
+            
 
             try
             {
