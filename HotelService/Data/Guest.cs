@@ -18,6 +18,7 @@ namespace HotelService.Data
         public Guest()
         {
             this.Booking = new HashSet<Booking>();
+            this.DamageReport = new HashSet<DamageReport>();
             this.GuestDocument = new HashSet<GuestDocument>();
             this.LoyaltyTransaction = new HashSet<LoyaltyTransaction>();
         }
@@ -37,6 +38,8 @@ namespace HotelService.Data
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Booking> Booking { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DamageReport> DamageReport { get; set; }
         public virtual GuestGroup GuestGroup { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GuestDocument> GuestDocument { get; set; }

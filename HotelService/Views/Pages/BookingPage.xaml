@@ -54,14 +54,24 @@
 
                 <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,15,0">
                     <TextBlock Text="Дата от" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
-                    <DatePicker x:Name="StartDatePicker" 
+                    <DatePicker Height="44" 
+                                Template="{StaticResource CustomDatePickerTemplate}"
+                                Background="{StaticResource BackgroundSecondaryColor}"
+                                BorderBrush="{StaticResource BorderColor}"
+                                Foreground="{StaticResource TextPrimaryColor}"
+                                x:Name="StartDatePicker" 
                                 Width="130" 
-                                SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                                SelectedDateChanged="DatePicker_SelectedDateChanged"
+                                          />
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Vertical" Margin="0,0,15,0">
                     <TextBlock Text="Дата до" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
                     <DatePicker x:Name="EndDatePicker" 
+                                 Height="44" Template="{StaticResource CustomDatePickerTemplate}"
+          Background="{StaticResource BackgroundSecondaryColor}"
+          BorderBrush="{StaticResource BorderColor}"
+          Foreground="{StaticResource TextPrimaryColor}"
                                 Width="130" 
                                 SelectedDateChanged="DatePicker_SelectedDateChanged"/>
                 </StackPanel>
@@ -70,7 +80,7 @@
                 <StackPanel Grid.Column="3" Orientation="Vertical" Margin="0,0,0,0">
                     <TextBlock Text="Поиск гостя" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4"/>
                     <TextBox x:Name="SearchGuestTextBox" 
-                             Style="{StaticResource SearchTextBoxStyle}" 
+                             Style="{StaticResource DefaultTextBoxStyle}" 
                              Width="200"
                              TextChanged="SearchGuestTextBox_TextChanged"/>
                 </StackPanel>
@@ -168,27 +178,6 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-
-                <!-- Статусная строка с количеством записей -->
-                <Border Grid.Row="1" 
-                        Background="{StaticResource PrimaryColor}" 
-                        BorderThickness="0,1,0,0" 
-                        BorderBrush="{StaticResource PrimaryDarkColor}">
-                    <Grid Margin="10,5">
-                        <TextBlock x:Name="StatusTextBlock" 
-                                   Text="Всего записей: 0" 
-                                   Foreground="White" 
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"/>
-
-                        <TextBlock x:Name="FilterStatusTextBlock" 
-                                   Text="" 
-                                   Foreground="White" 
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Right"
-                                   Margin="0,0,10,0"/>
-                    </Grid>
-                </Border>
             </Grid>
         </Border>
     </Grid>

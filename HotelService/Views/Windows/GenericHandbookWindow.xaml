@@ -1,26 +1,27 @@
-﻿<Window x:Class="HotelService.Views.Windows.GuestSelectWindow"
+﻿<Window x:Class="HotelService.Views.Windows.GenericHandbookWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
-        Title="Выбор гостя" 
-        Height="500" 
-        Width="700"
+        Title="Справочник" 
+        Height="600" 
+        Width="900"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
+
     <Border Background="{StaticResource BackgroundPrimaryColor}" CornerRadius="10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="80"/>
             </Grid.RowDefinitions>
 
-            <!-- Заголовок окна -->
+            <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -28,10 +29,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Выбор гостя" 
-                               Foreground="White" 
+                    <TextBlock x:Name="WindowTitleTextBlock" 
+                               Grid.Column="0" 
+                               Text="Справочник" 
+                               Foreground="White"
                                FontSize="18" 
-                               FontWeight="Bold" 
+                               FontWeight="SemiBold" 
                                Margin="20,0,0,0"
                                VerticalAlignment="Center"/>
 
@@ -42,7 +45,7 @@
                 </Grid>
             </Border>
 
-            <!-- Панель поиска -->
+            <!-- Filter Panel -->
             <Border Grid.Row="1" 
                     Background="{StaticResource BackgroundSecondaryColor}"
                     BorderBrush="{StaticResource BorderColor}"
@@ -55,25 +58,25 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBox x:Name="SearchTextBox" 
-                             Style="{StaticResource SearchTextBoxStyle}" 
+                             Style="{StaticResource DefaultTextBoxStyle}" 
                              Height="40"
                              TextChanged="SearchTextBox_TextChanged"
                              KeyDown="SearchTextBox_KeyDown"
-                             ToolTip="Поиск по имени, фамилии, телефону или email"/>
+                             ToolTip="Поиск по названию"/>
 
-                    <Button x:Name="AddGuestButton" 
+                    <Button x:Name="AddItemButton" 
                             Grid.Column="1"
-                            Content="Новый гость" 
+                            Content="Добавить" 
                             Style="{StaticResource PrimaryButtonStyle}" 
                             Height="40"
                             Width="140" 
                             Margin="15,0,0,0"
-                            Click="AddGuestButton_Click"/>
+                            Click="AddItemButton_Click"/>
                 </Grid>
             </Border>
 
-            <!-- Список гостей -->
-            <DataGrid x:Name="GuestsDataGrid"
+            <!-- Data Grid -->
+            <DataGrid x:Name="ItemsDataGrid"
                       Grid.Row="2"
                       Margin="20,10"
                       Style="{StaticResource DefaultDataGridStyle}"
@@ -82,35 +85,38 @@
                       CellStyle="{StaticResource DataGridCellStyle}"
                       RowHeight="40"
                       AutoGenerateColumns="False"
-                      SelectionChanged="GuestsDataGrid_SelectionChanged"
-                      MouseDoubleClick="GuestsDataGrid_MouseDoubleClick">
+                      SelectionChanged="ItemsDataGrid_SelectionChanged"
+                      MouseDoubleClick="ItemsDataGrid_MouseDoubleClick">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="130"/>
-                    <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="130"/>
-                    <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="130"/>
-                    <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
-                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                    <DataGridCheckBoxColumn Header="VIP" Binding="{Binding IsVIP}" Width="50"/>
+                    <!-- Columns will be set dynamically in code-behind -->
                 </DataGrid.Columns>
             </DataGrid>
 
-            <Grid Grid.Row="3" Background="{StaticResource BackgroundSecondaryColor}">
+            <!-- Footer -->
+            <Grid Grid.Row="3" Margin="0  0 0 10">
                 <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}">
-                    <Grid Margin="20,0">
+                    <Grid Margin="20,10">
+                        <TextBlock x:Name="StatusTextBlock" 
+                                   Text="Всего записей: 0" 
+                                   Style="{StaticResource BodyTextStyle}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"/>
+
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Button x:Name="CancelButton" 
-                                    Content="Отмена" 
+                            <Button x:Name="EditButton" 
+                                    Content="Редактировать" 
+                                    Style="{StaticResource SecondaryButtonStyle}" 
+                                    Width="150" 
+                                    Margin="0,0,10,0"
+                                    IsEnabled="False"
+                                    Click="EditButton_Click"/>
+
+                            <Button x:Name="DeleteButton" 
+                                    Content="Удалить" 
                                     Style="{StaticResource SecondaryButtonStyle}" 
                                     Width="120" 
-                                    Click="CancelButton_Click"/>
-
-                            <Button x:Name="SelectButton" 
-                                    Content="Выбрать" 
-                                    Style="{StaticResource PrimaryButtonStyle}" 
-                                    Width="150" 
-                                    Margin="15,0,0,0"
                                     IsEnabled="False"
-                                    Click="SelectButton_Click"/>
+                                    Click="DeleteButton_Click"/>
                         </StackPanel>
                     </Grid>
                 </Border>

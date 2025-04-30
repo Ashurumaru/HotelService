@@ -14,7 +14,7 @@ namespace HotelService.Views.Pages
     public partial class BookingPage : Page
     {
         private HotelServiceEntities _context;
-        private List<Booking> _allBookings;
+        private List<BookingViewModel> _allBookings;
         private ICollectionView _bookingsView;
 
         private string _searchText = "";
@@ -26,6 +26,42 @@ namespace HotelService.Views.Pages
         {
             InitializeComponent();
             LoadData();
+        }
+
+        // Create a view model class to hold the properties we want to display
+        public class BookingViewModel
+        {
+            public int BookingId { get; set; }
+            public string GuestFullName { get; set; }
+            public string RoomNumber { get; set; }
+            public DateTime CheckInDate { get; set; }
+            public DateTime CheckOutDate { get; set; }
+            public int Adults { get; set; }
+            public int Children { get; set; }
+            public string Status { get; set; }
+            public decimal TotalAmount { get; set; }
+            public int GuestId { get; set; }
+            public int? RoomId { get; set; }
+            public int BookingStatusId { get; set; }
+
+            // Constructor to map from Booking to BookingViewModel
+            public BookingViewModel(Booking booking)
+            {
+                BookingId = booking.BookingId;
+                GuestFullName = booking.Guest != null ?
+                    $"{booking.Guest.LastName} {booking.Guest.FirstName} {booking.Guest.MiddleName}".Trim() :
+                    "Гость не указан";
+                RoomNumber = booking.Room != null ? booking.Room.RoomNumber : "Н/Д";
+                CheckInDate = booking.CheckInDate;
+                CheckOutDate = booking.CheckOutDate;
+                Adults = booking.Adults;
+                Children = booking.Children;
+                Status = booking.BookingStatus != null ? booking.BookingStatus.StatusName : "Неизвестно";
+                TotalAmount = booking.TotalAmount;
+                GuestId = booking.GuestId;
+                RoomId = booking.RoomId;
+                BookingStatusId = booking.BookingStatusId;
+            }
         }
 
         private void LoadData()
@@ -57,14 +93,14 @@ namespace HotelService.Views.Pages
                     .Include(b => b.BookingSource)
                     .AsNoTracking();
 
-                _allBookings = bookingsQuery.ToList();
+                // Convert to view model
+                _allBookings = bookingsQuery.ToList().Select(b => new BookingViewModel(b)).ToList();
 
                 _bookingsView = CollectionViewSource.GetDefaultView(_allBookings);
                 _bookingsView.Filter = ApplyFilters;
 
                 BookingsDataGrid.ItemsSource = _bookingsView;
 
-                UpdateStatusBar();
             }
             catch (Exception ex)
             {
@@ -72,7 +108,7 @@ namespace HotelService.Views.Pages
                     MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (_allBookings == null)
-                    _allBookings = new List<Booking>();
+                    _allBookings = new List<BookingViewModel>();
 
                 if (_bookingsView == null)
                 {
@@ -88,7 +124,7 @@ namespace HotelService.Views.Pages
 
         private bool ApplyFilters(object item)
         {
-            if (!(item is Booking booking))
+            if (!(item is BookingViewModel booking))
                 return false;
 
             bool matchesStatus = !_selectedStatusId.HasValue || _selectedStatusId == 0 ||
@@ -101,39 +137,19 @@ namespace HotelService.Views.Pages
                                  booking.CheckOutDate <= _endDate.Value.Date.AddDays(1).AddSeconds(-1);
 
             bool matchesSearch = string.IsNullOrEmpty(_searchText) ||
-                                (booking.Guest != null && (
-                                    (booking.Guest.FirstName != null && booking.Guest.FirstName.ToLower().Contains(_searchText.ToLower())) ||
-                                    (booking.Guest.LastName != null && booking.Guest.LastName.ToLower().Contains(_searchText.ToLower())) ||
-                                    (booking.Guest.MiddleName != null && booking.Guest.MiddleName.ToLower().Contains(_searchText.ToLower())) ||
-                                    (booking.Guest.Phone != null && booking.Guest.Phone.Contains(_searchText)) ||
-                                    (booking.Guest.Email != null && booking.Guest.Email.ToLower().Contains(_searchText.ToLower()))));
+                                booking.GuestFullName.ToLower().Contains(_searchText.ToLower());
 
             return matchesStatus && matchesStartDate && matchesEndDate && matchesSearch;
         }
 
-        private void UpdateStatusBar()
-        {
-            if (StatusTextBlock == null)
-                return;
 
-            int count = 0;
-            if (_bookingsView != null)
-            {
-                foreach (var item in _bookingsView)
-                {
-                    count++;
-                }
-            }
-
-            StatusTextBlock.Text = $"Всего записей: {count}";
-        }
 
         private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = sender as ComboBox;
             if (comboBox?.SelectedItem != null)
             {
-                if (comboBox.SelectedIndex == 0) 
+                if (comboBox.SelectedIndex == 0)
                 {
                     _selectedStatusId = null;
                 }
@@ -161,7 +177,7 @@ namespace HotelService.Views.Pages
                 if (_bookingsView != null)
                 {
                     _bookingsView.Refresh();
-                    UpdateStatusBar();
+                    
                 }
             }
         }
@@ -176,7 +192,8 @@ namespace HotelService.Views.Pages
             if (_bookingsView != null)
             {
                 _bookingsView.Refresh();
-                UpdateStatusBar();
+                
+
             }
         }
 
@@ -191,7 +208,6 @@ namespace HotelService.Views.Pages
                 if (_bookingsView != null)
                 {
                     _bookingsView.Refresh();
-                    UpdateStatusBar();
                 }
             }
         }
@@ -221,7 +237,7 @@ namespace HotelService.Views.Pages
                 return;
             }
 
-            var booking = (sender as Button)?.DataContext as Booking;
+            var booking = (sender as Button)?.DataContext as BookingViewModel;
             if (booking == null) return;
 
             var dialog = new Windows.BookingEditWindow(booking.BookingId);
@@ -233,7 +249,7 @@ namespace HotelService.Views.Pages
 
         private void ViewBookingButton_Click(object sender, RoutedEventArgs e)
         {
-            var booking = (sender as Button)?.DataContext as Booking;
+            var booking = (sender as Button)?.DataContext as BookingViewModel;
             if (booking == null) return;
 
             var dialog = new Windows.BookingViewWindow(booking.BookingId);
@@ -249,7 +265,7 @@ namespace HotelService.Views.Pages
                 return;
             }
 
-            var booking = (sender as Button)?.DataContext as Booking;
+            var booking = (sender as Button)?.DataContext as BookingViewModel;
             if (booking == null) return;
 
             if (booking.BookingStatusId == 5)
@@ -292,7 +308,7 @@ namespace HotelService.Views.Pages
         {
             if (BookingsDataGrid.SelectedItem != null)
             {
-                var booking = BookingsDataGrid.SelectedItem as Booking;
+                var booking = BookingsDataGrid.SelectedItem as BookingViewModel;
                 if (booking != null)
                 {
                     var dialog = new Windows.BookingViewWindow(booking.BookingId);

@@ -1,445 +1,509 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Data.Entity;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using HotelService.Data;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Data.Entity;
+using System.Windows.Media;
 
 namespace HotelService.Views.Windows
 {
     public partial class BookingEditWindow : Window
     {
-        private HotelServiceEntities _context;
+        private readonly int? _bookingId;
         private Booking _booking;
-        private bool _isNewBooking;
+        private Guest _selectedGuest;
+        private Room _selectedRoom;
         private bool _isInitializing = true;
-        private decimal _roomBasePrice = 0;
-        private int _nights = 0;
+        private int _nights = 1;
 
         public BookingEditWindow(int? bookingId = null)
         {
             InitializeComponent();
+            _bookingId = bookingId;
 
-            _isNewBooking = bookingId == null;
-            this.DataContext = this;
-
-            if (_isNewBooking)
+            if (_bookingId.HasValue)
             {
-                WindowTitleTextBlock.Text = "Создание нового бронирования";
-                _booking = new Booking
-                {
-                    CheckInDate = DateTime.Now.Date,
-                    CheckOutDate = DateTime.Now.Date.AddDays(1),
-                    Adults = 1,
-                    Children = 0
-                };
+                WindowTitleTextBlock.Text = "Редактирование бронирования";
             }
             else
             {
-                WindowTitleTextBlock.Text = $"Редактирование бронирования #{bookingId}";
-                LoadBooking(bookingId.Value);
+                WindowTitleTextBlock.Text = "Создание нового бронирования";
             }
 
-            LoadComboBoxData();
-            InitializeFields();
+            LoadReferenceData();
+
+            if (_bookingId.HasValue)
+            {
+                LoadBookingData();
+            }
+            else
+            {
+                InitializeNewBooking();
+            }
 
             _isInitializing = false;
-            CalculateTotalAmount();
         }
-
-        public bool IsNewBooking
-        {
-            get { return _isNewBooking; }
-        }
-
-        private void LoadBooking(int bookingId)
+        private void LoadReferenceData()
         {
             try
             {
-                _context = new HotelServiceEntities();
-                _booking = _context.Booking
-                    .Include(b => b.Guest)
-                    .Include(b => b.Room)
-                    .Include(b => b.Room.RoomType)
-                    .Include(b => b.BookingStatus)
-                    .Include(b => b.BookingSource)
-                    .FirstOrDefault(b => b.BookingId == bookingId);
+                Mouse.OverrideCursor = Cursors.Wait;
 
-                if (_booking == null)
+                using (var context = new HotelServiceEntities())
                 {
-                    MessageBox.Show("Бронирование не найдено.", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    this.Close();
+                    // Загрузка статусов бронирования
+                    var statuses = context.BookingStatus.OrderBy(s => s.StatusId).ToList();
+                    StatusComboBox.ItemsSource = statuses;
+                    StatusComboBox.DisplayMemberPath = "StatusName";
+                    StatusComboBox.SelectedValuePath = "StatusId";
+
+                    // Загрузка источников бронирования
+                    var sources = context.BookingSource.OrderBy(s => s.SourceId).ToList();
+                    SourceComboBox.ItemsSource = sources;
+                    SourceComboBox.DisplayMemberPath = "SourceName";
+                    SourceComboBox.SelectedValuePath = "SourceId";
+
+                    // Загрузка финансовых статусов
+                    var financialStatuses = context.FinancialStatus.OrderBy(s => s.StatusId).ToList();
+                    FinancialStatusComboBox.ItemsSource = financialStatuses;
+                    FinancialStatusComboBox.DisplayMemberPath = "StatusName";
+                    FinancialStatusComboBox.SelectedValuePath = "StatusId";
+
+                    // Загрузка сотрудников
+                    var users = context.User
+                        .Where(u => u.RoleId == 1 || u.RoleId == 2) // Только админы и администраторы стойки
+                        .OrderBy(u => u.LastName)
+                        .ToList();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при загрузке бронирования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка при загрузке справочных данных: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                this.Close();
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
             }
         }
 
-        private void LoadComboBoxData()
+        private void LoadBookingData()
         {
             try
             {
-                _context = new HotelServiceEntities();
+                Mouse.OverrideCursor = Cursors.Wait;
 
-                var statuses = _context.BookingStatus.ToList();
-                StatusComboBox.ItemsSource = statuses;
-
-                var sources = _context.BookingSource.ToList();
-                SourceComboBox.ItemsSource = sources;
-
-                var guests = _context.Guest.Select(g => new
+                using (var context = new HotelServiceEntities())
                 {
-                    g.GuestId,
-                    FullName = g.LastName + " " + g.FirstName + " " + g.MiddleName
-                }).ToList();
-                GuestComboBox.ItemsSource = guests;
+                    _booking = context.Booking
+                        .Include(b => b.Guest)
+                        .Include(b => b.Room)
+                        .Include(b => b.Room.RoomType)
+                        .Include(b => b.BookingStatus)
+                        .Include(b => b.BookingSource)
+                        .Include(b => b.FinancialStatus)
+                        .Include(b => b.User)
+                        .FirstOrDefault(b => b.BookingId == _bookingId);
 
-                LoadAvailableRooms();
+                    if (_booking == null)
+                    {
+                        MessageBox.Show("Бронирование не найдено.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        DialogResult = false;
+                        Close();
+                        return;
+                    }
+
+                    // Заполнение полей формы
+                    _selectedGuest = _booking.Guest;
+                    DisplayGuestInfo();
+
+                    _selectedRoom = _booking.Room;
+                    DisplayRoomInfo();
+
+                    StatusComboBox.SelectedValue = _booking.BookingStatusId;
+                    SourceComboBox.SelectedValue = _booking.SourceId;
+
+                    CheckInDatePicker.SelectedDate = _booking.CheckInDate;
+                    CheckOutDatePicker.SelectedDate = _booking.CheckOutDate;
+
+                    _nights = (_booking.CheckOutDate.Date - _booking.CheckInDate.Date).Days;
+
+                    AdultsTextBox.Text = _booking.Adults.ToString();
+                    ChildrenTextBox.Text = _booking.Children.ToString();
+
+                    TotalAmountTextBox.Text = _booking.TotalAmount.ToString("F2");
+
+                    if (_booking.DepositAmount.HasValue)
+                    {
+                        DepositAmountTextBox.Text = _booking.DepositAmount.Value.ToString("F2");
+                    }
+                    else
+                    {
+                        DepositAmountTextBox.Text = "0.00";
+                    }
+
+                    DepositPaidCheckBox.IsChecked = _booking.DepositPaid;
+
+                    if (_booking.IssueDate != DateTime.MinValue)
+                    {
+                        IssueDatePicker.SelectedDate = _booking.IssueDate;
+                    }
+                    else
+                    {
+                        IssueDatePicker.SelectedDate = DateTime.Today;
+                    }
+
+                    if (_booking.DueDate.HasValue)
+                    {
+                        DueDatePicker.SelectedDate = _booking.DueDate.Value;
+                    }
+
+                    if (_booking.FinancialStatusId.HasValue)
+                    {
+                        FinancialStatusComboBox.SelectedValue = _booking.FinancialStatusId.Value;
+                    }
+
+                    NotesTextBox.Text = _booking.Notes;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка при загрузке данных бронирования: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
             }
         }
 
-        private void LoadAvailableRooms()
+        private void InitializeNewBooking()
         {
-            if (CheckInDatePicker.SelectedDate == null || CheckOutDatePicker.SelectedDate == null)
+            CheckInDatePicker.SelectedDate = DateTime.Today;
+            CheckOutDatePicker.SelectedDate = DateTime.Today.AddDays(1);
+            IssueDatePicker.SelectedDate = DateTime.Today;
+            DueDatePicker.SelectedDate = DateTime.Today.AddDays(14); // По умолчанию 14 дней на оплату
+
+            StatusComboBox.SelectedIndex = 0;  // Первый статус (обычно "Подтверждено")
+            SourceComboBox.SelectedIndex = 0;  // Первый источник
+            FinancialStatusComboBox.SelectedIndex = 0; // Первый финансовый статус
+
+            AdultsTextBox.Text = "1";
+            ChildrenTextBox.Text = "0";
+
+            TotalAmountTextBox.Text = "0.00";
+            DepositAmountTextBox.Text = "0.00";
+            DepositPaidCheckBox.IsChecked = false;
+        }
+
+        private void DisplayGuestInfo()
+        {
+            if (_selectedGuest != null)
+            {
+                string fullName = _selectedGuest.LastName + " " + _selectedGuest.FirstName + " " + _selectedGuest.MiddleName;
+                GuestNameTextBlock.Text = fullName;
+                GuestPhoneTextBlock.Text = _selectedGuest.Phone ?? "Не указан";
+                GuestEmailTextBlock.Text = _selectedGuest.Email ?? "Не указан";
+                GuestVIPTextBlock.Text = _selectedGuest.IsVIP ? "Да" : "Нет";
+
+                if (_selectedGuest.IsVIP)
+                {
+                    GuestVIPTextBlock.Foreground = FindResource("AccentColor") as SolidColorBrush;
+                }
+                else
+                {
+                    GuestVIPTextBlock.Foreground = FindResource("TextSecondaryColor") as SolidColorBrush;
+                }
+            }
+            else
+            {
+                GuestNameTextBlock.Text = "Не выбран";
+                GuestPhoneTextBlock.Text = "—";
+                GuestEmailTextBlock.Text = "—";
+                GuestVIPTextBlock.Text = "Нет";
+                GuestVIPTextBlock.Foreground = FindResource("TextSecondaryColor") as SolidColorBrush;
+            }
+        }
+
+        private void DisplayRoomInfo()
+        {
+            if (_selectedRoom != null)
+            {
+                RoomNumberTextBlock.Text = _selectedRoom.RoomNumber;
+                RoomTypeTextBlock.Text = _selectedRoom.RoomType?.TypeName ?? "Не указан";
+                RoomFloorTextBlock.Text = _selectedRoom.FloorNumber.ToString();
+                RoomCapacityTextBlock.Text = _selectedRoom.MaxOccupancy.ToString();
+                RoomPriceTextBlock.Text = string.Format("{0:N2} ₽", _selectedRoom.BasePrice);
+
+                if (!_isInitializing)
+                {
+                    CalculateTotalAmount();
+                }
+            }
+            else
+            {
+                RoomNumberTextBlock.Text = "Не выбран";
+                RoomTypeTextBlock.Text = "—";
+                RoomFloorTextBlock.Text = "—";
+                RoomCapacityTextBlock.Text = "—";
+                RoomPriceTextBlock.Text = "—";
+            }
+        }
+
+        private void CalculateTotalAmount()
+        {
+            if (_isInitializing || _selectedRoom == null ||
+                CheckInDatePicker.SelectedDate == null ||
+                CheckOutDatePicker.SelectedDate == null)
+            {
                 return;
+            }
 
             try
             {
                 DateTime checkIn = CheckInDatePicker.SelectedDate.Value;
                 DateTime checkOut = CheckOutDatePicker.SelectedDate.Value;
-                int adultsCount = int.Parse((AdultsComboBox.SelectedItem as ComboBoxItem).Content.ToString());
+                _nights = (checkOut.Date - checkIn.Date).Days;
 
-                var occupiedRoomIds = _context.Booking
-                    .Where(b => b.BookingId != (_isNewBooking ? 0 : _booking.BookingId)) 
-                    .Where(b => b.BookingStatusId != 5) 
-                    .Where(b => (checkIn < b.CheckOutDate && checkOut > b.CheckInDate)) 
-                    .Select(b => b.RoomId)
-                    .ToList();
-
-                var availableRooms = _context.Room
-                    .Include(r => r.RoomType)
-                    .Where(r => r.RoomStatusId == 1) 
-                    .Where(r => r.MaxOccupancy >= adultsCount) 
-                    .Where(r => !occupiedRoomIds.Contains(r.RoomId))
-                    .Select(r => new
-                    {
-                        r.RoomId,
-                        r.RoomNumber,
-                        r.RoomType.TypeName,
-                        r.MaxOccupancy,
-                        r.BasePrice,
-                        r.FloorNumber,
-                        DisplayName = $"№{r.RoomNumber} - {r.RoomType.TypeName} ({r.MaxOccupancy} чел.)"
-                    })
-                    .ToList();
-
-                if (!_isNewBooking && _booking.RoomId.HasValue)
+                if (_nights <= 0)
                 {
-                    var currentRoom = _context.Room
-                        .Include(r => r.RoomType)
-                        .Where(r => r.RoomId == _booking.RoomId)
-                        .Select(r => new
-                        {
-                            r.RoomId,
-                            r.RoomNumber,
-                            r.RoomType.TypeName,
-                            r.MaxOccupancy,
-                            r.BasePrice,
-                            r.FloorNumber,
-                            DisplayName = $"№{r.RoomNumber} - {r.RoomType.TypeName} ({r.MaxOccupancy} чел.) [текущий]"
-                        })
-                        .FirstOrDefault();
-
-                    if (currentRoom != null && !availableRooms.Any(r => r.RoomId == currentRoom.RoomId))
-                    {
-                        availableRooms.Add(currentRoom);
-                    }
-                }
-
-                RoomComboBox.ItemsSource = availableRooms;
-
-                if (availableRooms.Count == 0)
-                {
-                    ShowError("На выбранные даты нет доступных номеров.");
-                }
-                else
-                {
-                    ErrorMessageTextBlock.Visibility = Visibility.Collapsed;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке доступных номеров: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void InitializeFields()
-        {
-            CheckInDatePicker.SelectedDate = _booking.CheckInDate;
-            CheckOutDatePicker.SelectedDate = _booking.CheckOutDate;
-
-            AdultsComboBox.SelectedIndex = _booking.Adults - 1; 
-            ChildrenComboBox.SelectedIndex = _booking.Children; 
-
-            NotesTextBox.Text = _booking.Notes;
-
-            if (!_isNewBooking)
-            {
-                GuestComboBox.SelectedValue = _booking.GuestId;
-                UpdateGuestInfo(_booking.GuestId);
-
-                StatusComboBox.SelectedValue = _booking.BookingStatusId;
-                SourceComboBox.SelectedValue = _booking.SourceId;
-
-                if (_booking.RoomId.HasValue)
-                {
-                    RoomComboBox.SelectedValue = _booking.RoomId;
-                    UpdateRoomInfo(_booking.RoomId.Value);
-                }
-            }
-            else
-            {
-                StatusComboBox.SelectedValue = 2; 
-
-                SourceComboBox.SelectedValue = 1;
-            }
-        }
-
-        private void UpdateGuestInfo(int guestId)
-        {
-            try
-            {
-                var guest = _context.Guest.Find(guestId);
-                if (guest != null)
-                {
-                    PhoneTextBlock.Text = string.IsNullOrEmpty(guest.Phone) ? "-" : guest.Phone;
-                    EmailTextBlock.Text = string.IsNullOrEmpty(guest.Email) ? "-" : guest.Email;
-                    VipStatusTextBlock.Text = guest.IsVIP ? "Да" : "Нет";
-                    LoyaltyPointsTextBlock.Text = $"{guest.CurrentPoints} баллов";
-                }
-                else
-                {
-                    ResetGuestInfo();
-                }
-            }
-            catch
-            {
-                ResetGuestInfo();
-            }
-        }
-
-        private void ResetGuestInfo()
-        {
-            PhoneTextBlock.Text = "-";
-            EmailTextBlock.Text = "-";
-            VipStatusTextBlock.Text = "Нет";
-            LoyaltyPointsTextBlock.Text = "0 баллов";
-        }
-
-        private void UpdateRoomInfo(int roomId)
-        {
-            try
-            {
-                var room = _context.Room
-                    .Include(r => r.RoomType)
-                    .FirstOrDefault(r => r.RoomId == roomId);
-
-                if (room != null)
-                {
-                    RoomTypeTextBlock.Text = room.RoomType.TypeName;
-                    OccupancyTextBlock.Text = $"{room.MaxOccupancy} чел.";
-                    FloorTextBlock.Text = room.FloorNumber.ToString();
-                    PriceTextBlock.Text = $"{room.BasePrice:N2} ₽";
-                    _roomBasePrice = room.BasePrice;
-                    CalculateTotalAmount();
-                }
-                else
-                {
-                    ResetRoomInfo();
-                }
-            }
-            catch
-            {
-                ResetRoomInfo();
-            }
-        }
-
-        private void ResetRoomInfo()
-        {
-            RoomTypeTextBlock.Text = "-";
-            OccupancyTextBlock.Text = "-";
-            FloorTextBlock.Text = "-";
-            PriceTextBlock.Text = "-";
-            _roomBasePrice = 0;
-            CalculateTotalAmount();
-        }
-
-        private void CalculateTotalAmount()
-        {
-            if (_isInitializing) return;
-
-            try
-            {
-                if (CheckInDatePicker.SelectedDate.HasValue && CheckOutDatePicker.SelectedDate.HasValue)
-                {
-                    _nights = (int)(CheckOutDatePicker.SelectedDate.Value - CheckInDatePicker.SelectedDate.Value).TotalDays;
-                    NightsTextBlock.Text = _nights.ToString();
-
-                    if (_roomBasePrice > 0 && _nights > 0)
-                    {
-                        decimal totalAmount = _roomBasePrice * _nights;
-                        TotalAmountTextBlock.Text = $"{totalAmount:N2} ₽";
-                    }
-                    else
-                    {
-                        NightsTextBlock.Text = "0";
-                        TotalAmountTextBlock.Text = "0.00 ₽";
-                    }
-                }
-            }
-            catch
-            {
-                NightsTextBlock.Text = "0";
-                TotalAmountTextBlock.Text = "0.00 ₽";
-            }
-        }
-
-        private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CheckInDatePicker.SelectedDate.HasValue && CheckOutDatePicker.SelectedDate.HasValue)
-            {
-                if (CheckOutDatePicker.SelectedDate <= CheckInDatePicker.SelectedDate)
-                {
-                    ShowError("Дата выезда должна быть позже даты заезда.");
-                    CheckOutDatePicker.SelectedDate = CheckInDatePicker.SelectedDate.Value.AddDays(1);
+                    ValidationMessageTextBlock.Text = "Дата выезда должна быть позже даты заезда.";
+                    ValidationMessageTextBlock.Visibility = Visibility.Visible;
+                    TotalAmountTextBox.Text = "0.00";
                     return;
                 }
+                else
+                {
+                    ValidationMessageTextBlock.Visibility = Visibility.Collapsed;
+                }
+
+                decimal basePrice = _selectedRoom.BasePrice;
+                decimal totalAmount = basePrice * _nights;
+
+                // Логика для расчета дополнительных сборов за гостей
+                int adults = 0;
+                int.TryParse(AdultsTextBox.Text, out adults);
+
+                int children = 0;
+                int.TryParse(ChildrenTextBox.Text, out children);
+
+                int totalGuests = adults + children;
+
+                if (totalGuests > _selectedRoom.MaxOccupancy)
+                {
+                    int extraGuests = totalGuests - _selectedRoom.MaxOccupancy;
+                    // Примерно 20% от базовой стоимости за каждого дополнительного гостя
+                    decimal extraCharge = basePrice * 0.2m * extraGuests * _nights;
+                    totalAmount += extraCharge;
+                }
+
+                TotalAmountTextBox.Text = totalAmount.ToString("F2");
             }
-
-            ErrorMessageTextBlock.Visibility = Visibility.Collapsed;
-            LoadAvailableRooms();
-            CalculateTotalAmount();
-        }
-
-        private void GuestsCount_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_isInitializing) return;
-            LoadAvailableRooms();
-        }
-
-        private void GuestComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_isInitializing) return;
-
-            if (GuestComboBox.SelectedValue != null)
+            catch
             {
-                int guestId = (int)GuestComboBox.SelectedValue;
-                UpdateGuestInfo(guestId);
-            }
-            else
-            {
-                ResetGuestInfo();
-            }
-        }
-
-        private void RoomComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_isInitializing) return;
-
-            if (RoomComboBox.SelectedValue != null)
-            {
-                int roomId = (int)RoomComboBox.SelectedValue;
-                UpdateRoomInfo(roomId);
-            }
-            else
-            {
-                ResetRoomInfo();
+                TotalAmountTextBox.Text = "0.00";
             }
         }
 
         private void SelectGuestButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Функция выбора гостя будет реализована позже.", "Информация",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                var guestSelectWindow = new GuestSelectWindow();
+                if (guestSelectWindow.ShowDialog() == true)
+                {
+                    _selectedGuest = guestSelectWindow.SelectedGuest;
+                    DisplayGuestInfo();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при выборе гостя: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SelectRoomButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Функция выбора номера будет реализована позже.", "Информация",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ValidateForm())
+            try
             {
-                SaveBooking();
+                // Получаем даты для проверки доступности
+                DateTime? checkInDate = CheckInDatePicker.SelectedDate;
+                DateTime? checkOutDate = CheckOutDatePicker.SelectedDate;
+
+                if (!checkInDate.HasValue || !checkOutDate.HasValue)
+                {
+                    MessageBox.Show("Пожалуйста, выберите даты заезда и выезда перед выбором номера.",
+                        "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var roomSelectWindow = new RoomSelectWindow(checkInDate.Value, checkOutDate.Value, _bookingId);
+                if (roomSelectWindow.ShowDialog() == true)
+                {
+                    _selectedRoom = roomSelectWindow.SelectedRoom;
+                    DisplayRoomInfo();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при выборе номера: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private bool ValidateForm()
+
+        private void CheckInDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (GuestComboBox.SelectedValue == null)
+            if (!_isInitializing && CheckInDatePicker.SelectedDate.HasValue)
             {
-                ShowError("Необходимо выбрать гостя.");
-                return false;
+                // Если дата выезда не выбрана или меньше даты заезда, устанавливаем дату выезда на следующий день
+                if (!CheckOutDatePicker.SelectedDate.HasValue ||
+                    CheckOutDatePicker.SelectedDate.Value <= CheckInDatePicker.SelectedDate.Value)
+                {
+                    CheckOutDatePicker.SelectedDate = CheckInDatePicker.SelectedDate.Value.AddDays(1);
+                }
+
+                CalculateTotalAmount();
+            }
+        }
+
+        private void CheckOutDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_isInitializing)
+            {
+                CalculateTotalAmount();
+            }
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void DecimalValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex(@"[^0-9\,\.]+");
+
+            // Проверяем, что вводятся только числа или десятичный разделитель
+            bool isMatch = regex.IsMatch(e.Text);
+
+            // Проверяем, не пытается ли пользователь добавить второй десятичный разделитель
+            if (!isMatch)
+            {
+                TextBox textBox = sender as TextBox;
+                if (textBox != null)
+                {
+                    string futureText = textBox.Text.Insert(textBox.CaretIndex, e.Text);
+                    isMatch = futureText.Count(c => c == ',' || c == '.') > 1;
+                }
+            }
+
+            e.Handled = isMatch;
+        }
+
+        private void TotalAmountTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_isInitializing && string.IsNullOrEmpty(TotalAmountTextBox.Text))
+            {
+                TotalAmountTextBox.Text = "0.00";
+            }
+        }
+
+        private bool ValidateBooking()
+        {
+            List<string> errors = new List<string>();
+
+            if (_selectedGuest == null)
+            {
+                errors.Add("Необходимо выбрать гостя.");
+            }
+
+            if (_selectedRoom == null)
+            {
+                errors.Add("Необходимо выбрать номер.");
             }
 
             if (!CheckInDatePicker.SelectedDate.HasValue)
             {
-                ShowError("Необходимо выбрать дату заезда.");
-                return false;
+                errors.Add("Необходимо выбрать дату заезда.");
             }
 
             if (!CheckOutDatePicker.SelectedDate.HasValue)
             {
-                ShowError("Необходимо выбрать дату выезда.");
-                return false;
+                errors.Add("Необходимо выбрать дату выезда.");
             }
 
-            if (CheckOutDatePicker.SelectedDate <= CheckInDatePicker.SelectedDate)
+            if (CheckInDatePicker.SelectedDate.HasValue && CheckOutDatePicker.SelectedDate.HasValue &&
+                CheckInDatePicker.SelectedDate.Value >= CheckOutDatePicker.SelectedDate.Value)
             {
-                ShowError("Дата выезда должна быть позже даты заезда.");
-                return false;
+                errors.Add("Дата выезда должна быть позже даты заезда.");
             }
 
-            if (AdultsComboBox.SelectedItem == null)
+            if (StatusComboBox.SelectedItem == null)
             {
-                ShowError("Необходимо указать количество взрослых.");
-                return false;
+                errors.Add("Необходимо выбрать статус бронирования.");
             }
 
-            if (StatusComboBox.SelectedValue == null)
+            if (SourceComboBox.SelectedItem == null)
             {
-                ShowError("Необходимо выбрать статус бронирования.");
-                return false;
+                errors.Add("Необходимо выбрать источник бронирования.");
             }
 
-            if (SourceComboBox.SelectedValue == null)
+            int adults;
+            if (!int.TryParse(AdultsTextBox.Text, out adults) || adults <= 0)
             {
-                ShowError("Необходимо выбрать источник бронирования.");
-                return false;
+                errors.Add("Количество взрослых должно быть положительным числом.");
             }
 
-            if (RoomComboBox.SelectedValue == null)
+            int children;
+            if (!int.TryParse(ChildrenTextBox.Text, out children) || children < 0)
             {
-                ShowError("Необходимо выбрать номер.");
+                errors.Add("Количество детей должно быть неотрицательным числом.");
+            }
+
+            if (adults + children <= 0)
+            {
+                errors.Add("Общее количество гостей должно быть больше нуля.");
+            }
+
+            decimal totalAmount;
+            if (!decimal.TryParse(TotalAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out totalAmount) || totalAmount < 0)
+            {
+                errors.Add("Общая стоимость должна быть неотрицательным числом.");
+            }
+
+            decimal depositAmount;
+            if (!decimal.TryParse(DepositAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out depositAmount) || depositAmount < 0)
+            {
+                errors.Add("Сумма депозита должна быть неотрицательным числом.");
+            }
+
+            if (depositAmount > totalAmount)
+            {
+                errors.Add("Сумма депозита не может превышать общую стоимость.");
+            }
+
+            if (!IssueDatePicker.SelectedDate.HasValue)
+            {
+                errors.Add("Необходимо указать дату бронирования.");
+            }
+
+            if (errors.Count > 0)
+            {
+                ValidationMessageTextBlock.Text = string.Join("\n", errors);
+                ValidationMessageTextBlock.Visibility = Visibility.Visible;
                 return false;
             }
 
+            ValidationMessageTextBlock.Visibility = Visibility.Collapsed;
             return true;
         }
 
@@ -447,51 +511,93 @@ namespace HotelService.Views.Windows
         {
             try
             {
-                _booking.GuestId = (int)GuestComboBox.SelectedValue;
-                _booking.RoomId = (int)RoomComboBox.SelectedValue;
-                _booking.CheckInDate = CheckInDatePicker.SelectedDate.Value;
-                _booking.CheckOutDate = CheckOutDatePicker.SelectedDate.Value;
-                _booking.Adults = int.Parse((AdultsComboBox.SelectedItem as ComboBoxItem).Content.ToString());
-                _booking.Children = int.Parse((ChildrenComboBox.SelectedItem as ComboBoxItem).Content.ToString());
-                _booking.BookingStatusId = (int)StatusComboBox.SelectedValue;
-                _booking.SourceId = (int)SourceComboBox.SelectedValue;
-                _booking.Notes = NotesTextBox.Text;
-
-                decimal totalAmount = _roomBasePrice * _nights;
-                _booking.TotalAmount = totalAmount;
+                Mouse.OverrideCursor = Cursors.Wait;
 
                 using (var context = new HotelServiceEntities())
                 {
-                    if (_isNewBooking)
+                    Booking bookingToSave;
+
+                    if (_bookingId.HasValue)
                     {
-                        context.Booking.Add(_booking);
+                        // Редактирование существующего бронирования
+                        bookingToSave = context.Booking.Find(_bookingId.Value);
+                        if (bookingToSave == null)
+                        {
+                            MessageBox.Show("Бронирование не найдено в базе данных.", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                     }
                     else
                     {
-                        var bookingToUpdate = context.Booking.Find(_booking.BookingId);
-                        if (bookingToUpdate != null)
-                        {
-                            context.Entry(bookingToUpdate).CurrentValues.SetValues(_booking);
-                        }
+                        // Создание нового бронирования
+                        bookingToSave = new Booking();
+                        context.Booking.Add(bookingToSave);
                     }
 
-                    context.SaveChanges();
-                }
+                    bookingToSave.GuestId = _selectedGuest.GuestId;
+                    bookingToSave.RoomId = _selectedRoom.RoomId;
+                    bookingToSave.BookingStatusId = (int)StatusComboBox.SelectedValue;
+                    bookingToSave.SourceId = (int)SourceComboBox.SelectedValue;
 
-                this.DialogResult = true;
-                this.Close();
+                    bookingToSave.CheckInDate = CheckInDatePicker.SelectedDate.Value;
+                    bookingToSave.CheckOutDate = CheckOutDatePicker.SelectedDate.Value;
+
+                    bookingToSave.Adults = int.Parse(AdultsTextBox.Text);
+                    bookingToSave.Children = int.Parse(ChildrenTextBox.Text);
+
+                    bookingToSave.TotalAmount = decimal.Parse(TotalAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture);
+                    bookingToSave.DepositAmount = decimal.Parse(DepositAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture);
+                    bookingToSave.DepositPaid = DepositPaidCheckBox.IsChecked ?? false;
+
+                    bookingToSave.IssueDate = IssueDatePicker.SelectedDate.Value;
+
+                    if (DueDatePicker.SelectedDate.HasValue)
+                    {
+                        bookingToSave.DueDate = DueDatePicker.SelectedDate.Value;
+                    }
+
+                    if (FinancialStatusComboBox.SelectedValue != null)
+                    {
+                        bookingToSave.FinancialStatusId = (int)FinancialStatusComboBox.SelectedValue;
+                    }
+
+                    // При создании нового бронирования сохраняем информацию о создателе
+                    if (!_bookingId.HasValue && App.CurrentUser != null)
+                    {
+                        bookingToSave.CreatedBy = App.CurrentUser.UserId;
+                    }
+
+                    bookingToSave.Notes = NotesTextBox.Text;
+
+                    context.SaveChanges();
+
+                    DialogResult = true;
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при сохранении бронирования: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
-        private void ShowError(string message)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            ErrorMessageTextBlock.Text = message;
-            ErrorMessageTextBlock.Visibility = Visibility.Visible;
+            if (ValidateBooking())
+            {
+                SaveBooking();
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -509,12 +615,8 @@ namespace HotelService.Views.Windows
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
+            DialogResult = false;
+            Close();
         }
     }
 }

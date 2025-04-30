@@ -31,18 +31,15 @@ namespace HotelService.Views.Windows
                 {
                     string firstInitial = App.CurrentUser.FirstName.Substring(0, 1).ToUpper();
                     string lastInitial = App.CurrentUser.LastName.Substring(0, 1).ToUpper();
-                    UserInitialsTextBlock.Text = $"{firstInitial}{lastInitial}";
                 }
                 else
                 {
-                    UserInitialsTextBlock.Text = "ГО";
                 }
             }
             else
             {
                 UserNameTextBlock.Text = "Неизвестный пользователь";
                 UserRoleTextBlock.Text = "Гость";
-                UserInitialsTextBlock.Text = "ГО";
             }
         }
 
@@ -224,9 +221,8 @@ namespace HotelService.Views.Windows
                 return;
             }
 
-            // MainContent.Content = new Pages.HandBookPage();
-            MessageBox.Show("Модуль 'Справочники' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            MainContent.Content = new Pages.HandbookPage();
+          
         }
 
         private void LoadDashboardContent()

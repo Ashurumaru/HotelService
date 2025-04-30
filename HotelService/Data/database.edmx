@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Хранилище HotelServiceModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Хранилище HotelServiceModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Amenity">
           <Key>
             <PropertyRef Name="AmenityId" />
@@ -473,6 +473,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_DamageReport_Booking">
+          <End Role="Booking" Type="Self.Booking" Multiplicity="0..1" />
+          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Booking">
+              <PropertyRef Name="BookingId" />
+            </Principal>
+            <Dependent Role="DamageReport">
+              <PropertyRef Name="BookingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_DamageReport_DamageType">
           <End Role="DamageType" Type="Self.DamageType" Multiplicity="1" />
           <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
@@ -482,6 +494,18 @@
             </Principal>
             <Dependent Role="DamageReport">
               <PropertyRef Name="DamageTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DamageReport_Guest">
+          <End Role="Guest" Type="Self.Guest" Multiplicity="0..1" />
+          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Guest">
+              <PropertyRef Name="GuestId" />
+            </Principal>
+            <Dependent Role="DamageReport">
+              <PropertyRef Name="GuestId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -862,8 +886,16 @@
             <End Role="DamageReport" EntitySet="DamageReport" />
             <End Role="DamageEvidence" EntitySet="DamageEvidence" />
           </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Booking" Association="Self.FK_DamageReport_Booking">
+            <End Role="Booking" EntitySet="Booking" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
           <AssociationSet Name="FK_DamageReport_DamageType" Association="Self.FK_DamageReport_DamageType">
             <End Role="DamageType" EntitySet="DamageType" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Guest" Association="Self.FK_DamageReport_Guest">
+            <End Role="Guest" EntitySet="Guest" />
             <End Role="DamageReport" EntitySet="DamageReport" />
           </AssociationSet>
           <AssociationSet Name="FK_DamageReport_Room" Association="Self.FK_DamageReport_Room">
@@ -967,30 +999,219 @@
             <End Role="User" EntitySet="User" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="HotelServiceModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="HotelServiceEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Amenity" EntityType="HotelServiceModel.Amenity" />
+          <EntitySet Name="AmenityCategory" EntityType="HotelServiceModel.AmenityCategory" />
+          <EntitySet Name="Booking" EntityType="HotelServiceModel.Booking" />
+          <EntitySet Name="BookingItem" EntityType="HotelServiceModel.BookingItem" />
+          <EntitySet Name="BookingSource" EntityType="HotelServiceModel.BookingSource" />
+          <EntitySet Name="BookingStatus" EntityType="HotelServiceModel.BookingStatus" />
+          <EntitySet Name="DamageEvidence" EntityType="HotelServiceModel.DamageEvidence" />
+          <EntitySet Name="DamageReport" EntityType="HotelServiceModel.DamageReport" />
+          <EntitySet Name="DamageType" EntityType="HotelServiceModel.DamageType" />
+          <EntitySet Name="DocumentType" EntityType="HotelServiceModel.DocumentType" />
+          <EntitySet Name="FinancialStatus" EntityType="HotelServiceModel.FinancialStatus" />
+          <EntitySet Name="Guest" EntityType="HotelServiceModel.Guest" />
+          <EntitySet Name="GuestDocument" EntityType="HotelServiceModel.GuestDocument" />
+          <EntitySet Name="GuestGroup" EntityType="HotelServiceModel.GuestGroup" />
+          <EntitySet Name="LoyaltyTransaction" EntityType="HotelServiceModel.LoyaltyTransaction" />
+          <EntitySet Name="Payment" EntityType="HotelServiceModel.Payment" />
+          <EntitySet Name="PaymentMethod" EntityType="HotelServiceModel.PaymentMethod" />
+          <EntitySet Name="Position" EntityType="HotelServiceModel.Position" />
+          <EntitySet Name="Role" EntityType="HotelServiceModel.Role" />
+          <EntitySet Name="Room" EntityType="HotelServiceModel.Room" />
+          <EntitySet Name="RoomAmenity" EntityType="HotelServiceModel.RoomAmenity" />
+          <EntitySet Name="RoomImage" EntityType="HotelServiceModel.RoomImage" />
+          <EntitySet Name="RoomMaintenance" EntityType="HotelServiceModel.RoomMaintenance" />
+          <EntitySet Name="RoomStatus" EntityType="HotelServiceModel.RoomStatus" />
+          <EntitySet Name="RoomType" EntityType="HotelServiceModel.RoomType" />
+          <EntitySet Name="Service" EntityType="HotelServiceModel.Service" />
+          <EntitySet Name="ServiceCategory" EntityType="HotelServiceModel.ServiceCategory" />
+          <EntitySet Name="sysdiagrams" EntityType="HotelServiceModel.sysdiagrams" />
+          <EntitySet Name="TaskStatus" EntityType="HotelServiceModel.TaskStatus" />
+          <EntitySet Name="TaskType" EntityType="HotelServiceModel.TaskType" />
+          <EntitySet Name="TransactionType" EntityType="HotelServiceModel.TransactionType" />
+          <EntitySet Name="User" EntityType="HotelServiceModel.User" />
+          <AssociationSet Name="FK_Amenity_Category" Association="HotelServiceModel.FK_Amenity_Category">
+            <End Role="AmenityCategory" EntitySet="AmenityCategory" />
+            <End Role="Amenity" EntitySet="Amenity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomAmenity_Amenity" Association="HotelServiceModel.FK_RoomAmenity_Amenity">
+            <End Role="Amenity" EntitySet="Amenity" />
+            <End Role="RoomAmenity" EntitySet="RoomAmenity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_FinancialStatus" Association="HotelServiceModel.FK_Booking_FinancialStatus">
+            <End Role="FinancialStatus" EntitySet="FinancialStatus" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_Guest" Association="HotelServiceModel.FK_Booking_Guest">
+            <End Role="Guest" EntitySet="Guest" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_Room" Association="HotelServiceModel.FK_Booking_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_Source" Association="HotelServiceModel.FK_Booking_Source">
+            <End Role="BookingSource" EntitySet="BookingSource" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_Status" Association="HotelServiceModel.FK_Booking_Status">
+            <End Role="BookingStatus" EntitySet="BookingStatus" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Booking_User" Association="HotelServiceModel.FK_Booking_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Booking" Association="HotelServiceModel.FK_DamageReport_Booking">
+            <End Role="Booking" EntitySet="Booking" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LoyaltyTransaction_Booking" Association="HotelServiceModel.FK_LoyaltyTransaction_Booking">
+            <End Role="Booking" EntitySet="Booking" />
+            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Payment_Booking" Association="HotelServiceModel.FK_Payment_Booking">
+            <End Role="Booking" EntitySet="Booking" />
+            <End Role="Payment" EntitySet="Payment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingItem_DamageReport" Association="HotelServiceModel.FK_BookingItem_DamageReport">
+            <End Role="DamageReport" EntitySet="DamageReport" />
+            <End Role="BookingItem" EntitySet="BookingItem" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingItem_Room" Association="HotelServiceModel.FK_BookingItem_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="BookingItem" EntitySet="BookingItem" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingItem_Service" Association="HotelServiceModel.FK_BookingItem_Service">
+            <End Role="Service" EntitySet="Service" />
+            <End Role="BookingItem" EntitySet="BookingItem" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageEvidence_Report" Association="HotelServiceModel.FK_DamageEvidence_Report">
+            <End Role="DamageReport" EntitySet="DamageReport" />
+            <End Role="DamageEvidence" EntitySet="DamageEvidence" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_DamageType" Association="HotelServiceModel.FK_DamageReport_DamageType">
+            <End Role="DamageType" EntitySet="DamageType" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Guest" Association="HotelServiceModel.FK_DamageReport_Guest">
+            <End Role="Guest" EntitySet="Guest" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Room" Association="HotelServiceModel.FK_DamageReport_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DamageReport_Status" Association="HotelServiceModel.FK_DamageReport_Status">
+            <End Role="TaskStatus" EntitySet="TaskStatus" />
+            <End Role="DamageReport" EntitySet="DamageReport" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomMaintenance_DamageReport" Association="HotelServiceModel.FK_RoomMaintenance_DamageReport">
+            <End Role="DamageReport" EntitySet="DamageReport" />
+            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GuestDocument_DocumentType" Association="HotelServiceModel.FK_GuestDocument_DocumentType">
+            <End Role="DocumentType" EntitySet="DocumentType" />
+            <End Role="GuestDocument" EntitySet="GuestDocument" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Payment_Status" Association="HotelServiceModel.FK_Payment_Status">
+            <End Role="FinancialStatus" EntitySet="FinancialStatus" />
+            <End Role="Payment" EntitySet="Payment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Guest_GuestGroup" Association="HotelServiceModel.FK_Guest_GuestGroup">
+            <End Role="GuestGroup" EntitySet="GuestGroup" />
+            <End Role="Guest" EntitySet="Guest" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GuestDocument_Guest" Association="HotelServiceModel.FK_GuestDocument_Guest">
+            <End Role="Guest" EntitySet="Guest" />
+            <End Role="GuestDocument" EntitySet="GuestDocument" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LoyaltyTransaction_Guest" Association="HotelServiceModel.FK_LoyaltyTransaction_Guest">
+            <End Role="Guest" EntitySet="Guest" />
+            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GuestDocument_User" Association="HotelServiceModel.FK_GuestDocument_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="GuestDocument" EntitySet="GuestDocument" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LoyaltyTransaction_TransactionType" Association="HotelServiceModel.FK_LoyaltyTransaction_TransactionType">
+            <End Role="TransactionType" EntitySet="TransactionType" />
+            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Payment_PaymentMethod" Association="HotelServiceModel.FK_Payment_PaymentMethod">
+            <End Role="PaymentMethod" EntitySet="PaymentMethod" />
+            <End Role="Payment" EntitySet="Payment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Position" Association="HotelServiceModel.FK_User_Position">
+            <End Role="Position" EntitySet="Position" />
+            <End Role="User" EntitySet="User" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Role" Association="HotelServiceModel.FK_User_Role">
+            <End Role="Role" EntitySet="Role" />
+            <End Role="User" EntitySet="User" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Room_RoomStatus" Association="HotelServiceModel.FK_Room_RoomStatus">
+            <End Role="RoomStatus" EntitySet="RoomStatus" />
+            <End Role="Room" EntitySet="Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Room_RoomType" Association="HotelServiceModel.FK_Room_RoomType">
+            <End Role="RoomType" EntitySet="RoomType" />
+            <End Role="Room" EntitySet="Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomAmenity_Room" Association="HotelServiceModel.FK_RoomAmenity_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="RoomAmenity" EntitySet="RoomAmenity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomImage_Room" Association="HotelServiceModel.FK_RoomImage_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="RoomImage" EntitySet="RoomImage" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomMaintenance_Room" Association="HotelServiceModel.FK_RoomMaintenance_Room">
+            <End Role="Room" EntitySet="Room" />
+            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomMaintenance_Status" Association="HotelServiceModel.FK_RoomMaintenance_Status">
+            <End Role="TaskStatus" EntitySet="TaskStatus" />
+            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomMaintenance_TaskType" Association="HotelServiceModel.FK_RoomMaintenance_TaskType">
+            <End Role="TaskType" EntitySet="TaskType" />
+            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RoomMaintenance_User" Association="HotelServiceModel.FK_RoomMaintenance_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Service_Category" Association="HotelServiceModel.FK_Service_Category">
+            <End Role="ServiceCategory" EntitySet="ServiceCategory" />
+            <End Role="Service" EntitySet="Service" />
+          </AssociationSet>
+        </EntityContainer>
         <EntityType Name="Amenity">
           <Key>
             <PropertyRef Name="AmenityId" />
           </Key>
           <Property Name="AmenityId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AmenityName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AmenityName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="CategoryId" Type="Int32" />
-          <NavigationProperty Name="AmenityCategory" Relationship="Self.FK_Amenity_Category" FromRole="Amenity" ToRole="AmenityCategory" />
-          <NavigationProperty Name="RoomAmenity" Relationship="Self.FK_RoomAmenity_Amenity" FromRole="Amenity" ToRole="RoomAmenity" />
+          <NavigationProperty Name="AmenityCategory" Relationship="HotelServiceModel.FK_Amenity_Category" FromRole="Amenity" ToRole="AmenityCategory" />
+          <NavigationProperty Name="RoomAmenity" Relationship="HotelServiceModel.FK_RoomAmenity_Amenity" FromRole="Amenity" ToRole="RoomAmenity" />
         </EntityType>
         <EntityType Name="AmenityCategory">
           <Key>
             <PropertyRef Name="CategoryId" />
           </Key>
           <Property Name="CategoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CategoryName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CategoryName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Amenity" Relationship="Self.FK_Amenity_Category" FromRole="AmenityCategory" ToRole="Amenity" />
+          <NavigationProperty Name="Amenity" Relationship="HotelServiceModel.FK_Amenity_Category" FromRole="AmenityCategory" ToRole="Amenity" />
         </EntityType>
         <EntityType Name="Booking">
           <Key>
@@ -1005,7 +1226,7 @@
           <Property Name="CheckOutDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="Adults" Type="Int32" Nullable="false" />
           <Property Name="Children" Type="Int32" Nullable="false" />
-          <Property Name="TotalAmount" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="TotalAmount" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="DepositAmount" Type="Decimal" Precision="10" Scale="2" />
           <Property Name="DepositPaid" Type="Boolean" Nullable="false" />
           <Property Name="IssueDate" Type="DateTime" Nullable="false" Precision="3" />
@@ -1013,14 +1234,15 @@
           <Property Name="FinancialStatusId" Type="Int32" />
           <Property Name="Notes" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
-          <NavigationProperty Name="FinancialStatus" Relationship="Self.FK_Booking_FinancialStatus" FromRole="Booking" ToRole="FinancialStatus" />
-          <NavigationProperty Name="Guest" Relationship="Self.FK_Booking_Guest" FromRole="Booking" ToRole="Guest" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_Booking_Room" FromRole="Booking" ToRole="Room" />
-          <NavigationProperty Name="BookingSource" Relationship="Self.FK_Booking_Source" FromRole="Booking" ToRole="BookingSource" />
-          <NavigationProperty Name="BookingStatus" Relationship="Self.FK_Booking_Status" FromRole="Booking" ToRole="BookingStatus" />
-          <NavigationProperty Name="User" Relationship="Self.FK_Booking_User" FromRole="Booking" ToRole="User" />
-          <NavigationProperty Name="LoyaltyTransaction" Relationship="Self.FK_LoyaltyTransaction_Booking" FromRole="Booking" ToRole="LoyaltyTransaction" />
-          <NavigationProperty Name="Payment" Relationship="Self.FK_Payment_Booking" FromRole="Booking" ToRole="Payment" />
+          <NavigationProperty Name="FinancialStatus" Relationship="HotelServiceModel.FK_Booking_FinancialStatus" FromRole="Booking" ToRole="FinancialStatus" />
+          <NavigationProperty Name="Guest" Relationship="HotelServiceModel.FK_Booking_Guest" FromRole="Booking" ToRole="Guest" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_Booking_Room" FromRole="Booking" ToRole="Room" />
+          <NavigationProperty Name="BookingSource" Relationship="HotelServiceModel.FK_Booking_Source" FromRole="Booking" ToRole="BookingSource" />
+          <NavigationProperty Name="BookingStatus" Relationship="HotelServiceModel.FK_Booking_Status" FromRole="Booking" ToRole="BookingStatus" />
+          <NavigationProperty Name="User" Relationship="HotelServiceModel.FK_Booking_User" FromRole="Booking" ToRole="User" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_Booking" FromRole="Booking" ToRole="DamageReport" />
+          <NavigationProperty Name="LoyaltyTransaction" Relationship="HotelServiceModel.FK_LoyaltyTransaction_Booking" FromRole="Booking" ToRole="LoyaltyTransaction" />
+          <NavigationProperty Name="Payment" Relationship="HotelServiceModel.FK_Payment_Booking" FromRole="Booking" ToRole="Payment" />
         </EntityType>
         <EntityType Name="BookingItem">
           <Key>
@@ -1029,33 +1251,33 @@
           <Property Name="ItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="BookingId" Type="Int32" Nullable="false" />
           <Property Name="ServiceId" Type="Int32" />
-          <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Quantity" Type="Int32" Nullable="false" />
-          <Property Name="UnitPrice" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="UnitPrice" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="ItemDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="RoomId" Type="Int32" />
           <Property Name="DamageReportId" Type="Int32" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_BookingItem_DamageReport" FromRole="BookingItem" ToRole="DamageReport" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_BookingItem_Room" FromRole="BookingItem" ToRole="Room" />
-          <NavigationProperty Name="Service" Relationship="Self.FK_BookingItem_Service" FromRole="BookingItem" ToRole="Service" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_BookingItem_DamageReport" FromRole="BookingItem" ToRole="DamageReport" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_BookingItem_Room" FromRole="BookingItem" ToRole="Room" />
+          <NavigationProperty Name="Service" Relationship="HotelServiceModel.FK_BookingItem_Service" FromRole="BookingItem" ToRole="Service" />
         </EntityType>
         <EntityType Name="BookingSource">
           <Key>
             <PropertyRef Name="SourceId" />
           </Key>
           <Property Name="SourceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="SourceName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SourceName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_Source" FromRole="BookingSource" ToRole="Booking" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_Source" FromRole="BookingSource" ToRole="Booking" />
         </EntityType>
         <EntityType Name="BookingStatus">
           <Key>
             <PropertyRef Name="StatusId" />
           </Key>
           <Property Name="StatusId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StatusName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="StatusName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_Status" FromRole="BookingStatus" ToRole="Booking" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_Status" FromRole="BookingStatus" ToRole="Booking" />
         </EntityType>
         <EntityType Name="DamageEvidence">
           <Key>
@@ -1063,9 +1285,9 @@
           </Key>
           <Property Name="EvidenceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ReportId" Type="Int32" Nullable="false" />
-          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FilePath" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_DamageEvidence_Report" FromRole="DamageEvidence" ToRole="DamageReport" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageEvidence_Report" FromRole="DamageEvidence" ToRole="DamageReport" />
         </EntityType>
         <EntityType Name="DamageReport">
           <Key>
@@ -1077,53 +1299,55 @@
           <Property Name="GuestId" Type="Int32" />
           <Property Name="DamageTypeId" Type="Int32" Nullable="false" />
           <Property Name="ReportDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="Cost" Type="Decimal" Precision="10" Scale="2" />
           <Property Name="StatusId" Type="Int32" Nullable="false" />
           <Property Name="Notes" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="BookingItem" Relationship="Self.FK_BookingItem_DamageReport" FromRole="DamageReport" ToRole="BookingItem" />
-          <NavigationProperty Name="DamageEvidence" Relationship="Self.FK_DamageEvidence_Report" FromRole="DamageReport" ToRole="DamageEvidence" />
-          <NavigationProperty Name="DamageType" Relationship="Self.FK_DamageReport_DamageType" FromRole="DamageReport" ToRole="DamageType" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_DamageReport_Room" FromRole="DamageReport" ToRole="Room" />
-          <NavigationProperty Name="TaskStatus" Relationship="Self.FK_DamageReport_Status" FromRole="DamageReport" ToRole="TaskStatus" />
-          <NavigationProperty Name="RoomMaintenance" Relationship="Self.FK_RoomMaintenance_DamageReport" FromRole="DamageReport" ToRole="RoomMaintenance" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_DamageReport_Booking" FromRole="DamageReport" ToRole="Booking" />
+          <NavigationProperty Name="BookingItem" Relationship="HotelServiceModel.FK_BookingItem_DamageReport" FromRole="DamageReport" ToRole="BookingItem" />
+          <NavigationProperty Name="DamageEvidence" Relationship="HotelServiceModel.FK_DamageEvidence_Report" FromRole="DamageReport" ToRole="DamageEvidence" />
+          <NavigationProperty Name="DamageType" Relationship="HotelServiceModel.FK_DamageReport_DamageType" FromRole="DamageReport" ToRole="DamageType" />
+          <NavigationProperty Name="Guest" Relationship="HotelServiceModel.FK_DamageReport_Guest" FromRole="DamageReport" ToRole="Guest" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_DamageReport_Room" FromRole="DamageReport" ToRole="Room" />
+          <NavigationProperty Name="TaskStatus" Relationship="HotelServiceModel.FK_DamageReport_Status" FromRole="DamageReport" ToRole="TaskStatus" />
+          <NavigationProperty Name="RoomMaintenance" Relationship="HotelServiceModel.FK_RoomMaintenance_DamageReport" FromRole="DamageReport" ToRole="RoomMaintenance" />
         </EntityType>
         <EntityType Name="DamageType">
           <Key>
             <PropertyRef Name="DamageTypeId" />
           </Key>
           <Property Name="DamageTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_DamageReport_DamageType" FromRole="DamageType" ToRole="DamageReport" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_DamageType" FromRole="DamageType" ToRole="DamageReport" />
         </EntityType>
         <EntityType Name="DocumentType">
           <Key>
             <PropertyRef Name="DocumentTypeId" />
           </Key>
           <Property Name="DocumentTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="GuestDocument" Relationship="Self.FK_GuestDocument_DocumentType" FromRole="DocumentType" ToRole="GuestDocument" />
+          <NavigationProperty Name="GuestDocument" Relationship="HotelServiceModel.FK_GuestDocument_DocumentType" FromRole="DocumentType" ToRole="GuestDocument" />
         </EntityType>
         <EntityType Name="FinancialStatus">
           <Key>
             <PropertyRef Name="StatusId" />
           </Key>
           <Property Name="StatusId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StatusName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="StatusName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_FinancialStatus" FromRole="FinancialStatus" ToRole="Booking" />
-          <NavigationProperty Name="Payment" Relationship="Self.FK_Payment_Status" FromRole="FinancialStatus" ToRole="Payment" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_FinancialStatus" FromRole="FinancialStatus" ToRole="Booking" />
+          <NavigationProperty Name="Payment" Relationship="HotelServiceModel.FK_Payment_Status" FromRole="FinancialStatus" ToRole="Payment" />
         </EntityType>
         <EntityType Name="Guest">
           <Key>
             <PropertyRef Name="GuestId" />
           </Key>
           <Property Name="GuestId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FirstName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="MiddleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="Address" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
@@ -1132,10 +1356,11 @@
           <Property Name="GroupId" Type="Int32" />
           <Property Name="Notes" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="CurrentPoints" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_Guest" FromRole="Guest" ToRole="Booking" />
-          <NavigationProperty Name="GuestGroup" Relationship="Self.FK_Guest_GuestGroup" FromRole="Guest" ToRole="GuestGroup" />
-          <NavigationProperty Name="GuestDocument" Relationship="Self.FK_GuestDocument_Guest" FromRole="Guest" ToRole="GuestDocument" />
-          <NavigationProperty Name="LoyaltyTransaction" Relationship="Self.FK_LoyaltyTransaction_Guest" FromRole="Guest" ToRole="LoyaltyTransaction" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_Guest" FromRole="Guest" ToRole="Booking" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_Guest" FromRole="Guest" ToRole="DamageReport" />
+          <NavigationProperty Name="GuestGroup" Relationship="HotelServiceModel.FK_Guest_GuestGroup" FromRole="Guest" ToRole="GuestGroup" />
+          <NavigationProperty Name="GuestDocument" Relationship="HotelServiceModel.FK_GuestDocument_Guest" FromRole="Guest" ToRole="GuestDocument" />
+          <NavigationProperty Name="LoyaltyTransaction" Relationship="HotelServiceModel.FK_LoyaltyTransaction_Guest" FromRole="Guest" ToRole="LoyaltyTransaction" />
         </EntityType>
         <EntityType Name="GuestDocument">
           <Key>
@@ -1149,18 +1374,18 @@
           <Property Name="ExpiryDate" Type="DateTime" Precision="0" />
           <Property Name="UploadedAt" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UploadedBy" Type="Int32" />
-          <NavigationProperty Name="DocumentType" Relationship="Self.FK_GuestDocument_DocumentType" FromRole="GuestDocument" ToRole="DocumentType" />
-          <NavigationProperty Name="Guest" Relationship="Self.FK_GuestDocument_Guest" FromRole="GuestDocument" ToRole="Guest" />
-          <NavigationProperty Name="User" Relationship="Self.FK_GuestDocument_User" FromRole="GuestDocument" ToRole="User" />
+          <NavigationProperty Name="DocumentType" Relationship="HotelServiceModel.FK_GuestDocument_DocumentType" FromRole="GuestDocument" ToRole="DocumentType" />
+          <NavigationProperty Name="Guest" Relationship="HotelServiceModel.FK_GuestDocument_Guest" FromRole="GuestDocument" ToRole="Guest" />
+          <NavigationProperty Name="User" Relationship="HotelServiceModel.FK_GuestDocument_User" FromRole="GuestDocument" ToRole="User" />
         </EntityType>
         <EntityType Name="GuestGroup">
           <Key>
             <PropertyRef Name="GroupId" />
           </Key>
           <Property Name="GroupId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="GroupName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="GroupName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Guest" Relationship="Self.FK_Guest_GuestGroup" FromRole="GuestGroup" ToRole="Guest" />
+          <NavigationProperty Name="Guest" Relationship="HotelServiceModel.FK_Guest_GuestGroup" FromRole="GuestGroup" ToRole="Guest" />
         </EntityType>
         <EntityType Name="LoyaltyTransaction">
           <Key>
@@ -1173,9 +1398,9 @@
           <Property Name="BookingId" Type="Int32" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_LoyaltyTransaction_Booking" FromRole="LoyaltyTransaction" ToRole="Booking" />
-          <NavigationProperty Name="Guest" Relationship="Self.FK_LoyaltyTransaction_Guest" FromRole="LoyaltyTransaction" ToRole="Guest" />
-          <NavigationProperty Name="TransactionType" Relationship="Self.FK_LoyaltyTransaction_TransactionType" FromRole="LoyaltyTransaction" ToRole="TransactionType" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_LoyaltyTransaction_Booking" FromRole="LoyaltyTransaction" ToRole="Booking" />
+          <NavigationProperty Name="Guest" Relationship="HotelServiceModel.FK_LoyaltyTransaction_Guest" FromRole="LoyaltyTransaction" ToRole="Guest" />
+          <NavigationProperty Name="TransactionType" Relationship="HotelServiceModel.FK_LoyaltyTransaction_TransactionType" FromRole="LoyaltyTransaction" ToRole="TransactionType" />
         </EntityType>
         <EntityType Name="Payment">
           <Key>
@@ -1184,62 +1409,62 @@
           <Property Name="PaymentId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="BookingId" Type="Int32" Nullable="false" />
           <Property Name="PaymentMethodId" Type="Int32" Nullable="false" />
-          <Property Name="Amount" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="Amount" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="PaymentDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="StatusId" Type="Int32" Nullable="false" />
           <Property Name="Notes" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Payment_Booking" FromRole="Payment" ToRole="Booking" />
-          <NavigationProperty Name="FinancialStatus" Relationship="Self.FK_Payment_Status" FromRole="Payment" ToRole="FinancialStatus" />
-          <NavigationProperty Name="PaymentMethod" Relationship="Self.FK_Payment_PaymentMethod" FromRole="Payment" ToRole="PaymentMethod" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Payment_Booking" FromRole="Payment" ToRole="Booking" />
+          <NavigationProperty Name="FinancialStatus" Relationship="HotelServiceModel.FK_Payment_Status" FromRole="Payment" ToRole="FinancialStatus" />
+          <NavigationProperty Name="PaymentMethod" Relationship="HotelServiceModel.FK_Payment_PaymentMethod" FromRole="Payment" ToRole="PaymentMethod" />
         </EntityType>
         <EntityType Name="PaymentMethod">
           <Key>
             <PropertyRef Name="PaymentMethodId" />
           </Key>
           <Property Name="PaymentMethodId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="MethodName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MethodName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Payment" Relationship="Self.FK_Payment_PaymentMethod" FromRole="PaymentMethod" ToRole="Payment" />
+          <NavigationProperty Name="Payment" Relationship="HotelServiceModel.FK_Payment_PaymentMethod" FromRole="PaymentMethod" ToRole="Payment" />
         </EntityType>
         <EntityType Name="Position">
           <Key>
             <PropertyRef Name="PositionId" />
           </Key>
           <Property Name="PositionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PositionName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PositionName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="User" Relationship="Self.FK_User_Position" FromRole="Position" ToRole="User" />
+          <NavigationProperty Name="User" Relationship="HotelServiceModel.FK_User_Position" FromRole="Position" ToRole="User" />
         </EntityType>
         <EntityType Name="Role">
           <Key>
             <PropertyRef Name="RoleId" />
           </Key>
           <Property Name="RoleId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RoleName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="User" Relationship="Self.FK_User_Role" FromRole="Role" ToRole="User" />
+          <NavigationProperty Name="User" Relationship="HotelServiceModel.FK_User_Role" FromRole="Role" ToRole="User" />
         </EntityType>
         <EntityType Name="Room">
           <Key>
             <PropertyRef Name="RoomId" />
           </Key>
           <Property Name="RoomId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RoomNumber" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RoomNumber" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
           <Property Name="RoomTypeId" Type="Int32" Nullable="false" />
           <Property Name="RoomStatusId" Type="Int32" Nullable="false" />
           <Property Name="FloorNumber" Type="Int32" Nullable="false" />
           <Property Name="MaxOccupancy" Type="Int32" Nullable="false" />
-          <Property Name="BasePrice" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="BasePrice" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="SquareMeters" Type="Int32" />
           <Property Name="Comments" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_Room" FromRole="Room" ToRole="Booking" />
-          <NavigationProperty Name="BookingItem" Relationship="Self.FK_BookingItem_Room" FromRole="Room" ToRole="BookingItem" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_DamageReport_Room" FromRole="Room" ToRole="DamageReport" />
-          <NavigationProperty Name="RoomStatus" Relationship="Self.FK_Room_RoomStatus" FromRole="Room" ToRole="RoomStatus" />
-          <NavigationProperty Name="RoomType" Relationship="Self.FK_Room_RoomType" FromRole="Room" ToRole="RoomType" />
-          <NavigationProperty Name="RoomAmenity" Relationship="Self.FK_RoomAmenity_Room" FromRole="Room" ToRole="RoomAmenity" />
-          <NavigationProperty Name="RoomImage" Relationship="Self.FK_RoomImage_Room" FromRole="Room" ToRole="RoomImage" />
-          <NavigationProperty Name="RoomMaintenance" Relationship="Self.FK_RoomMaintenance_Room" FromRole="Room" ToRole="RoomMaintenance" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_Room" FromRole="Room" ToRole="Booking" />
+          <NavigationProperty Name="BookingItem" Relationship="HotelServiceModel.FK_BookingItem_Room" FromRole="Room" ToRole="BookingItem" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_Room" FromRole="Room" ToRole="DamageReport" />
+          <NavigationProperty Name="RoomStatus" Relationship="HotelServiceModel.FK_Room_RoomStatus" FromRole="Room" ToRole="RoomStatus" />
+          <NavigationProperty Name="RoomType" Relationship="HotelServiceModel.FK_Room_RoomType" FromRole="Room" ToRole="RoomType" />
+          <NavigationProperty Name="RoomAmenity" Relationship="HotelServiceModel.FK_RoomAmenity_Room" FromRole="Room" ToRole="RoomAmenity" />
+          <NavigationProperty Name="RoomImage" Relationship="HotelServiceModel.FK_RoomImage_Room" FromRole="Room" ToRole="RoomImage" />
+          <NavigationProperty Name="RoomMaintenance" Relationship="HotelServiceModel.FK_RoomMaintenance_Room" FromRole="Room" ToRole="RoomMaintenance" />
         </EntityType>
         <EntityType Name="RoomAmenity">
           <Key>
@@ -1250,8 +1475,8 @@
           <Property Name="AmenityId" Type="Int32" Nullable="false" />
           <Property Name="Quantity" Type="Int32" />
           <Property Name="Notes" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Amenity" Relationship="Self.FK_RoomAmenity_Amenity" FromRole="RoomAmenity" ToRole="Amenity" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_RoomAmenity_Room" FromRole="RoomAmenity" ToRole="Room" />
+          <NavigationProperty Name="Amenity" Relationship="HotelServiceModel.FK_RoomAmenity_Amenity" FromRole="RoomAmenity" ToRole="Amenity" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_RoomAmenity_Room" FromRole="RoomAmenity" ToRole="Room" />
         </EntityType>
         <EntityType Name="RoomImage">
           <Key>
@@ -1259,9 +1484,9 @@
           </Key>
           <Property Name="RoomImageId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="RoomId" Type="Int32" Nullable="false" />
-          <Property Name="ImagePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ImagePath" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="IsDefault" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_RoomImage_Room" FromRole="RoomImage" ToRole="Room" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_RoomImage_Room" FromRole="RoomImage" ToRole="Room" />
         </EntityType>
         <EntityType Name="RoomMaintenance">
           <Key>
@@ -1270,7 +1495,7 @@
           <Property Name="MaintenanceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="RoomId" Type="Int32" Nullable="false" />
           <Property Name="TaskTypeId" Type="Int32" Nullable="false" />
-          <Property Name="IssueDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IssueDescription" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Priority" Type="Int32" Nullable="false" />
           <Property Name="StatusId" Type="Int32" Nullable="false" />
           <Property Name="StartDate" Type="DateTime" Precision="3" />
@@ -1279,56 +1504,56 @@
           <Property Name="DamageReportId" Type="Int32" />
           <Property Name="Cost" Type="Decimal" Precision="10" Scale="2" />
           <Property Name="CreatedBy" Type="Int32" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_RoomMaintenance_DamageReport" FromRole="RoomMaintenance" ToRole="DamageReport" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_RoomMaintenance_Room" FromRole="RoomMaintenance" ToRole="Room" />
-          <NavigationProperty Name="TaskStatus" Relationship="Self.FK_RoomMaintenance_Status" FromRole="RoomMaintenance" ToRole="TaskStatus" />
-          <NavigationProperty Name="TaskType" Relationship="Self.FK_RoomMaintenance_TaskType" FromRole="RoomMaintenance" ToRole="TaskType" />
-          <NavigationProperty Name="User" Relationship="Self.FK_RoomMaintenance_User" FromRole="RoomMaintenance" ToRole="User" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_RoomMaintenance_DamageReport" FromRole="RoomMaintenance" ToRole="DamageReport" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_RoomMaintenance_Room" FromRole="RoomMaintenance" ToRole="Room" />
+          <NavigationProperty Name="TaskStatus" Relationship="HotelServiceModel.FK_RoomMaintenance_Status" FromRole="RoomMaintenance" ToRole="TaskStatus" />
+          <NavigationProperty Name="TaskType" Relationship="HotelServiceModel.FK_RoomMaintenance_TaskType" FromRole="RoomMaintenance" ToRole="TaskType" />
+          <NavigationProperty Name="User" Relationship="HotelServiceModel.FK_RoomMaintenance_User" FromRole="RoomMaintenance" ToRole="User" />
         </EntityType>
         <EntityType Name="RoomStatus">
           <Key>
             <PropertyRef Name="RoomStatusId" />
           </Key>
           <Property Name="RoomStatusId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StatusName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="StatusName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_Room_RoomStatus" FromRole="RoomStatus" ToRole="Room" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_Room_RoomStatus" FromRole="RoomStatus" ToRole="Room" />
         </EntityType>
         <EntityType Name="RoomType">
           <Key>
             <PropertyRef Name="RoomTypeId" />
           </Key>
           <Property Name="RoomTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Room" Relationship="Self.FK_Room_RoomType" FromRole="RoomType" ToRole="Room" />
+          <NavigationProperty Name="Room" Relationship="HotelServiceModel.FK_Room_RoomType" FromRole="RoomType" ToRole="Room" />
         </EntityType>
         <EntityType Name="Service">
           <Key>
             <PropertyRef Name="ServiceId" />
           </Key>
           <Property Name="ServiceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ServiceName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ServiceName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="CategoryId" Type="Int32" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Price" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
-          <NavigationProperty Name="BookingItem" Relationship="Self.FK_BookingItem_Service" FromRole="Service" ToRole="BookingItem" />
-          <NavigationProperty Name="ServiceCategory" Relationship="Self.FK_Service_Category" FromRole="Service" ToRole="ServiceCategory" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <NavigationProperty Name="BookingItem" Relationship="HotelServiceModel.FK_BookingItem_Service" FromRole="Service" ToRole="BookingItem" />
+          <NavigationProperty Name="ServiceCategory" Relationship="HotelServiceModel.FK_Service_Category" FromRole="Service" ToRole="ServiceCategory" />
         </EntityType>
         <EntityType Name="ServiceCategory">
           <Key>
             <PropertyRef Name="CategoryId" />
           </Key>
           <Property Name="CategoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CategoryName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CategoryName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Service" Relationship="Self.FK_Service_Category" FromRole="ServiceCategory" ToRole="Service" />
+          <NavigationProperty Name="Service" Relationship="HotelServiceModel.FK_Service_Category" FromRole="ServiceCategory" ToRole="Service" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
             <PropertyRef Name="diagram_id" />
           </Key>
-          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="principal_id" Type="Int32" Nullable="false" />
           <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="version" Type="Int32" />
@@ -1339,52 +1564,52 @@
             <PropertyRef Name="StatusId" />
           </Key>
           <Property Name="StatusId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StatusName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="StatusName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="DamageReport" Relationship="Self.FK_DamageReport_Status" FromRole="TaskStatus" ToRole="DamageReport" />
-          <NavigationProperty Name="RoomMaintenance" Relationship="Self.FK_RoomMaintenance_Status" FromRole="TaskStatus" ToRole="RoomMaintenance" />
+          <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_Status" FromRole="TaskStatus" ToRole="DamageReport" />
+          <NavigationProperty Name="RoomMaintenance" Relationship="HotelServiceModel.FK_RoomMaintenance_Status" FromRole="TaskStatus" ToRole="RoomMaintenance" />
         </EntityType>
         <EntityType Name="TaskType">
           <Key>
             <PropertyRef Name="TaskTypeId" />
           </Key>
           <Property Name="TaskTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="RoomMaintenance" Relationship="Self.FK_RoomMaintenance_TaskType" FromRole="TaskType" ToRole="RoomMaintenance" />
+          <NavigationProperty Name="RoomMaintenance" Relationship="HotelServiceModel.FK_RoomMaintenance_TaskType" FromRole="TaskType" ToRole="RoomMaintenance" />
         </EntityType>
         <EntityType Name="TransactionType">
           <Key>
             <PropertyRef Name="TypeId" />
           </Key>
           <Property Name="TypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="TypeDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="LoyaltyTransaction" Relationship="Self.FK_LoyaltyTransaction_TransactionType" FromRole="TransactionType" ToRole="LoyaltyTransaction" />
+          <NavigationProperty Name="LoyaltyTransaction" Relationship="HotelServiceModel.FK_LoyaltyTransaction_TransactionType" FromRole="TransactionType" ToRole="LoyaltyTransaction" />
         </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="UserId" />
           </Key>
           <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="FirstName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Username" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="MiddleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="RoleId" Type="Int32" Nullable="false" />
           <Property Name="PositionId" Type="Int32" />
-          <NavigationProperty Name="Booking" Relationship="Self.FK_Booking_User" FromRole="User" ToRole="Booking" />
-          <NavigationProperty Name="GuestDocument" Relationship="Self.FK_GuestDocument_User" FromRole="User" ToRole="GuestDocument" />
-          <NavigationProperty Name="Position" Relationship="Self.FK_User_Position" FromRole="User" ToRole="Position" />
-          <NavigationProperty Name="Role" Relationship="Self.FK_User_Role" FromRole="User" ToRole="Role" />
-          <NavigationProperty Name="RoomMaintenance" Relationship="Self.FK_RoomMaintenance_User" FromRole="User" ToRole="RoomMaintenance" />
+          <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_User" FromRole="User" ToRole="Booking" />
+          <NavigationProperty Name="GuestDocument" Relationship="HotelServiceModel.FK_GuestDocument_User" FromRole="User" ToRole="GuestDocument" />
+          <NavigationProperty Name="Position" Relationship="HotelServiceModel.FK_User_Position" FromRole="User" ToRole="Position" />
+          <NavigationProperty Name="Role" Relationship="HotelServiceModel.FK_User_Role" FromRole="User" ToRole="Role" />
+          <NavigationProperty Name="RoomMaintenance" Relationship="HotelServiceModel.FK_RoomMaintenance_User" FromRole="User" ToRole="RoomMaintenance" />
         </EntityType>
         <Association Name="FK_Amenity_Category">
-          <End Role="AmenityCategory" Type="Self.AmenityCategory" Multiplicity="0..1" />
-          <End Role="Amenity" Type="Self.Amenity" Multiplicity="*" />
+          <End Type="HotelServiceModel.AmenityCategory" Role="AmenityCategory" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.Amenity" Role="Amenity" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AmenityCategory">
               <PropertyRef Name="CategoryId" />
@@ -1395,8 +1620,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomAmenity_Amenity">
-          <End Role="Amenity" Type="Self.Amenity" Multiplicity="1" />
-          <End Role="RoomAmenity" Type="Self.RoomAmenity" Multiplicity="*" />
+          <End Type="HotelServiceModel.Amenity" Role="Amenity" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomAmenity" Role="RoomAmenity" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Amenity">
               <PropertyRef Name="AmenityId" />
@@ -1407,8 +1632,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_FinancialStatus">
-          <End Role="FinancialStatus" Type="Self.FinancialStatus" Multiplicity="0..1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.FinancialStatus" Role="FinancialStatus" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="FinancialStatus">
               <PropertyRef Name="StatusId" />
@@ -1419,8 +1644,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_Guest">
-          <End Role="Guest" Type="Self.Guest" Multiplicity="1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.Guest" Role="Guest" Multiplicity="1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Guest">
               <PropertyRef Name="GuestId" />
@@ -1431,8 +1656,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="0..1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1443,8 +1668,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_Source">
-          <End Role="BookingSource" Type="Self.BookingSource" Multiplicity="1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.BookingSource" Role="BookingSource" Multiplicity="1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="BookingSource">
               <PropertyRef Name="SourceId" />
@@ -1455,8 +1680,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_Status">
-          <End Role="BookingStatus" Type="Self.BookingStatus" Multiplicity="1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.BookingStatus" Role="BookingStatus" Multiplicity="1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="BookingStatus">
               <PropertyRef Name="StatusId" />
@@ -1467,8 +1692,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Booking_User">
-          <End Role="User" Type="Self.User" Multiplicity="0..1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <End Type="HotelServiceModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="UserId" />
@@ -1478,9 +1703,21 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_DamageReport_Booking">
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Booking">
+              <PropertyRef Name="BookingId" />
+            </Principal>
+            <Dependent Role="DamageReport">
+              <PropertyRef Name="BookingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_LoyaltyTransaction_Booking">
-          <End Role="Booking" Type="Self.Booking" Multiplicity="0..1" />
-          <End Role="LoyaltyTransaction" Type="Self.LoyaltyTransaction" Multiplicity="*" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.LoyaltyTransaction" Role="LoyaltyTransaction" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Booking">
               <PropertyRef Name="BookingId" />
@@ -1491,8 +1728,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Payment_Booking">
-          <End Role="Booking" Type="Self.Booking" Multiplicity="1" />
-          <End Role="Payment" Type="Self.Payment" Multiplicity="*" />
+          <End Type="HotelServiceModel.Booking" Role="Booking" Multiplicity="1" />
+          <End Type="HotelServiceModel.Payment" Role="Payment" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Booking">
               <PropertyRef Name="BookingId" />
@@ -1503,8 +1740,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_BookingItem_DamageReport">
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="0..1" />
-          <End Role="BookingItem" Type="Self.BookingItem" Multiplicity="*" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.BookingItem" Role="BookingItem" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DamageReport">
               <PropertyRef Name="ReportId" />
@@ -1515,8 +1752,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_BookingItem_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="0..1" />
-          <End Role="BookingItem" Type="Self.BookingItem" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.BookingItem" Role="BookingItem" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1527,8 +1764,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_BookingItem_Service">
-          <End Role="Service" Type="Self.Service" Multiplicity="0..1" />
-          <End Role="BookingItem" Type="Self.BookingItem" Multiplicity="*" />
+          <End Type="HotelServiceModel.Service" Role="Service" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.BookingItem" Role="BookingItem" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Service">
               <PropertyRef Name="ServiceId" />
@@ -1539,8 +1776,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_DamageEvidence_Report">
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="1" />
-          <End Role="DamageEvidence" Type="Self.DamageEvidence" Multiplicity="*" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="1" />
+          <End Type="HotelServiceModel.DamageEvidence" Role="DamageEvidence" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DamageReport">
               <PropertyRef Name="ReportId" />
@@ -1551,8 +1788,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_DamageReport_DamageType">
-          <End Role="DamageType" Type="Self.DamageType" Multiplicity="1" />
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
+          <End Type="HotelServiceModel.DamageType" Role="DamageType" Multiplicity="1" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DamageType">
               <PropertyRef Name="DamageTypeId" />
@@ -1562,9 +1799,21 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_DamageReport_Guest">
+          <End Type="HotelServiceModel.Guest" Role="Guest" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Guest">
+              <PropertyRef Name="GuestId" />
+            </Principal>
+            <Dependent Role="DamageReport">
+              <PropertyRef Name="GuestId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_DamageReport_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="1" />
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="1" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1575,8 +1824,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_DamageReport_Status">
-          <End Role="TaskStatus" Type="Self.TaskStatus" Multiplicity="1" />
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="*" />
+          <End Type="HotelServiceModel.TaskStatus" Role="TaskStatus" Multiplicity="1" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TaskStatus">
               <PropertyRef Name="StatusId" />
@@ -1587,8 +1836,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomMaintenance_DamageReport">
-          <End Role="DamageReport" Type="Self.DamageReport" Multiplicity="0..1" />
-          <End Role="RoomMaintenance" Type="Self.RoomMaintenance" Multiplicity="*" />
+          <End Type="HotelServiceModel.DamageReport" Role="DamageReport" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.RoomMaintenance" Role="RoomMaintenance" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DamageReport">
               <PropertyRef Name="ReportId" />
@@ -1599,8 +1848,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_GuestDocument_DocumentType">
-          <End Role="DocumentType" Type="Self.DocumentType" Multiplicity="1" />
-          <End Role="GuestDocument" Type="Self.GuestDocument" Multiplicity="*" />
+          <End Type="HotelServiceModel.DocumentType" Role="DocumentType" Multiplicity="1" />
+          <End Type="HotelServiceModel.GuestDocument" Role="GuestDocument" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DocumentType">
               <PropertyRef Name="DocumentTypeId" />
@@ -1611,8 +1860,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Payment_Status">
-          <End Role="FinancialStatus" Type="Self.FinancialStatus" Multiplicity="1" />
-          <End Role="Payment" Type="Self.Payment" Multiplicity="*" />
+          <End Type="HotelServiceModel.FinancialStatus" Role="FinancialStatus" Multiplicity="1" />
+          <End Type="HotelServiceModel.Payment" Role="Payment" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="FinancialStatus">
               <PropertyRef Name="StatusId" />
@@ -1623,8 +1872,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Guest_GuestGroup">
-          <End Role="GuestGroup" Type="Self.GuestGroup" Multiplicity="0..1" />
-          <End Role="Guest" Type="Self.Guest" Multiplicity="*" />
+          <End Type="HotelServiceModel.GuestGroup" Role="GuestGroup" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.Guest" Role="Guest" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="GuestGroup">
               <PropertyRef Name="GroupId" />
@@ -1635,8 +1884,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_GuestDocument_Guest">
-          <End Role="Guest" Type="Self.Guest" Multiplicity="1" />
-          <End Role="GuestDocument" Type="Self.GuestDocument" Multiplicity="*" />
+          <End Type="HotelServiceModel.Guest" Role="Guest" Multiplicity="1" />
+          <End Type="HotelServiceModel.GuestDocument" Role="GuestDocument" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Guest">
               <PropertyRef Name="GuestId" />
@@ -1647,8 +1896,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_LoyaltyTransaction_Guest">
-          <End Role="Guest" Type="Self.Guest" Multiplicity="1" />
-          <End Role="LoyaltyTransaction" Type="Self.LoyaltyTransaction" Multiplicity="*" />
+          <End Type="HotelServiceModel.Guest" Role="Guest" Multiplicity="1" />
+          <End Type="HotelServiceModel.LoyaltyTransaction" Role="LoyaltyTransaction" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Guest">
               <PropertyRef Name="GuestId" />
@@ -1659,8 +1908,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_GuestDocument_User">
-          <End Role="User" Type="Self.User" Multiplicity="0..1" />
-          <End Role="GuestDocument" Type="Self.GuestDocument" Multiplicity="*" />
+          <End Type="HotelServiceModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.GuestDocument" Role="GuestDocument" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="UserId" />
@@ -1671,8 +1920,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_LoyaltyTransaction_TransactionType">
-          <End Role="TransactionType" Type="Self.TransactionType" Multiplicity="1" />
-          <End Role="LoyaltyTransaction" Type="Self.LoyaltyTransaction" Multiplicity="*" />
+          <End Type="HotelServiceModel.TransactionType" Role="TransactionType" Multiplicity="1" />
+          <End Type="HotelServiceModel.LoyaltyTransaction" Role="LoyaltyTransaction" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TransactionType">
               <PropertyRef Name="TypeId" />
@@ -1683,8 +1932,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Payment_PaymentMethod">
-          <End Role="PaymentMethod" Type="Self.PaymentMethod" Multiplicity="1" />
-          <End Role="Payment" Type="Self.Payment" Multiplicity="*" />
+          <End Type="HotelServiceModel.PaymentMethod" Role="PaymentMethod" Multiplicity="1" />
+          <End Type="HotelServiceModel.Payment" Role="Payment" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="PaymentMethod">
               <PropertyRef Name="PaymentMethodId" />
@@ -1695,8 +1944,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_User_Position">
-          <End Role="Position" Type="Self.Position" Multiplicity="0..1" />
-          <End Role="User" Type="Self.User" Multiplicity="*" />
+          <End Type="HotelServiceModel.Position" Role="Position" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.User" Role="User" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Position">
               <PropertyRef Name="PositionId" />
@@ -1707,8 +1956,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_User_Role">
-          <End Role="Role" Type="Self.Role" Multiplicity="1" />
-          <End Role="User" Type="Self.User" Multiplicity="*" />
+          <End Type="HotelServiceModel.Role" Role="Role" Multiplicity="1" />
+          <End Type="HotelServiceModel.User" Role="User" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Role">
               <PropertyRef Name="RoleId" />
@@ -1719,8 +1968,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Room_RoomStatus">
-          <End Role="RoomStatus" Type="Self.RoomStatus" Multiplicity="1" />
-          <End Role="Room" Type="Self.Room" Multiplicity="*" />
+          <End Type="HotelServiceModel.RoomStatus" Role="RoomStatus" Multiplicity="1" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="RoomStatus">
               <PropertyRef Name="RoomStatusId" />
@@ -1731,8 +1980,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Room_RoomType">
-          <End Role="RoomType" Type="Self.RoomType" Multiplicity="1" />
-          <End Role="Room" Type="Self.Room" Multiplicity="*" />
+          <End Type="HotelServiceModel.RoomType" Role="RoomType" Multiplicity="1" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="RoomType">
               <PropertyRef Name="RoomTypeId" />
@@ -1743,8 +1992,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomAmenity_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="1" />
-          <End Role="RoomAmenity" Type="Self.RoomAmenity" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomAmenity" Role="RoomAmenity" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1755,8 +2004,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomImage_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="1" />
-          <End Role="RoomImage" Type="Self.RoomImage" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomImage" Role="RoomImage" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1767,8 +2016,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomMaintenance_Room">
-          <End Role="Room" Type="Self.Room" Multiplicity="1" />
-          <End Role="RoomMaintenance" Type="Self.RoomMaintenance" Multiplicity="*" />
+          <End Type="HotelServiceModel.Room" Role="Room" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomMaintenance" Role="RoomMaintenance" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Room">
               <PropertyRef Name="RoomId" />
@@ -1779,8 +2028,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomMaintenance_Status">
-          <End Role="TaskStatus" Type="Self.TaskStatus" Multiplicity="1" />
-          <End Role="RoomMaintenance" Type="Self.RoomMaintenance" Multiplicity="*" />
+          <End Type="HotelServiceModel.TaskStatus" Role="TaskStatus" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomMaintenance" Role="RoomMaintenance" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TaskStatus">
               <PropertyRef Name="StatusId" />
@@ -1791,8 +2040,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomMaintenance_TaskType">
-          <End Role="TaskType" Type="Self.TaskType" Multiplicity="1" />
-          <End Role="RoomMaintenance" Type="Self.RoomMaintenance" Multiplicity="*" />
+          <End Type="HotelServiceModel.TaskType" Role="TaskType" Multiplicity="1" />
+          <End Type="HotelServiceModel.RoomMaintenance" Role="RoomMaintenance" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TaskType">
               <PropertyRef Name="TaskTypeId" />
@@ -1803,8 +2052,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_RoomMaintenance_User">
-          <End Role="User" Type="Self.User" Multiplicity="0..1" />
-          <End Role="RoomMaintenance" Type="Self.RoomMaintenance" Multiplicity="*" />
+          <End Type="HotelServiceModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="HotelServiceModel.RoomMaintenance" Role="RoomMaintenance" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="UserId" />
@@ -1815,8 +2064,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Service_Category">
-          <End Role="ServiceCategory" Type="Self.ServiceCategory" Multiplicity="1" />
-          <End Role="Service" Type="Self.Service" Multiplicity="*" />
+          <End Type="HotelServiceModel.ServiceCategory" Role="ServiceCategory" Multiplicity="1" />
+          <End Type="HotelServiceModel.Service" Role="Service" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="ServiceCategory">
               <PropertyRef Name="CategoryId" />
@@ -1826,189 +2075,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="HotelServiceEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Amenity" EntityType="Self.Amenity" />
-          <EntitySet Name="AmenityCategory" EntityType="Self.AmenityCategory" />
-          <EntitySet Name="Booking" EntityType="Self.Booking" />
-          <EntitySet Name="BookingItem" EntityType="Self.BookingItem" />
-          <EntitySet Name="BookingSource" EntityType="Self.BookingSource" />
-          <EntitySet Name="BookingStatus" EntityType="Self.BookingStatus" />
-          <EntitySet Name="DamageEvidence" EntityType="Self.DamageEvidence" />
-          <EntitySet Name="DamageReport" EntityType="Self.DamageReport" />
-          <EntitySet Name="DamageType" EntityType="Self.DamageType" />
-          <EntitySet Name="DocumentType" EntityType="Self.DocumentType" />
-          <EntitySet Name="FinancialStatus" EntityType="Self.FinancialStatus" />
-          <EntitySet Name="Guest" EntityType="Self.Guest" />
-          <EntitySet Name="GuestDocument" EntityType="Self.GuestDocument" />
-          <EntitySet Name="GuestGroup" EntityType="Self.GuestGroup" />
-          <EntitySet Name="LoyaltyTransaction" EntityType="Self.LoyaltyTransaction" />
-          <EntitySet Name="Payment" EntityType="Self.Payment" />
-          <EntitySet Name="PaymentMethod" EntityType="Self.PaymentMethod" />
-          <EntitySet Name="Position" EntityType="Self.Position" />
-          <EntitySet Name="Role" EntityType="Self.Role" />
-          <EntitySet Name="Room" EntityType="Self.Room" />
-          <EntitySet Name="RoomAmenity" EntityType="Self.RoomAmenity" />
-          <EntitySet Name="RoomImage" EntityType="Self.RoomImage" />
-          <EntitySet Name="RoomMaintenance" EntityType="Self.RoomMaintenance" />
-          <EntitySet Name="RoomStatus" EntityType="Self.RoomStatus" />
-          <EntitySet Name="RoomType" EntityType="Self.RoomType" />
-          <EntitySet Name="Service" EntityType="Self.Service" />
-          <EntitySet Name="ServiceCategory" EntityType="Self.ServiceCategory" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
-          <EntitySet Name="TaskStatus" EntityType="Self.TaskStatus" />
-          <EntitySet Name="TaskType" EntityType="Self.TaskType" />
-          <EntitySet Name="TransactionType" EntityType="Self.TransactionType" />
-          <EntitySet Name="User" EntityType="Self.User" />
-          <AssociationSet Name="FK_Amenity_Category" Association="Self.FK_Amenity_Category">
-            <End Role="AmenityCategory" EntitySet="AmenityCategory" />
-            <End Role="Amenity" EntitySet="Amenity" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomAmenity_Amenity" Association="Self.FK_RoomAmenity_Amenity">
-            <End Role="Amenity" EntitySet="Amenity" />
-            <End Role="RoomAmenity" EntitySet="RoomAmenity" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_FinancialStatus" Association="Self.FK_Booking_FinancialStatus">
-            <End Role="FinancialStatus" EntitySet="FinancialStatus" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_Guest" Association="Self.FK_Booking_Guest">
-            <End Role="Guest" EntitySet="Guest" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_Room" Association="Self.FK_Booking_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_Source" Association="Self.FK_Booking_Source">
-            <End Role="BookingSource" EntitySet="BookingSource" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_Status" Association="Self.FK_Booking_Status">
-            <End Role="BookingStatus" EntitySet="BookingStatus" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Booking_User" Association="Self.FK_Booking_User">
-            <End Role="User" EntitySet="User" />
-            <End Role="Booking" EntitySet="Booking" />
-          </AssociationSet>
-          <AssociationSet Name="FK_LoyaltyTransaction_Booking" Association="Self.FK_LoyaltyTransaction_Booking">
-            <End Role="Booking" EntitySet="Booking" />
-            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Payment_Booking" Association="Self.FK_Payment_Booking">
-            <End Role="Booking" EntitySet="Booking" />
-            <End Role="Payment" EntitySet="Payment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BookingItem_DamageReport" Association="Self.FK_BookingItem_DamageReport">
-            <End Role="DamageReport" EntitySet="DamageReport" />
-            <End Role="BookingItem" EntitySet="BookingItem" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BookingItem_Room" Association="Self.FK_BookingItem_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="BookingItem" EntitySet="BookingItem" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BookingItem_Service" Association="Self.FK_BookingItem_Service">
-            <End Role="Service" EntitySet="Service" />
-            <End Role="BookingItem" EntitySet="BookingItem" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DamageEvidence_Report" Association="Self.FK_DamageEvidence_Report">
-            <End Role="DamageReport" EntitySet="DamageReport" />
-            <End Role="DamageEvidence" EntitySet="DamageEvidence" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DamageReport_DamageType" Association="Self.FK_DamageReport_DamageType">
-            <End Role="DamageType" EntitySet="DamageType" />
-            <End Role="DamageReport" EntitySet="DamageReport" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DamageReport_Room" Association="Self.FK_DamageReport_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="DamageReport" EntitySet="DamageReport" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DamageReport_Status" Association="Self.FK_DamageReport_Status">
-            <End Role="TaskStatus" EntitySet="TaskStatus" />
-            <End Role="DamageReport" EntitySet="DamageReport" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomMaintenance_DamageReport" Association="Self.FK_RoomMaintenance_DamageReport">
-            <End Role="DamageReport" EntitySet="DamageReport" />
-            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GuestDocument_DocumentType" Association="Self.FK_GuestDocument_DocumentType">
-            <End Role="DocumentType" EntitySet="DocumentType" />
-            <End Role="GuestDocument" EntitySet="GuestDocument" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Payment_Status" Association="Self.FK_Payment_Status">
-            <End Role="FinancialStatus" EntitySet="FinancialStatus" />
-            <End Role="Payment" EntitySet="Payment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Guest_GuestGroup" Association="Self.FK_Guest_GuestGroup">
-            <End Role="GuestGroup" EntitySet="GuestGroup" />
-            <End Role="Guest" EntitySet="Guest" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GuestDocument_Guest" Association="Self.FK_GuestDocument_Guest">
-            <End Role="Guest" EntitySet="Guest" />
-            <End Role="GuestDocument" EntitySet="GuestDocument" />
-          </AssociationSet>
-          <AssociationSet Name="FK_LoyaltyTransaction_Guest" Association="Self.FK_LoyaltyTransaction_Guest">
-            <End Role="Guest" EntitySet="Guest" />
-            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GuestDocument_User" Association="Self.FK_GuestDocument_User">
-            <End Role="User" EntitySet="User" />
-            <End Role="GuestDocument" EntitySet="GuestDocument" />
-          </AssociationSet>
-          <AssociationSet Name="FK_LoyaltyTransaction_TransactionType" Association="Self.FK_LoyaltyTransaction_TransactionType">
-            <End Role="TransactionType" EntitySet="TransactionType" />
-            <End Role="LoyaltyTransaction" EntitySet="LoyaltyTransaction" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Payment_PaymentMethod" Association="Self.FK_Payment_PaymentMethod">
-            <End Role="PaymentMethod" EntitySet="PaymentMethod" />
-            <End Role="Payment" EntitySet="Payment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_User_Position" Association="Self.FK_User_Position">
-            <End Role="Position" EntitySet="Position" />
-            <End Role="User" EntitySet="User" />
-          </AssociationSet>
-          <AssociationSet Name="FK_User_Role" Association="Self.FK_User_Role">
-            <End Role="Role" EntitySet="Role" />
-            <End Role="User" EntitySet="User" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Room_RoomStatus" Association="Self.FK_Room_RoomStatus">
-            <End Role="RoomStatus" EntitySet="RoomStatus" />
-            <End Role="Room" EntitySet="Room" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Room_RoomType" Association="Self.FK_Room_RoomType">
-            <End Role="RoomType" EntitySet="RoomType" />
-            <End Role="Room" EntitySet="Room" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomAmenity_Room" Association="Self.FK_RoomAmenity_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="RoomAmenity" EntitySet="RoomAmenity" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomImage_Room" Association="Self.FK_RoomImage_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="RoomImage" EntitySet="RoomImage" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomMaintenance_Room" Association="Self.FK_RoomMaintenance_Room">
-            <End Role="Room" EntitySet="Room" />
-            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomMaintenance_Status" Association="Self.FK_RoomMaintenance_Status">
-            <End Role="TaskStatus" EntitySet="TaskStatus" />
-            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomMaintenance_TaskType" Association="Self.FK_RoomMaintenance_TaskType">
-            <End Role="TaskType" EntitySet="TaskType" />
-            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RoomMaintenance_User" Association="Self.FK_RoomMaintenance_User">
-            <End Role="User" EntitySet="User" />
-            <End Role="RoomMaintenance" EntitySet="RoomMaintenance" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Service_Category" Association="Self.FK_Service_Category">
-            <End Role="ServiceCategory" EntitySet="ServiceCategory" />
-            <End Role="Service" EntitySet="Service" />
-          </AssociationSet>
-        </EntityContainer>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -2017,367 +2084,367 @@
           <EntitySetMapping Name="Amenity">
             <EntityTypeMapping TypeName="HotelServiceModel.Amenity">
               <MappingFragment StoreEntitySet="Amenity">
-                <ScalarProperty Name="AmenityId" ColumnName="AmenityId" />
-                <ScalarProperty Name="AmenityName" ColumnName="AmenityName" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="AmenityName" ColumnName="AmenityName" />
+                <ScalarProperty Name="AmenityId" ColumnName="AmenityId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AmenityCategory">
             <EntityTypeMapping TypeName="HotelServiceModel.AmenityCategory">
               <MappingFragment StoreEntitySet="AmenityCategory">
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="CategoryName" ColumnName="CategoryName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CategoryName" ColumnName="CategoryName" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Booking">
             <EntityTypeMapping TypeName="HotelServiceModel.Booking">
               <MappingFragment StoreEntitySet="Booking">
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="BookingStatusId" ColumnName="BookingStatusId" />
-                <ScalarProperty Name="SourceId" ColumnName="SourceId" />
-                <ScalarProperty Name="CheckInDate" ColumnName="CheckInDate" />
-                <ScalarProperty Name="CheckOutDate" ColumnName="CheckOutDate" />
-                <ScalarProperty Name="Adults" ColumnName="Adults" />
-                <ScalarProperty Name="Children" ColumnName="Children" />
-                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
-                <ScalarProperty Name="DepositAmount" ColumnName="DepositAmount" />
-                <ScalarProperty Name="DepositPaid" ColumnName="DepositPaid" />
-                <ScalarProperty Name="IssueDate" ColumnName="IssueDate" />
-                <ScalarProperty Name="DueDate" ColumnName="DueDate" />
-                <ScalarProperty Name="FinancialStatusId" ColumnName="FinancialStatusId" />
-                <ScalarProperty Name="Notes" ColumnName="Notes" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="FinancialStatusId" ColumnName="FinancialStatusId" />
+                <ScalarProperty Name="DueDate" ColumnName="DueDate" />
+                <ScalarProperty Name="IssueDate" ColumnName="IssueDate" />
+                <ScalarProperty Name="DepositPaid" ColumnName="DepositPaid" />
+                <ScalarProperty Name="DepositAmount" ColumnName="DepositAmount" />
+                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
+                <ScalarProperty Name="Children" ColumnName="Children" />
+                <ScalarProperty Name="Adults" ColumnName="Adults" />
+                <ScalarProperty Name="CheckOutDate" ColumnName="CheckOutDate" />
+                <ScalarProperty Name="CheckInDate" ColumnName="CheckInDate" />
+                <ScalarProperty Name="SourceId" ColumnName="SourceId" />
+                <ScalarProperty Name="BookingStatusId" ColumnName="BookingStatusId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="BookingItem">
             <EntityTypeMapping TypeName="HotelServiceModel.BookingItem">
               <MappingFragment StoreEntitySet="BookingItem">
-                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
-                <ScalarProperty Name="ItemDate" ColumnName="ItemDate" />
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
                 <ScalarProperty Name="DamageReportId" ColumnName="DamageReportId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="ItemDate" ColumnName="ItemDate" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="BookingSource">
             <EntityTypeMapping TypeName="HotelServiceModel.BookingSource">
               <MappingFragment StoreEntitySet="BookingSource">
-                <ScalarProperty Name="SourceId" ColumnName="SourceId" />
-                <ScalarProperty Name="SourceName" ColumnName="SourceName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="SourceName" ColumnName="SourceName" />
+                <ScalarProperty Name="SourceId" ColumnName="SourceId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="BookingStatus">
             <EntityTypeMapping TypeName="HotelServiceModel.BookingStatus">
               <MappingFragment StoreEntitySet="BookingStatus">
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="DamageEvidence">
             <EntityTypeMapping TypeName="HotelServiceModel.DamageEvidence">
               <MappingFragment StoreEntitySet="DamageEvidence">
-                <ScalarProperty Name="EvidenceId" ColumnName="EvidenceId" />
-                <ScalarProperty Name="ReportId" ColumnName="ReportId" />
-                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="ReportId" ColumnName="ReportId" />
+                <ScalarProperty Name="EvidenceId" ColumnName="EvidenceId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="DamageReport">
             <EntityTypeMapping TypeName="HotelServiceModel.DamageReport">
               <MappingFragment StoreEntitySet="DamageReport">
-                <ScalarProperty Name="ReportId" ColumnName="ReportId" />
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
-                <ScalarProperty Name="DamageTypeId" ColumnName="DamageTypeId" />
-                <ScalarProperty Name="ReportDate" ColumnName="ReportDate" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Cost" ColumnName="Cost" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
                 <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="Cost" ColumnName="Cost" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ReportDate" ColumnName="ReportDate" />
+                <ScalarProperty Name="DamageTypeId" ColumnName="DamageTypeId" />
+                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="ReportId" ColumnName="ReportId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="DamageType">
             <EntityTypeMapping TypeName="HotelServiceModel.DamageType">
               <MappingFragment StoreEntitySet="DamageType">
-                <ScalarProperty Name="DamageTypeId" ColumnName="DamageTypeId" />
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="DamageTypeId" ColumnName="DamageTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="DocumentType">
             <EntityTypeMapping TypeName="HotelServiceModel.DocumentType">
               <MappingFragment StoreEntitySet="DocumentType">
-                <ScalarProperty Name="DocumentTypeId" ColumnName="DocumentTypeId" />
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="DocumentTypeId" ColumnName="DocumentTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="FinancialStatus">
             <EntityTypeMapping TypeName="HotelServiceModel.FinancialStatus">
               <MappingFragment StoreEntitySet="FinancialStatus">
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Guest">
             <EntityTypeMapping TypeName="HotelServiceModel.Guest">
               <MappingFragment StoreEntitySet="Guest">
-                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
-                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
-                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
-                <ScalarProperty Name="LastName" ColumnName="LastName" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Phone" ColumnName="Phone" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
-                <ScalarProperty Name="IsVIP" ColumnName="IsVIP" />
-                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
-                <ScalarProperty Name="Notes" ColumnName="Notes" />
                 <ScalarProperty Name="CurrentPoints" ColumnName="CurrentPoints" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
+                <ScalarProperty Name="IsVIP" ColumnName="IsVIP" />
+                <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="GuestDocument">
             <EntityTypeMapping TypeName="HotelServiceModel.GuestDocument">
               <MappingFragment StoreEntitySet="GuestDocument">
-                <ScalarProperty Name="DocumentId" ColumnName="DocumentId" />
-                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
-                <ScalarProperty Name="DocumentTypeId" ColumnName="DocumentTypeId" />
-                <ScalarProperty Name="DocumentPath" ColumnName="DocumentPath" />
-                <ScalarProperty Name="IssueDate" ColumnName="IssueDate" />
-                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
-                <ScalarProperty Name="UploadedAt" ColumnName="UploadedAt" />
                 <ScalarProperty Name="UploadedBy" ColumnName="UploadedBy" />
+                <ScalarProperty Name="UploadedAt" ColumnName="UploadedAt" />
+                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
+                <ScalarProperty Name="IssueDate" ColumnName="IssueDate" />
+                <ScalarProperty Name="DocumentPath" ColumnName="DocumentPath" />
+                <ScalarProperty Name="DocumentTypeId" ColumnName="DocumentTypeId" />
+                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
+                <ScalarProperty Name="DocumentId" ColumnName="DocumentId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="GuestGroup">
             <EntityTypeMapping TypeName="HotelServiceModel.GuestGroup">
               <MappingFragment StoreEntitySet="GuestGroup">
-                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
-                <ScalarProperty Name="GroupName" ColumnName="GroupName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="GroupName" ColumnName="GroupName" />
+                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="LoyaltyTransaction">
             <EntityTypeMapping TypeName="HotelServiceModel.LoyaltyTransaction">
               <MappingFragment StoreEntitySet="LoyaltyTransaction">
-                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
-                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
-                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
-                <ScalarProperty Name="Points" ColumnName="Points" />
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="Points" ColumnName="Points" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="GuestId" ColumnName="GuestId" />
+                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Payment">
             <EntityTypeMapping TypeName="HotelServiceModel.Payment">
               <MappingFragment StoreEntitySet="Payment">
-                <ScalarProperty Name="PaymentId" ColumnName="PaymentId" />
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="PaymentMethodId" ColumnName="PaymentMethodId" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="PaymentDate" ColumnName="PaymentDate" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
                 <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="PaymentDate" ColumnName="PaymentDate" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PaymentMethodId" ColumnName="PaymentMethodId" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="PaymentId" ColumnName="PaymentId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="PaymentMethod">
             <EntityTypeMapping TypeName="HotelServiceModel.PaymentMethod">
               <MappingFragment StoreEntitySet="PaymentMethod">
-                <ScalarProperty Name="PaymentMethodId" ColumnName="PaymentMethodId" />
-                <ScalarProperty Name="MethodName" ColumnName="MethodName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="MethodName" ColumnName="MethodName" />
+                <ScalarProperty Name="PaymentMethodId" ColumnName="PaymentMethodId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Position">
             <EntityTypeMapping TypeName="HotelServiceModel.Position">
               <MappingFragment StoreEntitySet="Position">
-                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
-                <ScalarProperty Name="PositionName" ColumnName="PositionName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="PositionName" ColumnName="PositionName" />
+                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Role">
             <EntityTypeMapping TypeName="HotelServiceModel.Role">
               <MappingFragment StoreEntitySet="Role">
-                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
-                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Room">
             <EntityTypeMapping TypeName="HotelServiceModel.Room">
               <MappingFragment StoreEntitySet="Room">
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="RoomNumber" ColumnName="RoomNumber" />
-                <ScalarProperty Name="RoomTypeId" ColumnName="RoomTypeId" />
-                <ScalarProperty Name="RoomStatusId" ColumnName="RoomStatusId" />
-                <ScalarProperty Name="FloorNumber" ColumnName="FloorNumber" />
-                <ScalarProperty Name="MaxOccupancy" ColumnName="MaxOccupancy" />
-                <ScalarProperty Name="BasePrice" ColumnName="BasePrice" />
-                <ScalarProperty Name="SquareMeters" ColumnName="SquareMeters" />
                 <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="SquareMeters" ColumnName="SquareMeters" />
+                <ScalarProperty Name="BasePrice" ColumnName="BasePrice" />
+                <ScalarProperty Name="MaxOccupancy" ColumnName="MaxOccupancy" />
+                <ScalarProperty Name="FloorNumber" ColumnName="FloorNumber" />
+                <ScalarProperty Name="RoomStatusId" ColumnName="RoomStatusId" />
+                <ScalarProperty Name="RoomTypeId" ColumnName="RoomTypeId" />
+                <ScalarProperty Name="RoomNumber" ColumnName="RoomNumber" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RoomAmenity">
             <EntityTypeMapping TypeName="HotelServiceModel.RoomAmenity">
               <MappingFragment StoreEntitySet="RoomAmenity">
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="AmenityId" ColumnName="AmenityId" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="AmenityId" ColumnName="AmenityId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RoomImage">
             <EntityTypeMapping TypeName="HotelServiceModel.RoomImage">
               <MappingFragment StoreEntitySet="RoomImage">
-                <ScalarProperty Name="RoomImageId" ColumnName="RoomImageId" />
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="ImagePath" ColumnName="ImagePath" />
                 <ScalarProperty Name="IsDefault" ColumnName="IsDefault" />
+                <ScalarProperty Name="ImagePath" ColumnName="ImagePath" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="RoomImageId" ColumnName="RoomImageId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RoomMaintenance">
             <EntityTypeMapping TypeName="HotelServiceModel.RoomMaintenance">
               <MappingFragment StoreEntitySet="RoomMaintenance">
-                <ScalarProperty Name="MaintenanceId" ColumnName="MaintenanceId" />
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="TaskTypeId" ColumnName="TaskTypeId" />
-                <ScalarProperty Name="IssueDescription" ColumnName="IssueDescription" />
-                <ScalarProperty Name="Priority" ColumnName="Priority" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
-                <ScalarProperty Name="CompletionDate" ColumnName="CompletionDate" />
-                <ScalarProperty Name="Notes" ColumnName="Notes" />
-                <ScalarProperty Name="DamageReportId" ColumnName="DamageReportId" />
-                <ScalarProperty Name="Cost" ColumnName="Cost" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Cost" ColumnName="Cost" />
+                <ScalarProperty Name="DamageReportId" ColumnName="DamageReportId" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="CompletionDate" ColumnName="CompletionDate" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="Priority" ColumnName="Priority" />
+                <ScalarProperty Name="IssueDescription" ColumnName="IssueDescription" />
+                <ScalarProperty Name="TaskTypeId" ColumnName="TaskTypeId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="MaintenanceId" ColumnName="MaintenanceId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RoomStatus">
             <EntityTypeMapping TypeName="HotelServiceModel.RoomStatus">
               <MappingFragment StoreEntitySet="RoomStatus">
-                <ScalarProperty Name="RoomStatusId" ColumnName="RoomStatusId" />
-                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+                <ScalarProperty Name="RoomStatusId" ColumnName="RoomStatusId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RoomType">
             <EntityTypeMapping TypeName="HotelServiceModel.RoomType">
               <MappingFragment StoreEntitySet="RoomType">
-                <ScalarProperty Name="RoomTypeId" ColumnName="RoomTypeId" />
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="RoomTypeId" ColumnName="RoomTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Service">
             <EntityTypeMapping TypeName="HotelServiceModel.Service">
               <MappingFragment StoreEntitySet="Service">
-                <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
-                <ScalarProperty Name="ServiceName" ColumnName="ServiceName" />
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="ServiceName" ColumnName="ServiceName" />
+                <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="ServiceCategory">
             <EntityTypeMapping TypeName="HotelServiceModel.ServiceCategory">
               <MappingFragment StoreEntitySet="ServiceCategory">
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="CategoryName" ColumnName="CategoryName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CategoryName" ColumnName="CategoryName" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="sysdiagrams">
             <EntityTypeMapping TypeName="HotelServiceModel.sysdiagrams">
               <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="version" ColumnName="version" />
                 <ScalarProperty Name="definition" ColumnName="definition" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TaskStatus">
             <EntityTypeMapping TypeName="HotelServiceModel.TaskStatus">
               <MappingFragment StoreEntitySet="TaskStatus">
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TaskType">
             <EntityTypeMapping TypeName="HotelServiceModel.TaskType">
               <MappingFragment StoreEntitySet="TaskType">
-                <ScalarProperty Name="TaskTypeId" ColumnName="TaskTypeId" />
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="TaskTypeId" ColumnName="TaskTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TransactionType">
             <EntityTypeMapping TypeName="HotelServiceModel.TransactionType">
               <MappingFragment StoreEntitySet="TransactionType">
-                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="TypeDescription" ColumnName="TypeDescription" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="HotelServiceModel.User">
               <MappingFragment StoreEntitySet="User">
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="Username" ColumnName="Username" />
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
-                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
-                <ScalarProperty Name="LastName" ColumnName="LastName" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Phone" ColumnName="Phone" />
-                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
                 <ScalarProperty Name="PositionId" ColumnName="PositionId" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

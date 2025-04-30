@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
         Title="Просмотр бронирования" 
-        Height="580" 
-        Width="700"
+        Height="620" 
+        Width="900"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
@@ -16,10 +16,12 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -42,94 +44,118 @@
                 </Grid>
             </Border>
 
-            <ScrollViewer Grid.Row="1" Margin="0" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="20,15">
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+            <!-- Booking summary panel -->
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="20,15,20,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" 
-                                    Width="80" 
-                                    Height="80" 
-                                    Background="{StaticResource PrimaryColor}" 
-                                    CornerRadius="40">
-                                <TextBlock x:Name="BookingNumberTextBlock" 
-                                           Text="1" 
-                                           Foreground="White" 
-                                           FontSize="36" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel Grid.Column="1" Margin="15,0,0,0">
-                                <TextBlock x:Name="BookingTitleTextBlock" 
-                                           Text="Бронирование #1" 
-                                           Style="{StaticResource TitleTextStyle}"
-                                           Margin="0,0,0,5"/>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Grid.Column="0" 
-                                            Background="{StaticResource AccentColor}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4" 
-                                            Margin="0,0,10,0">
-                                        <TextBlock x:Name="StatusTextBlock" 
-                                                   Text="Подтверждено" 
-                                                   Foreground="White" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"/>
-                                    </Border>
-
-                                    <Border Grid.Column="1" 
-                                            Background="{StaticResource PrimaryLightColor}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4" 
-                                            Margin="0,0,10,0">
-                                        <TextBlock x:Name="RoomTextBlock" 
-                                                   Text="Номер 101" 
-                                                   Foreground="White" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"/>
-                                    </Border>
-
-                                    <Border Grid.Column="2" 
-                                            Background="{StaticResource InfoColor}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <TextBlock x:Name="NightsTextBlock" 
-                                                   Text="3 ночи" 
-                                                   Foreground="White" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"/>
-                                    </Border>
-                                </Grid>
-
-                                <TextBlock x:Name="DateRangeTextBlock" 
-                                           Text="21.05.2025 - 24.05.2025" 
-                                           Foreground="{StaticResource TextSecondaryColor}" 
-                                           FontSize="14" 
-                                           Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Grid>
+                    <Border Grid.Column="0" 
+                            Width="60" 
+                            Height="60" 
+                            Background="{StaticResource PrimaryColor}" 
+                            CornerRadius="30">
+                        <TextBlock x:Name="BookingNumberTextBlock" 
+                                   Text="1" 
+                                   Foreground="White" 
+                                   FontSize="28" 
+                                   FontWeight="Bold" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
                     </Border>
 
-                    <Grid Margin="0,0,0,15">
+                    <Grid Grid.Column="1" Margin="15,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock x:Name="BookingTitleTextBlock" 
+                                       Text="Бронирование #1" 
+                                       Style="{StaticResource TitleTextStyle}"
+                                       Margin="0,0,0,5"/>
+
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" 
+                                        Background="{StaticResource AccentColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4" 
+                                        Margin="0,0,10,0">
+                                    <TextBlock x:Name="StatusTextBlock" 
+                                               Text="Подтверждено" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+
+                                <Border Grid.Column="1" 
+                                        Background="{StaticResource PrimaryLightColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4" 
+                                        Margin="0,0,10,0">
+                                    <TextBlock x:Name="RoomTextBlock" 
+                                               Text="Номер 101" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+
+                                <Border Grid.Column="2" 
+                                        Background="{StaticResource InfoColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4">
+                                    <TextBlock x:Name="NightsTextBlock" 
+                                               Text="3 ночи" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+                            </Grid>
+
+                            <TextBlock x:Name="DateRangeTextBlock" 
+                                       Text="21.05.2025 - 24.05.2025" 
+                                       Foreground="{StaticResource TextSecondaryColor}" 
+                                       FontSize="14"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                            <TextBlock Text="Гость:" 
+                                       Foreground="{StaticResource TextTertiaryColor}" 
+                                       Margin="0,0,5,0"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock x:Name="GuestShortNameTextBlock" 
+                                       Text="Иванов И.И." 
+                                       FontWeight="Medium"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Tabs Section -->
+            <TabControl Grid.Row="2" Margin="20,15,20,10" BorderThickness="0" Background="Transparent">
+
+
+                <!-- Main Info Tab -->
+                <TabItem Header="Основная информация">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- Guest Information Card -->
                         <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,7.5,0">
                             <StackPanel>
                                 <TextBlock Text="Информация о госте" 
@@ -225,6 +251,7 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Booking Details -->
                         <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="7.5,0,0,0">
                             <StackPanel>
                                 <TextBlock Text="Детали бронирования" 
@@ -345,78 +372,378 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+                </TabItem>
+                <TabItem Header="Финансы">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Финансовая информация"
+                                           Style="{StaticResource SectionHeaderStyle}"
+                                           Margin="0,0,0,10"/>
 
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Общая стоимость:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="TotalAmountTextBlock"
+                                               Text="15 000.00 ₽"
+                                               Grid.Column="1"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Сумма депозита:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="DepositAmountTextBlock"
+                                               Text="5 000.00 ₽"
+                                               Grid.Column="1"
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Депозит оплачен:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="DepositPaidTextBlock"
+                                               Text="Да"
+                                               Grid.Column="1"
+                                               Foreground="{StaticResource SuccessColor}"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Финансовый статус:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="FinancialStatusTextBlock"
+                                               Text="Оплачено"
+                                               Grid.Column="1"
+                                               Foreground="{StaticResource SuccessColor}"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Дата бронирования:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="IssueDateTextBlock"
+                                               Text="15.04.2025"
+                                               Grid.Column="1"
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Срок оплаты:"
+                                               Grid.Column="0"
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="DueDateTextBlock"
+                                               Text="30.04.2025"
+                                               Grid.Column="1"
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <TextBlock Text="История платежей"
+                           Style="{StaticResource SectionHeaderStyle}"
+                           Margin="0,15,0,10"/>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Button x:Name="AddPaymentButton"
+                            Content="Добавить оплату"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="150"
+                                            Grid.ColumnSpan="4"
+                            Height="35"
+                            HorizontalAlignment="Right"
+                            Click="AddPaymentButton_Click"/>
+                                </Grid>
+                                <DataGrid x:Name="PaymentsDataGrid" 
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                          Grid.ColumnSpan="5"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="35">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Дата" Binding="{Binding PaymentDate, StringFormat=dd.MM.yyyy HH:mm}" Width="auto"/>
+                                        <DataGridTextColumn Header="Способ оплаты" Binding="{Binding PaymentMethodName}" Width="auto"/>
+                                        <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat={}{0:N2} ₽}" Width="auto"/>
+                                        <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="auto"/>
+                                        <DataGridTextColumn Header="Примечание" Binding="{Binding Notes}" Width="auto"/>
+                                        <DataGridTemplateColumn Header="Действия" Width="auto">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Width="30" Height="30" 
+                                                            Style="{StaticResource InfoButtonIconStyle}"
+                                                            ToolTip="Просмотреть"
+                                                            Margin="0,0,5,0"
+                                                            Click="ViewPaymentButton_Click">
+                                                            <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
+                                                              Fill="White" 
+                                                              Stretch="Uniform" 
+                                                              Width="14" Height="14"/>
+                                                        </Button>
+                                                        <Button Width="30" Height="30" 
+                                                            Style="{StaticResource DeleteButtonIconStyle}"
+                                                            ToolTip="Удалить"
+                                                            Click="DeletePaymentButton_Click">
+                                                            <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10" 
+                                                              Stroke="White" 
+                                                              StrokeThickness="1.5"
+                                                              StrokeEndLineCap="Round"
+                                                              StrokeStartLineCap="Round"
+                                                              Width="14" Height="14"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock x:Name="NoPaymentsTextBlock"
+                                           Text="Нет истории платежей"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,15,0,0"
+                                           Foreground="{StaticResource TextTertiaryColor}"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+                    </ScrollViewer>
+                </TabItem>
+                <!-- Services Tab -->
+                <TabItem Header="Дополнительные услуги">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <TextBlock Text="Дополнительные услуги" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
+                                <Button x:Name="AddServiceButton"
+                                        Content="Добавить услугу"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="150"
+                                        Height="35"
+                                        HorizontalAlignment="Right"
+                                        Click="AddServiceButton_Click"/>
+                            </Grid>
+
+                            <DataGrid x:Name="ServicesDataGrid" 
+                                      Grid.Row="1"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      Margin="0,10,0,0"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="35">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название услуги" Binding="{Binding ServiceName}" Width="*"/>
+                                    <DataGridTextColumn Header="Категория" Binding="{Binding CategoryName}" Width="150"/>
+                                    <DataGridTextColumn Header="Дата" Binding="{Binding ItemDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                    <DataGridTextColumn Header="Кол-во" Binding="{Binding Quantity}" Width="70"/>
+                                    <DataGridTextColumn Header="Цена" Binding="{Binding UnitPrice, StringFormat={}{0:N2} ₽}" Width="100"/>
+                                    <DataGridTextColumn Header="Сумма" Binding="{Binding TotalPrice, StringFormat={}{0:N2} ₽}" Width="100"/>
+                                    <DataGridTemplateColumn Header="Действия" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Width="30" Height="30" 
+                                                            Style="{StaticResource ActionButtonIconStyle}"
+                                                            ToolTip="Редактировать"
+                                                            Margin="0,0,5,0"
+                                                            Click="EditServiceButton_Click">
+                                                        <Path Data="M12,2 L2,12 L1,15 L4,14 L14,4 L12,2 M12,2 L14,4" 
+                                                              Stroke="White" 
+                                                              StrokeThickness="1.5"
+                                                              StrokeEndLineCap="Round"
+                                                              StrokeStartLineCap="Round"
+                                                              Width="14" Height="14"/>
+                                                    </Button>
+                                                    <Button Width="30" Height="30" 
+                                                            Style="{StaticResource DeleteButtonIconStyle}"
+                                                            ToolTip="Удалить"
+                                                            Click="DeleteServiceButton_Click">
+                                                        <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10" 
+                                                              Stroke="White" 
+                                                              StrokeThickness="1.5"
+                                                              StrokeEndLineCap="Round"
+                                                              StrokeStartLineCap="Round"
+                                                              Width="14" Height="14"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock x:Name="NoServicesTextBlock" 
+                                       Grid.Row="1"
+                                       Text="Нет дополнительных услуг" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,20,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Border>
+                </TabItem>
+
+                <!-- Damage Reports Tab -->
+                <TabItem Header="Отчеты о повреждениях">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <TextBlock Text="Отчеты о повреждениях" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
+                                <Button x:Name="AddDamageButton"
+                                        Content="Добавить отчет"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="150"
+                                        Height="35"
+                                        HorizontalAlignment="Right"
+                                        Click="AddDamageButton_Click"/>
+                            </Grid>
+
+                            <DataGrid x:Name="DamageReportsDataGrid" 
+                                      Grid.Row="1"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      Margin="0,10,0,0"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="35">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="№" Binding="{Binding ReportId}" Width="60"/>
+                                    <DataGridTextColumn Header="Тип повреждения" Binding="{Binding DamageTypeName}" Width="*"/>
+                                    <DataGridTextColumn Header="Дата отчета" Binding="{Binding ReportDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                    <DataGridTextColumn Header="Степень" Binding="{Binding SeverityText}" Width="100"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="120"/>
+                                    <DataGridTextColumn Header="Оценка ущерба" Binding="{Binding EstimatedCost, StringFormat={}{0:N2} ₽}" Width="120"/>
+                                    <DataGridTemplateColumn Header="Действия" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Width="30" Height="30" 
+                                                            Style="{StaticResource InfoButtonIconStyle}"
+                                                            ToolTip="Просмотреть"
+                                                            Margin="0,0,5,0"
+                                                            Click="ViewDamageReportButton_Click">
+                                                        <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
+                                                              Fill="White" 
+                                                              Stretch="Uniform" 
+                                                              Width="14" Height="14"/>
+                                                    </Button>
+                                                    <Button Width="30" Height="30" 
+                                                            Style="{StaticResource ActionButtonIconStyle}"
+                                                            ToolTip="Редактировать"
+                                                            Click="EditDamageReportButton_Click">
+                                                        <Path Data="M12,2 L2,12 L1,15 L4,14 L14,4 L12,2 M12,2 L14,4" 
+                                                              Stroke="White" 
+                                                              StrokeThickness="1.5"
+                                                              StrokeEndLineCap="Round"
+                                                              StrokeStartLineCap="Round"
+                                                              Width="14" Height="14"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock x:Name="NoDamageReportsTextBlock" 
+                                       Grid.Row="1"
+                                       Text="Нет отчетов о повреждениях" 
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0,20,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Border>
+                </TabItem>
+
+               
+
+                <!-- Notes Tab -->
+                <TabItem Header="Примечания">
+                    <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Финансовая информация" 
+                            <TextBlock Text="Примечания к бронированию" 
                                        Style="{StaticResource SectionHeaderStyle}" 
                                        Margin="0,0,0,10"/>
 
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Общая стоимость:" 
-                                           Grid.Column="0" 
-                                           Foreground="{StaticResource TextTertiaryColor}"/>
-                                <TextBlock x:Name="TotalAmountTextBlock" 
-                                           Text="15 000.00 ₽" 
-                                           Grid.Column="1" 
-                                           FontWeight="SemiBold"/>
-                            </Grid>
+                            <TextBlock x:Name="NotesTextBlock" 
+                                       Text="Гость предпочитает номер с видом на город. Требуется дополнительная подушка." 
+                                       TextWrapping="Wrap"
+                                       Margin="0,5,0,0"/>
 
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Сумма депозита:" 
-                                           Grid.Column="0" 
-                                           Foreground="{StaticResource TextTertiaryColor}"/>
-                                <TextBlock x:Name="DepositAmountTextBlock" 
-                                           Text="5 000.00 ₽" 
-                                           Grid.Column="1" 
-                                           FontWeight="Medium"/>
-                            </Grid>
-
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Депозит оплачен:" 
-                                           Grid.Column="0" 
-                                           Foreground="{StaticResource TextTertiaryColor}"/>
-                                <TextBlock x:Name="DepositPaidTextBlock" 
-                                           Text="Да" 
-                                           Grid.Column="1" 
-                                           Foreground="{StaticResource SuccessColor}"
-                                           FontWeight="SemiBold"/>
-                            </Grid>
-
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Примечания:" 
-                                           Grid.Column="0" 
-                                           Foreground="{StaticResource TextTertiaryColor}"
-                                           VerticalAlignment="Top"/>
-                                <TextBlock x:Name="NotesTextBlock" 
-                                           Text="Гость предпочитает номер с видом на город. Требуется дополнительная подушка." 
-                                           Grid.Column="1" 
-                                           TextWrapping="Wrap"
-                                           FontWeight="Medium"/>
-                            </Grid>
+                            <TextBlock x:Name="NoNotesTextBlock" 
+                                       Text="Нет примечаний" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="0,5,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"
+                                       Visibility="Collapsed"/>
                         </StackPanel>
                     </Border>
-                </StackPanel>
-            </ScrollViewer>
+                </TabItem>
+            </TabControl>
 
-            <Border Grid.Row="2" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
+            <!-- Footer -->
+            <Border Grid.Row="3" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
+                    <Button x:Name="EditBookingButton" 
+                            Content="Редактировать бронирование" 
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            Width="240" 
+                            HorizontalAlignment="Left"
+                            Click="EditBookingButton_Click"/>
+
                     <Button x:Name="CloseButton2" 
                             Content="Закрыть" 
                             Style="{StaticResource PrimaryButtonStyle}" 

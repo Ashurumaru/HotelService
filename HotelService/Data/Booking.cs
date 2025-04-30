@@ -17,6 +17,7 @@ namespace HotelService.Data
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Booking()
         {
+            this.DamageReport = new HashSet<DamageReport>();
             this.LoyaltyTransaction = new HashSet<LoyaltyTransaction>();
             this.Payment = new HashSet<Payment>();
         }
@@ -45,6 +46,8 @@ namespace HotelService.Data
         public virtual BookingSource BookingSource { get; set; }
         public virtual BookingStatus BookingStatus { get; set; }
         public virtual User User { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DamageReport> DamageReport { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LoyaltyTransaction> LoyaltyTransaction { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -1,61 +1,70 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Data.Entity;
 using HotelService.Data;
+using System.ComponentModel;
 
 namespace HotelService.Views.Windows
 {
     public partial class GuestSelectWindow : Window
     {
-        private HotelServiceEntities _context;
-        private Guest _selectedGuest;
+        public Guest SelectedGuest { get; private set; }
 
-        public Guest SelectedGuest
-        {
-            get { return _selectedGuest; }
-        }
+        private List<Guest> _allGuests;
+        private ICollectionView _guestsView;
+        private string _searchText = "";
 
         public GuestSelectWindow()
         {
             InitializeComponent();
-            LoadGuests();
-            SearchTextBox.Focus();
+
+            LoadData();
+
+            Loaded += (s, e) =>
+            {
+                SearchTextBox.Focus();
+                if (GuestsDataGrid.Items.Count > 0)
+                    GuestsDataGrid.SelectedIndex = 0;
+            };
         }
 
-        private void LoadGuests(string searchText = "")
+        private void LoadData()
         {
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
-                _context = new HotelServiceEntities();
 
-                var guestsQuery = _context.Guest.AsQueryable();
-
-                if (!string.IsNullOrEmpty(searchText))
+                using (var context = new HotelServiceEntities())
                 {
-                    searchText = searchText.ToLower();
-                    guestsQuery = guestsQuery.Where(g =>
-                        g.FirstName.ToLower().Contains(searchText) ||
-                        g.LastName.ToLower().Contains(searchText) ||
-                        (g.MiddleName != null && g.MiddleName.ToLower().Contains(searchText)) ||
-                        (g.Phone != null && g.Phone.Contains(searchText)) ||
-                        (g.Email != null && g.Email.ToLower().Contains(searchText)));
+                    _allGuests = context.Guest
+                        .OrderBy(g => g.LastName)
+                        .ThenBy(g => g.FirstName)
+                        .ToList();
+
+                    _guestsView = CollectionViewSource.GetDefaultView(_allGuests);
+                    _guestsView.Filter = ApplyFilters;
+
+                    GuestsDataGrid.ItemsSource = _guestsView;
                 }
-
-                var guests = guestsQuery.OrderBy(g => g.LastName)
-                                    .ThenBy(g => g.FirstName)
-                                    .AsNoTracking()
-                                    .ToList();
-
-                GuestsDataGrid.ItemsSource = guests;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (_allGuests == null)
+                    _allGuests = new List<Guest>();
+
+                if (_guestsView == null)
+                {
+                    _guestsView = CollectionViewSource.GetDefaultView(_allGuests);
+                    GuestsDataGrid.ItemsSource = _guestsView;
+                }
             }
             finally
             {
@@ -63,69 +72,111 @@ namespace HotelService.Views.Windows
             }
         }
 
+        private bool ApplyFilters(object item)
+        {
+            if (!(item is Guest guest))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(_searchText))
+                return true;
+
+            string searchLower = _searchText.ToLower();
+
+            bool matchesLastName = guest.LastName != null && guest.LastName.ToLower().Contains(searchLower);
+            bool matchesFirstName = guest.FirstName != null && guest.FirstName.ToLower().Contains(searchLower);
+            bool matchesMiddleName = guest.MiddleName != null && guest.MiddleName.ToLower().Contains(searchLower);
+            bool matchesPhone = guest.Phone != null && guest.Phone.Contains(searchLower);
+            bool matchesEmail = guest.Email != null && guest.Email.ToLower().Contains(searchLower);
+
+            return matchesLastName || matchesFirstName || matchesMiddleName || matchesPhone || matchesEmail;
+        }
+
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string searchText = SearchTextBox.Text.Trim();
+            _searchText = SearchTextBox.Text.Trim();
 
-            if (searchText.Length >= 3 || searchText.Length == 0)
+            if (_guestsView != null)
             {
-                LoadGuests(searchText);
+                _guestsView.Refresh();
             }
         }
 
         private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Down && GuestsDataGrid.Items.Count > 0)
             {
-                LoadGuests(SearchTextBox.Text.Trim());
+                GuestsDataGrid.Focus();
+                GuestsDataGrid.SelectedIndex = 0;
+
+                DataGridRow row = (DataGridRow)GuestsDataGrid.ItemContainerGenerator.ContainerFromIndex(0);
+                if (row != null)
+                {
+                    row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+                }
+            }
+            else if (e.Key == Key.Enter && GuestsDataGrid.Items.Count > 0)
+            {
+                GuestsDataGrid.SelectedIndex = 0;
+                SelectGuest();
             }
         }
 
         private void GuestsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _selectedGuest = GuestsDataGrid.SelectedItem as Guest;
-            SelectButton.IsEnabled = (_selectedGuest != null);
+            SelectButton.IsEnabled = GuestsDataGrid.SelectedItem != null;
         }
 
         private void GuestsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (GuestsDataGrid.SelectedItem != null)
             {
-                _selectedGuest = GuestsDataGrid.SelectedItem as Guest;
-                this.DialogResult = true;
-                this.Close();
+                SelectGuest();
             }
+        }
+
+        private void SelectGuest()
+        {
+            SelectedGuest = GuestsDataGrid.SelectedItem as Guest;
+            DialogResult = true;
+            Close();
         }
 
         private void AddGuestButton_Click(object sender, RoutedEventArgs e)
         {
-            var addGuestWindow = new GuestEditWindow();
-            if (addGuestWindow.ShowDialog() == true)
+            var guestEditWindow = new GuestEditWindow();
+            if (guestEditWindow.ShowDialog() == true)
             {
-                LoadGuests(SearchTextBox.Text.Trim());
+                SelectedGuest = guestEditWindow.CreatedGuest;
 
-                if (addGuestWindow.CreatedGuest != null)
+                LoadData();
+
+                if (SelectedGuest != null)
                 {
-                    _selectedGuest = _context.Guest.Find(addGuestWindow.CreatedGuest.GuestId);
-                    this.DialogResult = true;
-                    this.Close();
+                    foreach (var item in GuestsDataGrid.Items)
+                    {
+                        if (item is Guest guest && guest.GuestId == SelectedGuest.GuestId)
+                        {
+                            GuestsDataGrid.SelectedItem = item;
+                            GuestsDataGrid.ScrollIntoView(item);
+                            break;
+                        }
+                    }
                 }
+
+                DialogResult = true;
+                Close();
             }
         }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedGuest != null)
-            {
-                this.DialogResult = true;
-                this.Close();
-            }
+            SelectGuest();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-            this.Close();
+            DialogResult = false;
+            Close();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -143,8 +194,8 @@ namespace HotelService.Views.Windows
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-            this.Close();
+            DialogResult = false;
+            Close();
         }
     }
 }

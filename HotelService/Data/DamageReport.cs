@@ -33,11 +33,13 @@ namespace HotelService.Data
         public int StatusId { get; set; }
         public string Notes { get; set; }
     
+        public virtual Booking Booking { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookingItem> BookingItem { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DamageEvidence> DamageEvidence { get; set; }
         public virtual DamageType DamageType { get; set; }
+        public virtual Guest Guest { get; set; }
         public virtual Room Room { get; set; }
         public virtual TaskStatus TaskStatus { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
