@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
         Title="Управление гостиницей" 
-        Height="720" 
+        Height="730" 
         Width="1380"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
@@ -76,20 +76,15 @@
                                 <Button x:Name="RoomsButton" Content="Номерной фонд" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
                                         Tag="/Resources/Images/key-card.png" Margin="5,5,5,5"/>
 
-                                <Button x:Name="CheckInButton" Content="Стойка регистрации" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/concierge.png"  Margin="5,5,5,5"/>
 
-                                <Button x:Name="PaymentsButton" Content="Платежи и счета" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/payment.png" Margin="5,5,5,5"/>
-
-                                <Button x:Name="ReportsButton" Content="Отчеты и аналитика" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
-                                        Tag="/Resources/Images/report.png" Margin="5,5,5,5"/>
-
-                                <Button x:Name="UsersButton" Content="Пользователи системы" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+                                <Button x:Name="UsersButton" Content="Сотрудники" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
                                         Tag="/Resources/Images/group.png"  Margin="5,5,5,5"/>
 
                                 <Button x:Name="HandBookButton" Content="Справочники" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
                                         Tag="/Resources/Images/book.png" Margin="5,5,5,5"/>
+
+                                <Button x:Name="ReportsButton" Content="Отчеты" Style="{StaticResource MenuButtonStyle}" Click="MenuButton_Click"
+           Tag="/Resources/Images/report.png" Margin="5,5,5,5"/>
                             </StackPanel>
                         </ScrollViewer>
                        

@@ -19,7 +19,7 @@
                    Style="{StaticResource PageTitleStyle}"
                    Margin="20,15,20,10"/>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
             <Grid Margin="20,5,20,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

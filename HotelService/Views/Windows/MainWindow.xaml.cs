@@ -114,10 +114,6 @@ namespace HotelService.Views.Windows
                     LoadGuestsContent();
                 else if (clickedButton == RoomsButton)
                     LoadRoomsContent();
-                else if (clickedButton == CheckInButton)
-                    LoadCheckInContent();
-                else if (clickedButton == PaymentsButton)
-                    LoadPaymentsContent();
                 else if (clickedButton == ReportsButton)
                     LoadReportsContent();
                 else if (clickedButton == UsersButton)

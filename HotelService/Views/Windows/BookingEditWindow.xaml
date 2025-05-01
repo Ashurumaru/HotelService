@@ -86,6 +86,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="GuestNameTextBlock" 
                                                    Text="Не выбран" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    TextWrapping="Wrap"
@@ -103,6 +104,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="GuestPhoneTextBlock" 
                                                    Text="—" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -119,6 +121,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="GuestEmailTextBlock" 
                                                    Text="—" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -135,6 +138,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="GuestVIPTextBlock" 
                                                    Text="Нет" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -156,6 +160,7 @@
                                                 Style="{StaticResource SecondaryButtonStyle}" 
                                                 HorizontalAlignment="Right"
                                                 Width="140"
+                                               
                                                 Height="35"
                                                 Margin="0,0,0,10"
                                                 Click="SelectRoomButton_Click"/>
@@ -172,6 +177,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="RoomNumberTextBlock" 
                                                    Text="Не выбран" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -189,6 +195,7 @@
                                         <TextBlock x:Name="RoomTypeTextBlock" 
                                                    Text="—" 
                                                    Grid.Column="1" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
                                     </Grid>
@@ -204,6 +211,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="RoomFloorTextBlock" 
                                                    Text="—" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -220,6 +228,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="RoomCapacityTextBlock" 
                                                    Text="—" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>
@@ -236,6 +245,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="RoomPriceTextBlock" 
                                                    Text="—" 
+                                                   Foreground="{StaticResource TextPrimaryColor}"
                                                    Grid.Column="1" 
                                                    FontWeight="Medium"
                                                    VerticalAlignment="Center"/>

@@ -173,6 +173,7 @@
                                     <TextBlock x:Name="GuestNameTextBlock" 
                                                Text="Иванов Иван Иванович" 
                                                Grid.Column="1" 
+                                               Foreground="{StaticResource TextPrimaryColor}"
                                                FontWeight="Medium"
                                                TextWrapping="Wrap"/>
                                 </Grid>
@@ -187,6 +188,8 @@
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="GuestPhoneTextBlock" 
                                                Text="+7 (999) 123-4567" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
                                 </Grid>
@@ -201,6 +204,8 @@
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="GuestEmailTextBlock" 
                                                Text="ivanov@example.com" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
                                 </Grid>
@@ -216,6 +221,8 @@
                                     <TextBlock x:Name="GuestAddressTextBlock" 
                                                Text="г. Улан-Удэ, ул. Ленина, 1, кв. 1" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"
                                                TextWrapping="Wrap"/>
                                 </Grid>
@@ -231,7 +238,8 @@
                                     <TextBlock x:Name="GuestVIPTextBlock" 
                                                Text="Да" 
                                                Grid.Column="1" 
-                                               Foreground="{StaticResource AccentColor}"
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="SemiBold"/>
                                 </Grid>
 
@@ -246,6 +254,8 @@
                                     <TextBlock x:Name="GuestPointsTextBlock" 
                                                Text="1250" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"/>
                                 </Grid>
                             </StackPanel>
@@ -269,6 +279,8 @@
                                     <TextBlock x:Name="SourceTextBlock" 
                                                Text="Телефонный звонок" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"/>
                                 </Grid>
 
@@ -282,6 +294,8 @@
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="CheckInDateTextBlock" 
                                                Text="21.05.2025" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
                                 </Grid>
@@ -297,6 +311,8 @@
                                     <TextBlock x:Name="CheckOutDateTextBlock" 
                                                Text="24.05.2025" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"/>
                                 </Grid>
 
@@ -309,6 +325,8 @@
                                                Grid.Column="0" 
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="NightsCountTextBlock" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                Text="3" 
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
@@ -324,6 +342,8 @@
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="AdultsTextBlock" 
                                                Text="2" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
                                 </Grid>
@@ -339,6 +359,8 @@
                                     <TextBlock x:Name="ChildrenTextBlock" 
                                                Text="1" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"/>
                                 </Grid>
 
@@ -353,6 +375,8 @@
                                     <TextBlock x:Name="RoomNumberTextBlock" 
                                                Text="101" 
                                                Grid.Column="1" 
+                                                                                              Foreground="{StaticResource TextPrimaryColor}"
+
                                                FontWeight="Medium"/>
                                 </Grid>
 
@@ -367,6 +391,7 @@
                                     <TextBlock x:Name="RoomTypeTextBlock" 
                                                Text="Люкс" 
                                                Grid.Column="1" 
+                                               Foreground="{StaticResource TextPrimaryColor}"
                                                FontWeight="Medium"/>
                                 </Grid>
                             </StackPanel>
@@ -377,149 +402,183 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
-                                <TextBlock Text="Финансовая информация"
-                                           Style="{StaticResource SectionHeaderStyle}"
-                                           Margin="0,0,0,10"/>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Общая стоимость:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="TotalAmountTextBlock"
-                                               Text="15 000.00 ₽"
-                                               Grid.Column="1"
-                                               FontWeight="SemiBold"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Сумма депозита:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="DepositAmountTextBlock"
-                                               Text="5 000.00 ₽"
-                                               Grid.Column="1"
-                                               FontWeight="Medium"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Депозит оплачен:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="DepositPaidTextBlock"
-                                               Text="Да"
-                                               Grid.Column="1"
-                                               Foreground="{StaticResource SuccessColor}"
-                                               FontWeight="SemiBold"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Финансовый статус:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="FinancialStatusTextBlock"
-                                               Text="Оплачено"
-                                               Grid.Column="1"
-                                               Foreground="{StaticResource SuccessColor}"
-                                               FontWeight="SemiBold"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Дата бронирования:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="IssueDateTextBlock"
-                                               Text="15.04.2025"
-                                               Grid.Column="1"
-                                               FontWeight="Medium"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Срок оплаты:"
-                                               Grid.Column="0"
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="DueDateTextBlock"
-                                               Text="30.04.2025"
-                                               Grid.Column="1"
-                                               FontWeight="Medium"/>
-                                </Grid>
-
-                                <TextBlock Text="История платежей"
+                                <Grid>
+                                    <StackPanel>
+                                        <TextBlock Text="Финансовая информация"
                            Style="{StaticResource SectionHeaderStyle}"
-                           Margin="0,15,0,10"/>
+                           Margin="0,0,0,10"/>
 
-                                <Grid Margin="0,0,0,10">
-                                    <Button x:Name="AddPaymentButton"
-                            Content="Добавить оплату"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Width="150"
-                                            Grid.ColumnSpan="4"
-                            Height="35"
-                            HorizontalAlignment="Right"
-                            Click="AddPaymentButton_Click"/>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Cтоимость бронирования:"
+                               Grid.Column="0"
+                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="TotalAmountTextBlock"
+                               Text="15 000.00 ₽"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                               Grid.Column="1"
+                               FontWeight="SemiBold"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Сумма депозита:"
+                               Grid.Column="0"
+                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="DepositAmountTextBlock"
+                               Text="5 000.00 ₽"
+                               Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                               FontWeight="Medium"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Депозит оплачен:"
+                               Grid.Column="0"
+                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="DepositPaidTextBlock"
+                               Text="Да"
+                               Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                               FontWeight="SemiBold"/>
+                                        </Grid>
+
+
+
+
+        
+                                    </StackPanel>
+                                    <Grid Margin="0,20,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Margin="0 15 0 0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Height="100">
+                                            
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="180"/>
+                                                        <ColumnDefinition Width="120"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="Итого начислено:" 
+                                           Foreground="{StaticResource TextSecondaryColor}"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,0,10,5"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" 
+                                           x:Name="TotalChargesTextBlock"
+                                                               Foreground="{StaticResource TextPrimaryColor}"
+                                           Text="15 000.00 ₽" 
+                                           FontWeight="Medium"
+                                           HorizontalAlignment="Right"/>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                                           Text="Итого оплачено:" 
+                                           Foreground="{StaticResource TextSecondaryColor}"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,0,10,5"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" 
+                                           x:Name="TotalPaidSummaryTextBlock"
+                                           Text="10 000.00 ₽" 
+                                                               Foreground="{StaticResource TextPrimaryColor}"
+                                                               FontWeight="Medium"
+                                           HorizontalAlignment="Right"/>
+
+
+
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" 
+                                           Text="Осталось оплатить:" 
+                                           Foreground="{StaticResource TextSecondaryColor}"
+                                           FontWeight="Medium"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,5,10,0"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" 
+                                           x:Name="RemainingAmountSummaryTextBlock"
+                                           Text="5 000.00 ₽" 
+                                                               Foreground="{StaticResource TextPrimaryColor}"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,5,0,0"/>
+                                                </Grid>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
+
+
+                                <Grid>
+                                    <TextBlock Text="История платежей"
+Style="{StaticResource SectionHeaderStyle}"
+Margin="0,8,0,10"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button x:Name="AddPaymentButton"
+     Content="Добавить оплату"
+     Style="{StaticResource SecondaryButtonStyle}"
+     Width="150"
+     Height="35"
+     Margin="0,0,0,0"
+     Click="AddPaymentButton_Click"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                               
+
                                 <DataGrid x:Name="PaymentsDataGrid" 
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                          Grid.ColumnSpan="5"
-                                      Style="{StaticResource DefaultDataGridStyle}"
-                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                                      RowStyle="{StaticResource DataGridRowStyle}"
-                                      CellStyle="{StaticResource DataGridCellStyle}"
-                                      RowHeight="35">
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          Style="{StaticResource DefaultDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource DataGridRowStyle}"
+                          CellStyle="{StaticResource DataGridCellStyle}"
+                          RowHeight="35">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Дата" Binding="{Binding PaymentDate, StringFormat=dd.MM.yyyy HH:mm}" Width="auto"/>
+                                        <DataGridTextColumn Header="Тип" Binding="{Binding PaymentType}" Width="auto"/>
                                         <DataGridTextColumn Header="Способ оплаты" Binding="{Binding PaymentMethodName}" Width="auto"/>
                                         <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat={}{0:N2} ₽}" Width="auto"/>
-                                        <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="auto"/>
                                         <DataGridTextColumn Header="Примечание" Binding="{Binding Notes}" Width="auto"/>
                                         <DataGridTemplateColumn Header="Действия" Width="auto">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                         <Button Width="30" Height="30" 
-                                                            Style="{StaticResource InfoButtonIconStyle}"
-                                                            ToolTip="Просмотреть"
-                                                            Margin="0,0,5,0"
-                                                            Click="ViewPaymentButton_Click">
+                                                Style="{StaticResource InfoButtonIconStyle}"
+                                                ToolTip="Просмотреть"
+                                                Margin="0,0,5,0"
+                                                Click="ViewPaymentButton_Click">
                                                             <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
-                                                              Fill="White" 
-                                                              Stretch="Uniform" 
-                                                              Width="14" Height="14"/>
+                                                  Fill="White" 
+                                                  Stretch="Uniform" 
+                                                  Width="14" Height="14"/>
                                                         </Button>
                                                         <Button Width="30" Height="30" 
-                                                            Style="{StaticResource DeleteButtonIconStyle}"
-                                                            ToolTip="Удалить"
-                                                            Click="DeletePaymentButton_Click">
+                                                Style="{StaticResource DeleteButtonIconStyle}"
+                                                ToolTip="Удалить"
+                                                Click="DeletePaymentButton_Click">
                                                             <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10" 
-                                                              Stroke="White" 
-                                                              StrokeThickness="1.5"
-                                                              StrokeEndLineCap="Round"
-                                                              StrokeStartLineCap="Round"
-                                                              Width="14" Height="14"/>
+                                                  Stroke="White" 
+                                                  StrokeThickness="1.5"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  Width="14" Height="14"/>
                                                         </Button>
                                                     </StackPanel>
                                                 </DataTemplate>
@@ -527,12 +586,44 @@
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
+
                                 <TextBlock x:Name="NoPaymentsTextBlock"
-                                           Text="Нет истории платежей"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,15,0,0"
-                                           Foreground="{StaticResource TextTertiaryColor}"
-                                           FontStyle="Italic"/>
+                           Text="Нет истории платежей"
+                           HorizontalAlignment="Center"
+                           Margin="0,15,0,0"
+                           Foreground="{StaticResource TextTertiaryColor}"
+                           FontStyle="Italic"/>
+
+                                <TextBlock Text="Начисления по бронированию"
+                           Style="{StaticResource SectionHeaderStyle}"
+                           Margin="0,25,0,10"/>
+
+                                <DataGrid x:Name="ChargesDataGrid" 
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          Style="{StaticResource DefaultDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource DataGridRowStyle}"
+                          CellStyle="{StaticResource DataGridCellStyle}"
+                          RowHeight="35">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="auto"/>
+                                        <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="auto"/>
+                                        <DataGridTextColumn Header="Кол-во" Binding="{Binding Quantity}" Width="auto"/>
+                                        <DataGridTextColumn Header="Цена" Binding="{Binding UnitPrice, StringFormat={}{0:N2} ₽}" Width="auto"/>
+                                        <DataGridTextColumn Header="Сумма" Binding="{Binding TotalPrice, StringFormat={}{0:N2} ₽}" Width="auto"/>
+                                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="auto"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock x:Name="NoChargesTextBlock"
+                           Text="Нет начислений"
+                           HorizontalAlignment="Center"
+                           Margin="0,15,0,0"
+                           Foreground="{StaticResource TextTertiaryColor}"
+                           FontStyle="Italic"/>
+
+
                             </StackPanel>
                         </Border>
                     </ScrollViewer>
@@ -707,7 +798,191 @@
                     </Border>
                 </TabItem>
 
-               
+
+                <TabItem Header="Программа лояльности">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Style="{StaticResource CardStyle}" Margin="20,15,20,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                        <TextBlock Text="Программа лояльности"
+                               Style="{StaticResource SectionHeaderStyle}"
+                               Margin="0,0,0,15"/>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Гость:"
+                                   Grid.Column="0"
+                                   Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="LoyaltyGuestNameTextBlock"
+                                   Text="Иванов Иван Иванович"
+                                   Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                                   FontWeight="Medium"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Текущий баланс:"
+                                   Grid.Column="0"
+                                   Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="LoyaltyPointsBalanceTextBlock"
+                                   Text="1250 баллов"
+                                   Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Курс обмена баллов:"
+                                   Grid.Column="0"
+                                   Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="LoyaltyExchangeRateTextBlock"
+                                   Text="100 баллов = 100.00 ₽"
+                                   Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                                   FontWeight="Medium"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Начисление по оплатам:"
+                                   Grid.Column="0"
+                                   Foreground="{StaticResource TextTertiaryColor}"/>
+                                            <TextBlock x:Name="LoyaltyEarnRateTextBlock"
+                                   Text="5% от суммы оплаты"
+                                   Grid.Column="1"
+                                                       Foreground="{StaticResource TextPrimaryColor}"
+                                   FontWeight="Medium"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="0,30,0,0">
+                                        <Button x:Name="AddPointsButton"
+                                Content="Начислить баллы"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="160"
+                                Height="40"
+                                Margin="0,0,0,10"
+                                Click="AddPointsButton_Click"/>
+
+                                        <Button x:Name="RedeemPointsButton"
+                                Content="Списать баллы"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="160"
+                                Height="40"
+                                Margin="0,0,0,10"
+                                Click="RedeemPointsButton_Click"/>
+
+                                        <Button x:Name="AdjustPointsButton"
+                                Content="Корректировать"
+                                Style="{StaticResource TextButtonStyle}"
+                                Width="160"
+                                Height="40"
+                                Click="AdjustPointsButton_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Grid Grid.Row="1" Margin="20,0,20,15">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0"
+                                   Text="История операций по баллам"
+                                   Style="{StaticResource SectionHeaderStyle}"
+                                   Margin="0,0,0,10"/>
+
+                                        <DataGrid x:Name="LoyaltyTransactionsDataGrid"
+                                  Grid.Row="1"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  Style="{StaticResource DefaultDataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                  RowStyle="{StaticResource DataGridRowStyle}"
+                                  CellStyle="{StaticResource DataGridCellStyle}"
+                                  RowHeight="40">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Дата" Binding="{Binding TransactionDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
+                                                <DataGridTextColumn Header="Тип операции" Binding="{Binding TypeName}" Width="180"/>
+                                                <DataGridTextColumn Header="Баллы" Binding="{Binding FormattedPoints}" Width="100"/>
+                                                <DataGridTextColumn Header="Связанные операции" Binding="{Binding BookingInfo}" Width="150"/>
+                                                <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
+                                                <DataGridTemplateColumn Header="Действия" Width="Auto">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                <Button Width="32" Height="32"
+                                                        Style="{StaticResource InfoButtonIconStyle}"
+                                                        ToolTip="Просмотреть детали"
+                                                        Margin="0,0,5,0"
+                                                        Click="ViewTransactionButton_Click">
+                                                                    <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z"
+                                                          Fill="White"
+                                                          Stretch="Uniform"
+                                                          Width="16" Height="16"/>
+                                                                </Button>
+                                                                <Button Width="32" Height="32"
+                                                        Style="{StaticResource DeleteButtonIconStyle}"
+                                                        Visibility="{Binding CanCancel, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                        ToolTip="Отменить операцию"
+                                                        Click="CancelTransactionButton_Click">
+                                                                    <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10"
+                                                          Stroke="White"
+                                                          StrokeThickness="1.5"
+                                                          StrokeEndLineCap="Round"
+                                                          StrokeStartLineCap="Round"
+                                                          Width="16" Height="16"/>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+
+                                    
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
 
                 <!-- Notes Tab -->
                 <TabItem Header="Примечания">
@@ -720,9 +995,11 @@
                             <TextBlock x:Name="NotesTextBlock" 
                                        Text="Гость предпочитает номер с видом на город. Требуется дополнительная подушка." 
                                        TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextPrimaryColor}"
                                        Margin="0,5,0,0"/>
 
                             <TextBlock x:Name="NoNotesTextBlock" 
+                                       
                                        Text="Нет примечаний" 
                                        HorizontalAlignment="Left" 
                                        Margin="0,5,0,0" 

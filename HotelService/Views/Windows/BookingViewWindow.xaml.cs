@@ -14,6 +14,25 @@ namespace HotelService.Views.Windows
     {
         private readonly int _bookingId;
         private Booking _booking;
+        private decimal _totalPaid = 0;
+        private decimal _totalCharges = 0;
+        private const decimal LOYALTY_EARN_RATE = 0.05m; // 5% of payment amount
+        private const decimal LOYALTY_EXCHANGE_RATE = 1.0m; // 1 point = 1 ruble
+        private const int SILVER_THRESHOLD = 1000;
+        private const int GOLD_THRESHOLD = 2000;
+        private const int PLATINUM_THRESHOLD = 5000;
+
+        // Transaction type constants (these should match your database)
+        private const int TRANSACTION_TYPE_EARNING = 1;      // Earning points
+        private const int TRANSACTION_TYPE_REDEEMING = 2;    // Redeeming points
+        private const int TRANSACTION_TYPE_ADJUSTMENT = 3;   // Manual adjustment
+        private const int TRANSACTION_TYPE_PAYMENT_EARN = 4; // Earning from payment
+        private const int TRANSACTION_TYPE_CANCELLATION = 5; // Cancellation transaction
+
+        // State tracking for filtering
+        private int? _selectedTransactionTypeFilter;
+        private DateTime? _startDateFilter;
+        private DateTime? _endDateFilter;
 
         // Представления для связанных данных
         private class ServiceViewModel
@@ -39,10 +58,42 @@ namespace HotelService.Views.Windows
         {
             public int PaymentId { get; set; }
             public DateTime PaymentDate { get; set; }
+            public string PaymentType { get; set; } = "Платеж";
             public string PaymentMethodName { get; set; }
             public decimal Amount { get; set; }
             public string StatusName { get; set; }
             public string Notes { get; set; }
+            public int SourceId { get; set; } // 1 = Payment, 2 = Service, 3 = Damage
+            public int? SourceItemId { get; set; } // ID of the related service or damage report
+        }
+        private class LoyaltyTransactionViewModel
+        {
+            public int TransactionId { get; set; }
+            public DateTime TransactionDate { get; set; }
+            public int TypeId { get; set; }
+            public string TypeName { get; set; }
+            public int Points { get; set; }
+            public string FormattedPoints => Points >= 0 ? $"+{Points}" : Points.ToString();
+            public string Description { get; set; }
+            public int? BookingId { get; set; }
+            public int? PaymentId { get; set; }
+            public string BookingInfo => BookingId.HasValue ? $"Бронирование #{BookingId}" : "-";
+            public bool CanCancel { get; set; }
+
+            // For UI formatting - to color the points
+            public bool IsPositive => Points >= 0;
+        }
+
+        private class ChargeViewModel
+        {
+            public string Description { get; set; }
+            public DateTime Date { get; set; }
+            public int Quantity { get; set; } = 1;
+            public decimal UnitPrice { get; set; }
+            public decimal TotalPrice { get; set; }
+            public string Status { get; set; } = "Неоплачено";
+            public int SourceId { get; set; } // 1 = Room charge, 2 = Service, 3 = Damage
+            public int? SourceItemId { get; set; } // ID of the related service or damage report
         }
 
         public BookingViewWindow(int bookingId)
@@ -80,9 +131,17 @@ namespace HotelService.Views.Windows
                     // Загрузка связанных данных
                     LoadBookingServices(context);
                     LoadDamageReports(context);
-                    LoadPayments(context);
-
+                    LoadFinancialData(context);
+                    LoadLoyaltyTransactions(context);
                     // Отображение данных
+                    if (_booking.Guest != null)
+                    {
+                        GuestPointsTextBlock.Text = _booking.Guest.CurrentPoints.ToString();
+                    }
+                    else
+                    {
+                        GuestPointsTextBlock.Text = "0";
+                    }
                     DisplayBookingData();
                 }
             }
@@ -96,33 +155,578 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void LoadPayments(HotelServiceEntities context)
+        private void LoadLoyaltyProgramInfo(HotelServiceEntities context)
         {
             try
             {
-                var payments = (from p in context.Payment
-                                join pm in context.PaymentMethod on p.PaymentMethodId equals pm.PaymentMethodId
-                                join fs in context.FinancialStatus on p.StatusId equals fs.StatusId
-                                where p.BookingId == _bookingId
-                                orderby p.PaymentDate descending
-                                select new PaymentViewModel
-                                {
-                                    PaymentId = p.PaymentId,
-                                    Amount = p.Amount,
-                                    PaymentDate = p.PaymentDate,
-                                    PaymentMethodName = pm.MethodName,
-                                    StatusName = fs.StatusName,
-                                    Notes = p.Notes
-                                }).ToList();
+                if (_booking?.Guest == null)
+                {
+                    return;
+                }
 
+                // Load guest details
+                var guest = context.Guest.Find(_booking.Guest.GuestId);
+                if (guest == null) return;
+
+                // Display guest name
+                string fullName = $"{guest.LastName} {guest.FirstName} {guest.MiddleName}".Trim();
+                LoyaltyGuestNameTextBlock.Text = fullName;
+
+                // Display current points balance
+                LoyaltyPointsBalanceTextBlock.Text = $"{guest.CurrentPoints} баллов";
+
+                // Display loyalty status and next level info
+                UpdateLoyaltyStatusDisplay(guest.CurrentPoints);
+
+                // Display exchange rate
+                LoyaltyExchangeRateTextBlock.Text = $"100 баллов = {(100 * LOYALTY_EXCHANGE_RATE):N2} ₽";
+
+                // Display earning rate
+                LoyaltyEarnRateTextBlock.Text = $"{LOYALTY_EARN_RATE:P0} от суммы оплаты";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке информации о программе лояльности: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Load loyalty transactions with filtering
+        private void LoadLoyaltyTransactions(HotelServiceEntities context)
+        {
+            try
+            {
+                if (_booking?.Guest == null)
+                {
+                    LoyaltyTransactionsDataGrid.ItemsSource = null;
+                    return;
+                }
+
+                // Base query for transactions
+                var query = context.LoyaltyTransaction
+                    .Include(lt => lt.TransactionType)
+                    .Where(lt => lt.GuestId == _booking.Guest.GuestId)
+                    .AsQueryable();
+
+                // Apply filters if set
+                if (_selectedTransactionTypeFilter.HasValue)
+                {
+                    query = query.Where(lt => lt.TypeId == _selectedTransactionTypeFilter.Value);
+                }
+
+                if (_startDateFilter.HasValue)
+                {
+                    query = query.Where(lt => lt.TransactionDate >= _startDateFilter.Value);
+                }
+
+                if (_endDateFilter.HasValue)
+                {
+                    var endDate = _endDateFilter.Value.AddDays(1).AddSeconds(-1); // End of the day
+                    query = query.Where(lt => lt.TransactionDate <= endDate);
+                }
+
+                // Load and map to view model
+                var transactions = query
+                    .OrderByDescending(lt => lt.TransactionDate)
+                    .ToList()
+                    .Select(lt => new LoyaltyTransactionViewModel
+                    {
+                        TransactionId = lt.TransactionId,
+                        TransactionDate = lt.TransactionDate,
+                        TypeId = lt.TypeId,
+                        TypeName = lt.TransactionType?.TypeName ?? "Неизвестно",
+                        Points = lt.Points,
+                        Description = lt.Description,
+                        BookingId = lt.BookingId,
+                        // Can only cancel recent manual transactions, not automatic ones
+                        CanCancel = (DateTime.Now - lt.TransactionDate).TotalDays < 7 &&
+                                   (lt.TypeId == TRANSACTION_TYPE_EARNING || lt.TypeId == TRANSACTION_TYPE_ADJUSTMENT)
+                    })
+                    .ToList();
+
+                // Update data grid
+                LoyaltyTransactionsDataGrid.ItemsSource = transactions;
+
+                // Update summary counters
+                int totalEarned = transactions.Where(t => t.Points > 0).Sum(t => t.Points);
+                int totalRedeemed = transactions.Where(t => t.Points < 0).Sum(t => Math.Abs(t.Points));
+
+            }
+            catch (Exception ex)
+            {
+                LoyaltyTransactionsDataGrid.ItemsSource = null;
+
+                MessageBox.Show($"Ошибка при загрузке транзакций лояльности: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Update loyalty status display
+        private void UpdateLoyaltyStatusDisplay(int currentPoints)
+        {
+            string status;
+            string nextLevelText = "";
+            Brush statusColor;
+
+            if (currentPoints >= PLATINUM_THRESHOLD)
+            {
+                status = "Платиновый";
+                nextLevelText = "Максимальный уровень достигнут";
+                statusColor = FindResource("PrimaryColor") as SolidColorBrush;
+            }
+            else if (currentPoints >= GOLD_THRESHOLD)
+            {
+                status = "Золотой";
+                int pointsToNextLevel = PLATINUM_THRESHOLD - currentPoints;
+                nextLevelText = $"До Платинового: {pointsToNextLevel} баллов";
+                statusColor = FindResource("AccentColor") as SolidColorBrush;
+            }
+            else if (currentPoints >= SILVER_THRESHOLD)
+            {
+                status = "Серебряный";
+                int pointsToNextLevel = GOLD_THRESHOLD - currentPoints;
+                nextLevelText = $"До Золотого: {pointsToNextLevel} баллов";
+                statusColor = Brushes.Silver;
+            }
+            else
+            {
+                status = "Стандарт";
+                int pointsToNextLevel = SILVER_THRESHOLD - currentPoints;
+                nextLevelText = $"До Серебряного: {pointsToNextLevel} баллов";
+                statusColor = FindResource("TextTertiaryColor") as SolidColorBrush;
+            }
+        }
+
+        // Filter change handlers
+        private void TransactionTypeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+          
+
+            using (var context = new HotelServiceEntities())
+            {
+                LoadLoyaltyTransactions(context);
+            }
+        }
+
+        private void DateFilter_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+          
+            using (var context = new HotelServiceEntities())
+            {
+                LoadLoyaltyTransactions(context);
+            }
+        }
+
+        private void ClearFiltersButton_Click(object sender, RoutedEventArgs e)
+        {
+          
+
+            _selectedTransactionTypeFilter = null;
+            _startDateFilter = null;
+            _endDateFilter = null;
+
+            using (var context = new HotelServiceEntities())
+            {
+                LoadLoyaltyTransactions(context);
+            }
+        }
+
+        // Transaction action handlers
+        private void AddPointsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для начисления баллов лояльности.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_booking?.Guest == null)
+            {
+                MessageBox.Show("Невозможно начислить баллы. Гость не указан в бронировании.", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var loyaltyWindow = new LoyaltyTransactionWindow(_booking.Guest.GuestId, _bookingId, TRANSACTION_TYPE_EARNING);
+            if (loyaltyWindow.ShowDialog() == true)
+            {
+                using (var context = new HotelServiceEntities())
+                {
+                    LoadLoyaltyProgramInfo(context);
+                    LoadLoyaltyTransactions(context);
+                }
+            }
+        }
+
+        private void RedeemPointsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для списания баллов лояльности.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+        
+
+            var loyaltyWindow = new LoyaltyTransactionWindow(_booking.Guest.GuestId, _bookingId, TRANSACTION_TYPE_REDEEMING);
+            if (loyaltyWindow.ShowDialog() == true)
+            {
+                using (var context = new HotelServiceEntities())
+                {
+                    LoadLoyaltyProgramInfo(context);
+                    LoadLoyaltyTransactions(context);
+                }
+            }
+        }
+
+        private void AdjustPointsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1)
+            {
+                MessageBox.Show("У вас нет прав для корректировки баллов лояльности. Операция доступна только для администратора системы.",
+                    "Доступ запрещен", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_booking?.Guest == null)
+            {
+                MessageBox.Show("Невозможно корректировать баллы. Гость не указан в бронировании.", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var loyaltyWindow = new LoyaltyTransactionWindow(_booking.Guest.GuestId, _bookingId, TRANSACTION_TYPE_ADJUSTMENT);
+            if (loyaltyWindow.ShowDialog() == true)
+            {
+                using (var context = new HotelServiceEntities())
+                {
+                    LoadLoyaltyProgramInfo(context);
+                    LoadLoyaltyTransactions(context);
+                }
+            }
+        }
+
+        private void ViewTransactionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var transaction = (sender as Button)?.DataContext as LoyaltyTransactionViewModel;
+            if (transaction == null) return;
+
+            // Format transaction details
+            string typeColorIndicator = transaction.Points >= 0 ? "✓" : "✗";
+            string typeColor = transaction.Points >= 0 ? "зеленым" : "красным";
+
+            string details = $"Транзакция баллов лояльности № {transaction.TransactionId}\n\n" +
+                             $"Дата и время: {transaction.TransactionDate:dd.MM.yyyy HH:mm:ss}\n" +
+                             $"Тип операции: {transaction.TypeName} ({typeColorIndicator})\n" +
+                             $"Количество баллов: {transaction.FormattedPoints} (отмечено {typeColor})\n" +
+                             $"Связанное бронирование: {(transaction.BookingId.HasValue ? $"№{transaction.BookingId}" : "Нет")}\n\n" +
+                             $"Описание:\n{transaction.Description ?? "Нет описания"}";
+
+            MessageBox.Show(details, "Информация о транзакции", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void CancelTransactionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1)
+            {
+                MessageBox.Show("У вас нет прав для отмены транзакций. Операция доступна только для администратора системы.",
+                    "Доступ запрещен", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var transaction = (sender as Button)?.DataContext as LoyaltyTransactionViewModel;
+            if (transaction == null) return;
+
+            // Confirm cancellation
+            var result = MessageBox.Show(
+                $"Вы уверены, что хотите отменить транзакцию №{transaction.TransactionId}?\n\n" +
+                $"Тип: {transaction.TypeName}\n" +
+                $"Баллы: {transaction.FormattedPoints}\n" +
+                $"Дата: {transaction.TransactionDate:dd.MM.yyyy HH:mm}\n\n" +
+                "Будет создана новая транзакция с противоположным значением баллов.",
+                "Подтверждение отмены", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using (var context = new HotelServiceEntities())
+                {
+                    // Get the transaction to cancel
+                    var originalTransaction = context.LoyaltyTransaction.Find(transaction.TransactionId);
+                    if (originalTransaction == null)
+                    {
+                        MessageBox.Show("Транзакция не найдена в базе данных.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // Create cancellation transaction
+                    var cancellationTransaction = new LoyaltyTransaction
+                    {
+                        GuestId = originalTransaction.GuestId,
+                        TypeId = TRANSACTION_TYPE_CANCELLATION,
+                        Points = -originalTransaction.Points, // Reverse the points
+                        BookingId = originalTransaction.BookingId,
+                        Description = $"Отмена транзакции №{originalTransaction.TransactionId} от {originalTransaction.TransactionDate:dd.MM.yyyy HH:mm}. " +
+                                     $"Причина: отмена через интерфейс администратора.",
+                        TransactionDate = DateTime.Now
+                    };
+
+                    context.LoyaltyTransaction.Add(cancellationTransaction);
+
+                    // Update guest points balance
+                    var guest = context.Guest.Find(originalTransaction.GuestId);
+                    if (guest != null)
+                    {
+                        guest.CurrentPoints += cancellationTransaction.Points;
+
+                        // Prevent negative balance
+                        if (guest.CurrentPoints < 0)
+                        {
+                            MessageBox.Show("Невозможно отменить транзакцию, так как это приведет к отрицательному балансу баллов.",
+                                "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+
+                    context.SaveChanges();
+
+                    MessageBox.Show("Транзакция успешно отменена. Баланс баллов обновлен.",
+                        "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Reload data
+                    LoadLoyaltyProgramInfo(context);
+                    LoadLoyaltyTransactions(context);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при отмене транзакции: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+      
+        private void LoadFinancialData(HotelServiceEntities context)
+        {
+            try
+            {
+                if (_booking == null) return;
+
+                // Reset total values
+                _totalPaid = 0;
+                _totalCharges = 0;
+
+                // Load main booking financial information
+                LoadMainFinancialInfo();
+
+                // Load all payments
+                LoadPaymentsData(context);
+
+                // Load all charges
+                LoadChargesData(context);
+
+                // Calculate and update summary
+                UpdateFinancialSummary();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке финансовых данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadMainFinancialInfo()
+        {
+            // Update booking financial information
+            TotalAmountTextBlock.Text = string.Format("{0:N2} ₽", _booking.TotalAmount);
+
+            if (_booking.DepositAmount.HasValue)
+            {
+                DepositAmountTextBlock.Text = string.Format("{0:N2} ₽", _booking.DepositAmount.Value);
+            }
+            else
+            {
+                DepositAmountTextBlock.Text = "0.00 ₽";
+            }
+
+            DepositPaidTextBlock.Text = _booking.DepositPaid ? "Да" : "Нет";
+            DepositPaidTextBlock.Foreground = _booking.DepositPaid
+                ? FindResource("SuccessColor") as SolidColorBrush
+                : FindResource("WarningColor") as SolidColorBrush;
+
+        }
+
+        private void LoadPaymentsData(HotelServiceEntities context)
+        {
+            try
+            {
+                var payments = new List<PaymentViewModel>();
+
+                // First, try to get payments directly without joins to diagnose
+                var allPayments = context.Payment
+                    .Where(p => p.BookingId == _bookingId)
+                    .ToList();
+
+                // Log diagnostic information
+                int paymentCount = allPayments.Count;
+
+                // Now load with left joins to ensure we get all payments even if method or status is missing
+                var regularPayments = (from p in context.Payment
+                                       join pm in context.PaymentMethod on p.PaymentMethodId equals pm.PaymentMethodId into pmJoin
+                                       from pm in pmJoin.DefaultIfEmpty()
+                                       join fs in context.FinancialStatus on p.StatusId equals fs.StatusId into fsJoin
+                                       from fs in fsJoin.DefaultIfEmpty()
+                                       where p.BookingId == _bookingId
+                                       orderby p.PaymentDate descending
+                                       select new PaymentViewModel
+                                       {
+                                           PaymentId = p.PaymentId,
+                                           Amount = p.Amount,
+                                           PaymentDate = p.PaymentDate,
+                                           PaymentType = "Платеж",
+                                           PaymentMethodName = pm != null ? pm.MethodName : "Неизвестно",
+                                           StatusName = fs != null ? fs.StatusName : "Неизвестно",
+                                           Notes = p.Notes,
+                                           SourceId = 1,
+                                           SourceItemId = null
+                                       }).ToList();
+
+                payments.AddRange(regularPayments);
+
+                // Считаем сумму всех платежей (без учета статуса)
+                // Для финансовой вкладки считаем все платежи учтенными
+                _totalPaid = allPayments.Sum(p => p.Amount);
+
+               
+
+                // Update payment DataGrid
                 PaymentsDataGrid.ItemsSource = payments;
                 NoPaymentsTextBlock.Visibility = payments.Any() ? Visibility.Collapsed : Visibility.Visible;
             }
-            catch
+            catch (Exception ex)
             {
                 PaymentsDataGrid.ItemsSource = new List<PaymentViewModel>();
                 NoPaymentsTextBlock.Visibility = Visibility.Visible;
+                MessageBox.Show($"Ошибка при загрузке платежей: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void LoadChargesData(HotelServiceEntities context)
+        {
+            try
+            {
+                var charges = new List<ChargeViewModel>();
+
+                // Main room charge
+                var nights = (_booking.CheckOutDate.Date - _booking.CheckInDate.Date).Days;
+                decimal roomRate = _booking.Room?.BasePrice ?? 0;
+
+                var roomCharge = new ChargeViewModel
+                {
+                    Description = $"Проживание ({nights} {GetNightsText(nights)})",
+                    Date = _booking.CheckInDate,
+                    Quantity = nights,
+                    UnitPrice = roomRate,
+                    TotalPrice = roomRate * nights,
+                    Status = "Основное бронирование",
+                    SourceId = 1
+                };
+
+                charges.Add(roomCharge);
+                _totalCharges += roomCharge.TotalPrice;
+
+                // Additional services
+                try
+                {
+                    var services = (from bi in context.BookingItem
+                                    join s in context.Service on bi.ServiceId equals s.ServiceId into sJoin
+                                    from service in sJoin.DefaultIfEmpty()
+                                    where bi.BookingId == _bookingId && bi.ServiceId != null
+                                    select new ChargeViewModel
+                                    {
+                                        Description = service.ServiceName,
+                                        Date = bi.ItemDate,
+                                        Quantity = bi.Quantity,
+                                        UnitPrice = bi.UnitPrice,
+                                        TotalPrice = bi.Quantity * bi.UnitPrice,
+                                        Status = "Дополнительная услуга",
+                                        SourceId = 2,
+                                        SourceItemId = bi.ItemId
+                                    }).ToList();
+
+                    charges.AddRange(services);
+                    _totalCharges += services.Sum(s => s.TotalPrice);
+                }
+                catch { /* Ignore errors for this part */ }
+
+                // Damage reports
+                try
+                {
+                    var damages = (from dr in context.DamageReport
+                                   join dt in context.DamageType on dr.DamageTypeId equals dt.DamageTypeId
+                                   where dr.BookingId == _bookingId && dr.Cost.HasValue
+                                   select new ChargeViewModel
+                                   {
+                                       Description = $"Повреждение: {dt.TypeName}",
+                                       Date = dr.ReportDate,
+                                       UnitPrice = dr.Cost.Value,
+                                       TotalPrice = dr.Cost.Value,
+                                       Status = "Возмещение ущерба",
+                                       SourceId = 3,
+                                       SourceItemId = dr.ReportId
+                                   }).ToList();
+
+                    charges.AddRange(damages);
+                    _totalCharges += damages.Sum(d => d.TotalPrice);
+                }
+                catch { /* Ignore errors for this part */ }
+
+                // Update charges DataGrid
+                ChargesDataGrid.ItemsSource = charges;
+                NoChargesTextBlock.Visibility = charges.Any() ? Visibility.Collapsed : Visibility.Visible;
+
+                // Update total charges
+                TotalChargesTextBlock.Text = string.Format("{0:N2} ₽", _totalCharges);
+            }
+            catch (Exception ex)
+            {
+                ChargesDataGrid.ItemsSource = new List<ChargeViewModel>();
+                NoChargesTextBlock.Visibility = Visibility.Visible;
+                MessageBox.Show($"Ошибка при загрузке начислений: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateFinancialSummary()
+        {
+            // Update summary section
+            TotalChargesTextBlock.Text = string.Format("{0:N2} ₽", _totalCharges);
+            TotalPaidSummaryTextBlock.Text = string.Format("{0:N2} ₽", _totalPaid);
+
+            decimal remainingAmount = Math.Max(0, _totalCharges - _totalPaid);
+            RemainingAmountSummaryTextBlock.Text = string.Format("{0:N2} ₽", remainingAmount);
+
+            // Set color based on payment status
+            SolidColorBrush textColor;
+            if (remainingAmount <= 0)
+            {
+                textColor = FindResource("SuccessColor") as SolidColorBrush;
+            }
+            else if (_totalPaid > 0)
+            {
+                textColor = FindResource("WarningColor") as SolidColorBrush;
+            }
+            else
+            {
+                textColor = FindResource("ErrorColor") as SolidColorBrush;
+            }
+
+            RemainingAmountSummaryTextBlock.Foreground = textColor;
         }
 
         private void LoadBookingServices(HotelServiceEntities context)
@@ -277,27 +881,7 @@ namespace HotelService.Views.Windows
                 ? FindResource("SuccessColor") as SolidColorBrush
                 : FindResource("WarningColor") as SolidColorBrush;
 
-            FinancialStatusTextBlock.Text = _booking.FinancialStatus?.StatusName ?? "Не указан";
-
-            // Даты создания и оплаты
-            if (_booking.IssueDate != DateTime.MinValue)
-            {
-                IssueDateTextBlock.Text = _booking.IssueDate.ToString("dd.MM.yyyy");
-            }
-            else
-            {
-                IssueDateTextBlock.Text = "Не указана";
-            }
-
-            if (_booking.DueDate.HasValue)
-            {
-                DueDateTextBlock.Text = _booking.DueDate.Value.ToString("dd.MM.yyyy");
-            }
-            else
-            {
-                DueDateTextBlock.Text = "Не указан";
-            }
-
+           
             // Примечания
             if (!string.IsNullOrEmpty(_booking.Notes))
             {
@@ -616,22 +1200,23 @@ namespace HotelService.Views.Windows
                         return;
                     }
 
-                    var paymentWindow = new PaymentEditWindow(_bookingId);
+                    // Calculate the remaining amount
+                    decimal remainingAmount = Math.Max(0, _totalCharges - _totalPaid);
+
+                    var paymentWindow = new PaymentEditWindow(_bookingId, remainingAmount);
                     if (paymentWindow.ShowDialog() == true)
                     {
-                        LoadPayments(context);
+                        // Reload financial data
+                        LoadFinancialData(context);
 
+                        // Reload booking to update its status
                         _booking = context.Booking
                             .Include(b => b.FinancialStatus)
                             .FirstOrDefault(b => b.BookingId == _bookingId);
 
                         if (_booking != null)
                         {
-                            FinancialStatusTextBlock.Text = _booking.FinancialStatus?.StatusName ?? "Не указан";
-                            DepositPaidTextBlock.Text = _booking.DepositPaid ? "Да" : "Нет";
-                            DepositPaidTextBlock.Foreground = _booking.DepositPaid
-                                ? FindResource("SuccessColor") as SolidColorBrush
-                                : FindResource("WarningColor") as SolidColorBrush;
+                            LoadMainFinancialInfo();
                         }
                     }
                 }
@@ -645,27 +1230,29 @@ namespace HotelService.Views.Windows
 
         private void ViewPaymentButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PaymentsDataGrid.SelectedItem is PaymentViewModel selectedPayment)
+            var payment = (sender as Button)?.DataContext as PaymentViewModel;
+            if (payment == null) return;
+
+            try
             {
-                try
+                using (var context = new HotelServiceEntities())
                 {
-                    using (var context = new HotelServiceEntities())
+                    // Check payment type and display appropriate information
+                    if (payment.SourceId == 1) // Regular payment
                     {
-                        var payment = context.Payment
+                        var paymentDetails = context.Payment
                             .Include(p => p.PaymentMethod)
                             .Include(p => p.FinancialStatus)
-                            .FirstOrDefault(p => p.PaymentId == selectedPayment.PaymentId);
+                            .FirstOrDefault(p => p.PaymentId == payment.PaymentId);
 
-                        if (payment != null)
+                        if (paymentDetails != null)
                         {
-                            // Здесь можно открыть окно для просмотра деталей платежа
-                            // Или показать информацию в диалоговом окне
-                            var message = $"Детали платежа #{payment.PaymentId}:\n\n" +
-                                $"Дата: {payment.PaymentDate:dd.MM.yyyy}\n" +
-                                $"Способ оплаты: {payment.PaymentMethod?.MethodName ?? "Неизвестно"}\n" +
-                                $"Сумма: {payment.Amount:N2} ₽\n" +
-                                $"Статус: {payment.FinancialStatus?.StatusName ?? "Неизвестно"}\n" +
-                                $"Примечание: {payment.Notes ?? "Отсутствует"}";
+                            var message = $"Детали платежа #{paymentDetails.PaymentId}:\n\n" +
+                                $"Дата: {paymentDetails.PaymentDate:dd.MM.yyyy HH:mm}\n" +
+                                $"Способ оплаты: {paymentDetails.PaymentMethod?.MethodName ?? "Неизвестно"}\n" +
+                                $"Сумма: {paymentDetails.Amount:N2} ₽\n" +
+                                $"Статус: {paymentDetails.FinancialStatus?.StatusName ?? "Неизвестно"}\n" +
+                                $"Примечание: {paymentDetails.Notes ?? "Отсутствует"}";
 
                             MessageBox.Show(message, "Информация о платеже", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
@@ -675,10 +1262,10 @@ namespace HotelService.Views.Windows
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при получении информации о платеже: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при получении информации о платеже: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -691,101 +1278,171 @@ namespace HotelService.Views.Windows
                 return;
             }
 
-            if (PaymentsDataGrid.SelectedItem is PaymentViewModel selectedPayment)
+            var payment = (sender as Button)?.DataContext as PaymentViewModel;
+            if (payment == null) return;
+
+            // Check if this is a regular payment that can be deleted
+            if (payment.SourceId != 1)
             {
-                var result = MessageBox.Show(
-                    "Вы действительно хотите удалить данный платеж? Это действие невозможно отменить.",
-                    "Подтверждение удаления",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                MessageBox.Show("Этот платеж нельзя удалить. Он связан с другими данными системы.",
+                    "Операция невозможна", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                if (result == MessageBoxResult.Yes)
+            var result = MessageBox.Show(
+                "Вы действительно хотите удалить данный платеж? Это действие невозможно отменить.",
+                "Подтверждение удаления",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
                 {
-                    try
+                    using (var context = new HotelServiceEntities())
                     {
-                        using (var context = new HotelServiceEntities())
+                        var paymentToDelete = context.Payment.Find(payment.PaymentId);
+                        if (paymentToDelete != null)
                         {
-                            var payment = context.Payment.Find(selectedPayment.PaymentId);
-                            if (payment != null)
-                            {
-                                // Удаляем платеж
-                                context.Payment.Remove(payment);
-                                context.SaveChanges();
+                            // Delete the payment
+                            context.Payment.Remove(paymentToDelete);
+                            context.SaveChanges();
 
-                                // Обновляем финансовый статус бронирования
-                                UpdateBookingFinancialStatus(context, _bookingId);
+                            // Update booking financial status
+                            UpdateBookingFinancialStatus(context, _bookingId);
 
-                                // Перезагружаем список платежей
-                                LoadPayments(context);
+                            // Reload financial data
+                            LoadFinancialData(context);
 
-                                // Обновляем информацию о бронировании
-                                var booking = context.Booking
-                                    .Include(b => b.FinancialStatus)
-                                    .FirstOrDefault(b => b.BookingId == _bookingId);
-
-                                if (booking != null)
-                                {
-                                    FinancialStatusTextBlock.Text = booking.FinancialStatus?.StatusName ?? "Не указан";
-                                    DepositPaidTextBlock.Text = booking.DepositPaid ? "Да" : "Нет";
-                                    DepositPaidTextBlock.Foreground = booking.DepositPaid
-                                        ? FindResource("SuccessColor") as SolidColorBrush
-                                        : FindResource("WarningColor") as SolidColorBrush;
-                                }
-
-                                MessageBox.Show("Платеж успешно удален.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
-                            else
-                            {
-                                MessageBox.Show("Платеж не найден в базе данных.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            }
+                            MessageBox.Show("Платеж успешно удален.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Платеж не найден в базе данных.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении платежа: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        private void AddLoyaltyPointsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для начисления баллов лояльности.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_booking?.Guest == null)
+            {
+                MessageBox.Show("Невозможно начислить баллы. Гость не указан в бронировании.", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Show dialog to add loyalty points
+            var loyaltyWindow = new LoyaltyPointsAddWindow(_booking.GuestId, _bookingId);
+            if (loyaltyWindow.ShowDialog() == true)
+            {
+                try
+                {
+                    using (var context = new HotelServiceEntities())
                     {
-                        MessageBox.Show($"Ошибка при удалении платежа: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        // Reload data
+                        _booking.Guest = context.Guest.Find(_booking.GuestId);
+                        LoadLoyaltyTransactions(context);
+
+                        // Update guest points in main tab too
+                        GuestPointsTextBlock.Text = _booking.Guest.CurrentPoints.ToString();
                     }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при обновлении данных лояльности: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
+        // Add a method to view loyalty transaction details
+        private void ViewLoyaltyTransactionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var transaction = (sender as Button)?.DataContext as LoyaltyTransactionViewModel;
+            if (transaction == null) return;
+
+            string message = $"Транзакция #{transaction.TransactionId}\n\n" +
+                $"Дата: {transaction.TransactionDate:dd.MM.yyyy HH:mm}\n" +
+                $"Тип: {transaction.TypeName}\n" +
+                $"Баллы: {transaction.Points}\n" +
+                $"Описание: {transaction.Description ?? "Нет описания"}";
+
+            MessageBox.Show(message, "Детали транзакции", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
         private void UpdateBookingFinancialStatus(HotelServiceEntities context, int bookingId)
         {
-            // Метод для обновления финансового статуса бронирования после удаления платежа
             try
             {
+                // First retrieve the booking with a fresh context to avoid caching issues
                 var booking = context.Booking.Find(bookingId);
                 if (booking != null)
                 {
-                    // Получаем сумму всех платежей для данного бронирования
-                    decimal totalPaid = context.Payment
-                        .Where(p => p.BookingId == bookingId && p.StatusId == 1) // Предполагается, что статус 1 = "Подтверждено"
-                        .Sum(p => p.Amount);
+                    // Get count of all payments to check if any exist
+                    int paymentCount = context.Payment
+                        .Count(p => p.BookingId == bookingId);
 
-                    // Проверяем, оплачен ли депозит
+                    // Get total paid amount - consider all confirmed payments (status 1)
+                    decimal totalPaid = 0;
+
+                    // Use direct SQL query to avoid EF quirks if necessary
+                    var payments = context.Payment
+                        .Where(p => p.BookingId == bookingId)
+                        .ToList();
+
+                    // Calculate sum manually to avoid EF issues
+                    if (payments.Any())
+                    {
+                        totalPaid = payments
+                            .Where(p => p.StatusId == 1) // Status 1 = Confirmed
+                            .Sum(p => p.Amount);
+                    }
+
+                    // Check if deposit is paid
                     booking.DepositPaid = booking.DepositAmount.HasValue && totalPaid >= booking.DepositAmount.Value;
 
-                    // Определяем финансовый статус
+                    // Determine financial status
                     if (totalPaid >= booking.TotalAmount)
                     {
-                        booking.FinancialStatusId = 3; // Полностью оплачено
+                        booking.FinancialStatusId = 3; // Fully paid
                     }
                     else if (booking.DepositPaid)
                     {
-                        booking.FinancialStatusId = 2; // Оплачен депозит
+                        booking.FinancialStatusId = 2; // Deposit paid
                     }
                     else
                     {
-                        booking.FinancialStatusId = 1; // Неоплачено
+                        booking.FinancialStatusId = 1; // Unpaid
                     }
 
                     context.SaveChanges();
                 }
+                else
+                {
+                    MessageBox.Show($"Бронирование #{bookingId} не найдено при обновлении финансового статуса.",
+                        "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при обновлении финансового статуса: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при обновлении финансового статуса: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
 
         private void EditBookingButton_Click(object sender, RoutedEventArgs e)
         {

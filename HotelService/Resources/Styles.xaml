@@ -1109,7 +1109,7 @@
     <Style x:Key="HeaderTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontSize" Value="24"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,0,0,16"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -1143,7 +1143,7 @@
     <Style x:Key="SectionHeaderStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource AccentColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
         <Setter Property="Margin" Value="0,16,0,8"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
@@ -1164,7 +1164,7 @@
 
     <Style x:Key="CaptionTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="{StaticResource TextTertiaryColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
