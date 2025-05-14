@@ -84,9 +84,6 @@ namespace HotelService.Views.Pages
             CleaningAssignmentsStartDatePicker.SelectedDate = GetStartOfWeek(DateTime.Today);
             CleaningAssignmentsEndDatePicker.SelectedDate = GetStartOfWeek(DateTime.Today).AddDays(6);
 
-            // Current month for efficiency report
-            CleaningEfficiencyStartDatePicker.SelectedDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            CleaningEfficiencyEndDatePicker.SelectedDate = DateTime.Today;
 
         }
 
@@ -1841,8 +1838,7 @@ namespace HotelService.Views.Pages
             CleaningAssignmentsStartDatePicker.SelectedDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             CleaningAssignmentsEndDatePicker.SelectedDate = DateTime.Today;
 
-            CleaningEfficiencyStartDatePicker.SelectedDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            CleaningEfficiencyEndDatePicker.SelectedDate = DateTime.Today;
+
         }
 
         private RoomCleaningStatusData GetRoomCleaningStatusData(HotelServiceEntities context, DateTime date)
@@ -2036,41 +2032,8 @@ namespace HotelService.Views.Pages
         {
             try
             {
-                if (!CleaningEfficiencyStartDatePicker.SelectedDate.HasValue || !CleaningEfficiencyEndDatePicker.SelectedDate.HasValue)
-                {
-                    MessageBox.Show("Пожалуйста, выберите даты начала и конца периода.", "Предупреждение",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+              
 
-                DateTime startDate = CleaningEfficiencyStartDatePicker.SelectedDate.Value;
-                DateTime endDate = CleaningEfficiencyEndDatePicker.SelectedDate.Value;
-
-                if (startDate > endDate)
-                {
-                    MessageBox.Show("Дата начала периода должна быть раньше даты окончания.", "Предупреждение",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                SaveFileDialog saveDialog = new SaveFileDialog
-                {
-                    Filter = "Word Document (*.docx)|*.docx",
-                    FileName = $"Отчет_по_эффективности_уборки_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}.docx",
-                    DefaultExt = ".docx"
-                };
-
-                if (saveDialog.ShowDialog() == true)
-                {
-                    string filePath = saveDialog.FileName;
-
-                    using (var context = new HotelServiceEntities())
-                    {
-                        GenerateCleaningEfficiencyReport(context, startDate, endDate, filePath);
-                    }
-
-                    AskToOpenFile(filePath);
-                }
             }
             catch (Exception ex)
             {
