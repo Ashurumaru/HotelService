@@ -1,0 +1,387 @@
+﻿<Window x:Class="HotelService.Views.Windows.RoomViewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HotelService.Views.Windows"
+        mc:Ignorable="d"
+        Title="Просмотр номера" 
+        Height="650" 
+        Width="900"
+        WindowStartupLocation="CenterScreen"
+        Style="{DynamicResource CustomWindowStyle}"
+        MouseDown="Window_MouseDown">
+
+    <Border Background="{StaticResource BackgroundPrimaryColor}" CornerRadius="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Просмотр информации о номере" 
+                               Foreground="White"
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Margin="20,0,0,0"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,10,0">
+                        <Button x:Name="MinimizeButton" Style="{StaticResource DarkMinimizeButtonStyle}" Click="MinimizeButton_Click"/>
+                        <Button x:Name="CloseButton" Style="{StaticResource DarkCloseButtonStyle}" Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"  Margin="20,15,20,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="1" Margin="15,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock x:Name="RoomTitleTextBlock" 
+                                       Text="Номер 101 - Люкс" 
+                                       Style="{StaticResource TitleTextStyle}"
+                                       Margin="0,0,0,5"/>
+
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" 
+                                        Background="{StaticResource AccentColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4" 
+                                        Margin="0,0,10,0">
+                                    <TextBlock x:Name="StatusTextBlock" 
+                                               Text="Свободен" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+
+                                <Border Grid.Column="1" 
+                                        Background="{StaticResource PrimaryLightColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4" 
+                                        Margin="0,0,10,0">
+                                    <TextBlock x:Name="FloorTextBlock" 
+                                               Text="1 этаж" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+
+                                <Border Grid.Column="2" 
+                                        Background="{StaticResource InfoColor}" 
+                                        CornerRadius="4" 
+                                        Padding="8,4">
+                                    <TextBlock x:Name="OccupancyTextBlock" 
+                                               Text="2 гостя" 
+                                               Foreground="White" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"/>
+                                </Border>
+                            </Grid>
+
+                            <TextBlock x:Name="PriceTextBlock" 
+                                       Text="Базовая цена: 5 000.00 ₽ за ночь" 
+                                       Foreground="{StaticResource TextSecondaryColor}" 
+                                       FontSize="14"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                            <TextBlock Text="Площадь:" 
+                                       Foreground="{StaticResource TextTertiaryColor}" 
+                                       Margin="0,0,5,0"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock x:Name="SquareMetersTextBlock" 
+                                       Text="35 м²" 
+                                       FontWeight="Medium"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <TabControl Grid.Row="2" Margin="20,15,20,10" BorderThickness="0" Background="Transparent">
+                <TabItem Header="Описание">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Описание номера" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,10"/>
+
+                            <TextBlock x:Name="CommentsTextBlock" 
+                                       Text="Просторный номер с видом на город. Включает двуспальную кровать, рабочую зону и мини-бар." 
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,20"/>
+
+                            <TextBlock x:Name="NoCommentsTextBlock" 
+                                       Text="Нет описания" 
+                                       Visibility="Collapsed"
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"
+                                       Margin="0,0,0,20"/>
+
+                            <TextBlock Text="Галерея изображений" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,10"/>
+
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,10">
+                                <ItemsControl x:Name="ImagesItemsControl">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="200" 
+                                                    Height="150" 
+                                                    Margin="5" 
+                                                    BorderThickness="1" 
+                                                    BorderBrush="{StaticResource BorderColor}"
+                                                    CornerRadius="5">
+                                                <Image Source="{Binding ImageSource}" 
+                                                       Stretch="UniformToFill"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <TextBlock x:Name="NoImagesTextBlock" 
+                                       Text="Нет доступных изображений" 
+                                       Visibility="Collapsed"
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Удобства и оснащение">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="Удобства номера" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,15"
+                                       Grid.Row="0"/>
+
+                            <DataGrid x:Name="AmenitiesDataGrid" 
+                                      Grid.Row="1"
+                                      Margin="0,0,0,0"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="True"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="40">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Amenity.Amenity.AmenityName}" Width="*"/>
+                                    <DataGridTextColumn Header="Категория" Binding="{Binding Amenity.Amenity.AmenityCategory.CategoryName}" Width="150"/>
+                                    <DataGridTextColumn Header="Количество" Binding="{Binding QuantityText}" Width="100"/>
+                                    <DataGridTextColumn Header="Примечания" Binding="{Binding Amenity.Notes}" Width="200"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock x:Name="NoAmenitiesTextBlock" 
+                                       Grid.Row="1"
+                                       Text="Для этого номера не добавлены удобства" 
+                                       Visibility="Collapsed"
+                                       HorizontalAlignment="Center" 
+                                       Margin="0,20,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Обслуживание">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="История обслуживания" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
+                                <Button x:Name="AddMaintenanceButton"
+                                        Grid.Column="1"
+                                        Content="Добавить задачу"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="160"
+                                        Height="35"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,0,0,10"
+                                        Click="AddMaintenanceButton_Click"/>
+                            </Grid>
+
+                            <DataGrid x:Name="MaintenanceDataGrid" 
+                                      Grid.Row="1"
+                                      Margin="0,10,0,0"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="40">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Дата создания" Binding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="110"/>
+                                    <DataGridTextColumn Header="Тип задачи" Binding="{Binding TaskType.TypeName}" Width="150"/>
+                                    <DataGridTextColumn Header="Описание" Binding="{Binding IssueDescription}" Width="*"/>
+                                    <DataGridTextColumn Header="Приоритет" Binding="{Binding PriorityText}" Width="100"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding TaskStatus.StatusName}" Width="120"/>
+                                    <DataGridTextColumn Header="Завершено" Binding="{Binding CompletionDate, StringFormat=dd.MM.yyyy}" Width="110"/>
+                                    <DataGridTemplateColumn Header="Действия" Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource InfoButtonIconStyle}" 
+                                                        Width="32" Height="32" 
+                                                        ToolTip="Просмотр задачи"
+                                                        Click="ViewMaintenanceButton_Click"
+                                                        Margin="2,0">
+                                                    <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
+                                                          Fill="White" 
+                                                          Stretch="Uniform" 
+                                                          Width="16" Height="16"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock x:Name="NoMaintenanceTextBlock" 
+                                       Grid.Row="1"
+                                       Text="Нет задач обслуживания" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,20,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Бронирования">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="История бронирований" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,15"/>
+
+                            <DataGrid x:Name="BookingsDataGrid" 
+                                      Grid.Row="1"
+                                      Margin="0,0,0,0"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource DefaultDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource DataGridRowStyle}"
+                                      CellStyle="{StaticResource DataGridCellStyle}"
+                                      RowHeight="40">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="№" Binding="{Binding BookingId}" Width="60"/>
+                                    <DataGridTextColumn Header="Гость" Binding="{Binding GuestName}" Width="*"/>
+                                    <DataGridTextColumn Header="Заезд" Binding="{Binding CheckInDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                    <DataGridTextColumn Header="Выезд" Binding="{Binding CheckOutDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="120"/>
+                                    <DataGridTextColumn Header="Сумма" Binding="{Binding TotalAmount, StringFormat={}{0:N2} ₽}" Width="110"/>
+                                    <DataGridTemplateColumn Header="Действия" Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource InfoButtonIconStyle}" 
+                                                        Width="32" Height="32" 
+                                                        ToolTip="Просмотр бронирования"
+                                                        Click="ViewBookingButton_Click"
+                                                        Margin="2,0">
+                                                    <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
+                                                          Fill="White" 
+                                                          Stretch="Uniform" 
+                                                          Width="16" Height="16"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock x:Name="NoBookingsTextBlock" 
+                                       Grid.Row="1"
+                                       Text="Нет истории бронирований" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,0,0" 
+                                       Foreground="{StaticResource TextTertiaryColor}"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Border>
+                </TabItem>
+            </TabControl>
+
+            <Border Grid.Row="3" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
+                <Grid>
+                    <Button x:Name="EditRoomButton" 
+                            Content="Редактировать номер" 
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            Width="180" 
+                            HorizontalAlignment="Left"
+                            Click="EditRoomButton_Click"/>
+
+                    <Button x:Name="CloseButton2" 
+                            Content="Закрыть" 
+                            Style="{StaticResource PrimaryButtonStyle}" 
+                            Width="120" 
+                            HorizontalAlignment="Right"
+                            Click="CloseButton_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

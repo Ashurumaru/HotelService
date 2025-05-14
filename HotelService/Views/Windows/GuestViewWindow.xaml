@@ -1,12 +1,12 @@
-﻿<Window x:Class="HotelService.Views.Windows.GuestEditWindow"
+﻿<Window x:Class="HotelService.Views.Windows.GuestViewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
-        Title="Редактирование гостя" 
-        Height="720" 
+        Title="Информация о госте" 
+        Height="620" 
         Width="900"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
@@ -16,6 +16,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -28,9 +29,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="WindowTitleTextBlock" 
-                               Grid.Column="0" 
-                               Text="Добавление нового гостя" 
+                    <TextBlock Grid.Column="0" 
+                               Text="Информация о госте" 
                                Foreground="White"
                                FontSize="18" 
                                FontWeight="SemiBold" 
@@ -44,98 +44,255 @@
                 </Grid>
             </Border>
 
-            <!-- Tabs Section -->
-            <TabControl Grid.Row="1" Margin="20,15,20,10" BorderThickness="0" Background="Transparent">
-                <!-- Основные данные вкладка -->
-                <TabItem Header="Основные данные">
-                    <Grid>
+            <!-- Guest summary panel -->
+            <Border Grid.Row="1"  Margin="20,15,20,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                  
+
+                    <Grid Grid.Column="1" Margin="15,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Левая колонка - Личные данные -->
-                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
-                            <StackPanel>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock x:Name="GuestNameTextBlock" 
+                                       Text="Иванов Иван Иванович" 
+                                       Style="{StaticResource TitleTextStyle}"
+                                       Margin="0,0,0,5"/>
+
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Баллы лояльности: " 
+                                           Foreground="{StaticResource TextSecondaryColor}" 
+                                           FontSize="14"/>
+                                <TextBlock x:Name="PointsTextBlock" 
+                                           Text="1250" 
+                                           Foreground="{StaticResource TextPrimaryColor}" 
+                                           FontWeight="Bold"
+                                           FontSize="14"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Top">
+
+                            <Button x:Name="CreateBookingButton" 
+                                    Content="Новое бронирование" 
+                                    Style="{StaticResource SecondaryButtonStyle}" 
+                                    Width="180"
+                                    Height="35"
+                                    Click="CreateBookingButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Tabs Section -->
+            <TabControl Grid.Row="2" Margin="20,15,20,10" BorderThickness="0" Background="Transparent">
+                <!-- Информация вкладка -->
+                <TabItem Header="Контактная информация">
+                    <Border Style="{StaticResource CardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Левая колонка - Личные данные -->
+                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
                                 <TextBlock Text="Личные данные" 
                                            Style="{StaticResource SectionHeaderStyle}" 
                                            Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Фамилия:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="LastNameTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Фамилия:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="LastNameTextBlock" 
+                                               Text="Иванов" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
 
-                                <TextBlock Text="Имя:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="FirstNameTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"/>
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
 
-                                <TextBlock Text="Отчество:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="MiddleNameTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Имя:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="FirstNameTextBlock" 
+                                               Text="Иван" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
 
-                                <TextBlock Text="Дата рождения:" Style="{StaticResource LabelTextStyle}"/>
-                                <DatePicker x:Name="DateOfBirthPicker" 
-                                            Margin="0,0,0,15"
-                                            Height="44" 
-                                            Template="{StaticResource CustomDatePickerTemplate}"
-                                            Background="{StaticResource BackgroundSecondaryColor}"
-                                            BorderBrush="{StaticResource BorderColor}"
-                                            Foreground="{StaticResource TextPrimaryColor}"/>
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
 
-                                <CheckBox x:Name="IsVIPCheckBox" 
-                                          Content="VIP гость" 
-                                          Margin="0,0,0,15"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Отчество:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="MiddleNameTextBlock" 
+                                               Text="Иванович" 
+                                               Grid.Column="1" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
 
-                                <TextBlock Text="Группа:" Style="{StaticResource LabelTextStyle}"/>
-                                <ComboBox x:Name="GroupComboBox" 
-                                          Style="{StaticResource FilterComboBoxStyle}" 
-                                          Margin="0,0,0,15"/>
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Дата рождения:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="DateOfBirthTextBlock" 
+                                               Text="01.01.1980" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
+
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="VIP статус:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="VIPStatusTextBlock" 
+                                               Text="Да" 
+                                               Grid.Column="1" 
+                                           Foreground="{StaticResource TextPrimaryColor}" 
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Группа:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="GuestGroupTextBlock" 
+                                               Text="Стандартная группа" 
+                                               Grid.Column="1" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
+
+                                               FontWeight="Medium"/>
+                                </Grid>
                             </StackPanel>
-                        </Border>
 
-                        <!-- Правая колонка - Контактная информация -->
-                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
-                            <StackPanel>
+                            <!-- Правая колонка - Контактная информация -->
+                            <StackPanel Grid.Column="1" Margin="15,0,0,0">
                                 <TextBlock Text="Контактная информация" 
                                            Style="{StaticResource SectionHeaderStyle}" 
                                            Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Телефон:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="PhoneTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Телефон:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="PhoneTextBlock" 
+                                               Text="+7 (999) 123-4567" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
 
-                                <TextBlock Text="Email:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="EmailTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"/>
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
 
-                                <TextBlock Text="Адрес:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="AddressTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"
-                                         TextWrapping="Wrap"
-                                         AcceptsReturn="True"
-                                         Height="100"
-                                         VerticalScrollBarVisibility="Auto"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Email:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="EmailTextBlock" 
+                                               Text="ivanov@example.com" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
 
-                                <TextBlock Text="Примечания:" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="NotesTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"
-                                         TextWrapping="Wrap"
-                                         AcceptsReturn="True"
-                                         Height="100"
-                                         VerticalScrollBarVisibility="Auto"/>
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Адрес:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"
+                                               VerticalAlignment="Top"/>
+                                    <TextBlock x:Name="AddressTextBlock" 
+                                               Text="г. Улан-Удэ, ул. Ленина, 1, кв. 1" 
+                                               Grid.Column="1" 
+                                                                                          Foreground="{StaticResource TextPrimaryColor}" 
+
+                                               FontWeight="Medium"
+                                               TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <TextBlock Text="Примечания" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,20,0,10"/>
+
+                                <TextBlock x:Name="NotesTextBlock" 
+                                           Text="Предпочитает номера с видом на город. Аллергия на пыльцу." 
+                                           TextWrapping="Wrap"
+                                                                                      Foreground="{StaticResource TextPrimaryColor}" 
+/>
+
+                                <TextBlock x:Name="NoNotesTextBlock" 
+                                           Text="Нет примечаний" 
+                                           HorizontalAlignment="Left" 
+                                           Margin="0,5,0,0" 
+                                           
+                                           Foreground="{StaticResource TextTertiaryColor}"
+                                           FontStyle="Italic"
+                                           Visibility="Collapsed"/>
                             </StackPanel>
-                        </Border>
-                    </Grid>
+                        </Grid>
+                    </Border>
                 </TabItem>
 
-                <!-- Вкладка с документами -->
+                <!-- Документы вкладка -->
                 <TabItem Header="Документы">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -219,7 +376,7 @@
                     </Border>
                 </TabItem>
 
-                <!-- Вкладка с историей проживания -->
+                <!-- История проживания вкладка -->
                 <TabItem Header="История проживания">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -228,10 +385,20 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" 
-                                       Text="История проживания гостя" 
-                                       Style="{StaticResource SectionHeaderStyle}" 
-                                       Margin="0,0,0,10"/>
+                            <Grid Grid.Row="0">
+                                <TextBlock Text="История проживания гостя" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"
+                                           HorizontalAlignment="Left"/>
+
+                                <Button x:Name="AddBookingButton"
+                                        Content="Новое бронирование"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="180"
+                                        Height="35"
+                                        HorizontalAlignment="Right"
+                                        Click="AddBookingButton_Click"/>
+                            </Grid>
 
                             <DataGrid x:Name="BookingsDataGrid" 
                                       Grid.Row="1"
@@ -281,7 +448,7 @@
                     </Border>
                 </TabItem>
 
-                <!-- Вкладка с программой лояльности -->
+                <!-- Программа лояльности вкладка -->
                 <TabItem Header="Программа лояльности">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -305,14 +472,14 @@
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Текущее количество баллов:" 
                                                  Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBlock x:Name="PointsTextBlock" 
-                                                 Text="0" 
+                                        <TextBlock x:Name="LoyaltyPointsTextBlock" 
+                                                 Text="1250" 
                                                  FontSize="24" 
                                                  FontWeight="Bold" 
                                                  Foreground="{StaticResource AccentColor}"/>
                                     </StackPanel>
 
-                                    <Button x:Name="AddPointsButton" 
+                                    <Button x:Name="AddLoyaltyPointsButton" 
                                           Grid.Column="1"
                                           Content="Добавить баллы" 
                                           Style="{StaticResource SecondaryButtonStyle}" 
@@ -320,7 +487,7 @@
                                           Height="35"
                                           VerticalAlignment="Bottom"
                                           Margin="0,0,0,3"
-                                          Click="AddPointsButton_Click"/>
+                                          Click="AddLoyaltyPointsButton_Click"/>
                                 </Grid>
                             </StackPanel>
 
@@ -340,7 +507,7 @@
                                     RowHeight="40">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Дата" Binding="{Binding TransactionDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
-                                    <DataGridTextColumn Header="Тип" Binding="{Binding Type.TypeName}" Width="180"/>
+                                    <DataGridTextColumn Header="Тип" Binding="{Binding TransactionType.TypeName}" Width="180"/>
                                     <DataGridTextColumn Header="Баллы" Binding="{Binding Points}" Width="80"/>
                                     <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
                                     <DataGridTextColumn Header="Бронирование" Binding="{Binding BookingId}" Width="120"/>
@@ -361,31 +528,21 @@
             </TabControl>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
+            <Border Grid.Row="3" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <TextBlock x:Name="ValidationMessageTextBlock" 
-                                   Text="" 
-                                   Foreground="{StaticResource ErrorColor}" 
-                                   VerticalAlignment="Center"
-                                   FontWeight="Medium"
-                                   Visibility="Collapsed"/>
-                    </StackPanel>
+                    <Button x:Name="EditGuestButton" 
+                            Content="Редактировать гостя" 
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            Width="180" 
+                            HorizontalAlignment="Left"
+                            Click="EditGuestButton_Click"/>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="CancelButton" 
-                                Content="Отмена" 
-                                Style="{StaticResource SecondaryButtonStyle}" 
-                                Width="120" 
-                                Margin="0,0,10,0"
-                                Click="CancelButton_Click"/>
-
-                        <Button x:Name="SaveButton" 
-                                Content="Сохранить" 
-                                Style="{StaticResource PrimaryButtonStyle}" 
-                                Width="120" 
-                                Click="SaveButton_Click"/>
-                    </StackPanel>
+                    <Button x:Name="CloseButton2" 
+                            Content="Закрыть" 
+                            Style="{StaticResource PrimaryButtonStyle}" 
+                            Width="120" 
+                            HorizontalAlignment="Right"
+                            Click="CloseButton2_Click"/>
                 </Grid>
             </Border>
         </Grid>

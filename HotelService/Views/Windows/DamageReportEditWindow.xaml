@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
-        Title="Создание отчета о повреждении" 
-        Height="600" 
-        Width="650"
+        Title="Редактирование отчета о повреждениях" 
+        Height="700" 
+        Width="900"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
@@ -17,7 +17,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header -->
@@ -29,8 +29,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock x:Name="WindowTitleTextBlock" 
-                               Grid.Column="0" 
-                               Text="Создание отчета о повреждении" 
+                               Text="Новый отчет о повреждении" 
                                Foreground="White"
                                FontSize="18" 
                                FontWeight="SemiBold" 
@@ -45,143 +44,259 @@
             </Border>
 
             <!-- Content -->
-            <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="20,15,20,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <TextBlock Text="Информация о повреждении" 
-                                   Style="{StaticResource SectionHeaderStyle}" 
-                                   Margin="0,0,0,15"/>
+            <ScrollViewer Grid.Row="1" Margin="20,15,20,10" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Left Column - Basic Information -->
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                            <StackPanel>
+                                <TextBlock Text="Основная информация" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,15"/>
 
-                            <!-- Left Column -->
-                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                <TextBlock Text="Тип повреждения:" Style="{StaticResource LabelTextStyle}"/>
+                                <TextBlock Text="Тип повреждения:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
                                 <ComboBox x:Name="DamageTypeComboBox" 
-                                          Style="{StaticResource FilterComboBoxStyle}" 
-                                          Margin="0,0,0,15"
-                                          DisplayMemberPath="TypeName"
-                                          SelectedValuePath="DamageTypeId"/>
+                                      Style="{StaticResource FilterComboBoxStyle}" 
+                                      Margin="0,0,0,15"
+                                      DisplayMemberPath="TypeName"
+                                      SelectedValuePath="DamageTypeId"/>
 
-                                <TextBlock Text="Дата отчета:" Style="{StaticResource LabelTextStyle}"/>
-                                <DatePicker x:Name="ReportDatePicker" 
-                                            Template="{StaticResource CustomDatePickerTemplate}"
-                                            Background="{StaticResource BackgroundSecondaryColor}"
-                                            BorderBrush="{StaticResource BorderColor}"
-                                            Foreground="{StaticResource TextPrimaryColor}"
-                                            Margin="0,0,0,15"/>
-
-                                <TextBlock Text="Номер комнаты:" Style="{StaticResource LabelTextStyle}"/>
-                                <ComboBox x:Name="RoomComboBox" 
-                                          Style="{StaticResource FilterComboBoxStyle}" 
-                                          Margin="0,0,0,15"
-                                          DisplayMemberPath="RoomNumber"
-                                          SelectedValuePath="RoomId"/>
-
-                                <TextBlock Text="Оценка стоимости ущерба (₽):" Style="{StaticResource LabelTextStyle}"/>
-                                <TextBox x:Name="CostTextBox" 
-                                         Style="{StaticResource DefaultTextBoxStyle}" 
-                                         Margin="0,0,0,15"
-                                         PreviewTextInput="DecimalValidationTextBox"/>
-                            </StackPanel>
-
-                            <!-- Right Column -->
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                <TextBlock Text="Статус отчета:" Style="{StaticResource LabelTextStyle}"/>
+                                <TextBlock Text="Статус:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
                                 <ComboBox x:Name="StatusComboBox" 
-                                          Style="{StaticResource FilterComboBoxStyle}" 
-                                          Margin="0,0,0,15"
-                                          DisplayMemberPath="StatusName"
-                                          SelectedValuePath="StatusId"/>
+                                      Style="{StaticResource FilterComboBoxStyle}" 
+                                      Margin="0,0,0,15"
+                                      DisplayMemberPath="StatusName"
+                                      SelectedValuePath="StatusId"/>
 
-                                <TextBlock Text="Гость:" Style="{StaticResource LabelTextStyle}"/>
-                                <Grid>
+                                <TextBlock Text="Дата обнаружения:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                <DatePicker x:Name="ReportDatePicker" 
+                                        Margin="0,0,0,15"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"/>
+
+                                <TextBlock Text="Оценка ущерба (₽):" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                <TextBox x:Name="CostTextBox" 
+                                     Style="{StaticResource DefaultTextBoxStyle}" 
+                                     Margin="0,0,0,15"
+                                     PreviewTextInput="DecimalValidationTextBox"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Right Column - Related Information -->
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Связанная информация" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Номер:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="RoomNumberTextBox" 
+                                         Style="{StaticResource DefaultTextBoxStyle}"
+                                         IsReadOnly="True"/>
+
+                                    <Button Grid.Column="1" 
+                                        Content="Выбрать" 
+                                        Style="{StaticResource SecondaryButtonStyle}" 
+                                        Width="100" 
+                                        Height="44" 
+                                        Margin="10,0,0,0"
+                                        Click="SelectRoomButton_Click"/>
+                                </Grid>
+
+                                <TextBlock Text="Бронирование:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="BookingTextBox" 
+                                         Style="{StaticResource DefaultTextBoxStyle}"
+                                         IsReadOnly="True"/>
+
+                                    <Button Grid.Column="1" 
+                                        Content="Выбрать" 
+                                        Style="{StaticResource SecondaryButtonStyle}" 
+                                        Width="100" 
+                                        Height="44" 
+                                        Margin="10,0,0,0"
+                                        Click="SelectBookingButton_Click"/>
+                                </Grid>
+
+                                <TextBlock Text="Гость:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                <Grid Margin="0,0,0,15">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
                                     <TextBox x:Name="GuestTextBox" 
-                                             Style="{StaticResource DefaultTextBoxStyle}" 
-                                             Grid.Column="0"
-                                             Margin="0,0,5,0"
-                                             IsReadOnly="True"/>
+                                         Style="{StaticResource DefaultTextBoxStyle}"
+                                         IsReadOnly="True"/>
 
-                                    <Button x:Name="SelectGuestButton" 
-                                            Content="Выбрать" 
-                                            Style="{StaticResource SecondaryButtonStyle}" 
-                                            Grid.Column="1"
-                                            Width="80"
-                                            Height="44"
-                                            Click="SelectGuestButton_Click"/>
+                                    <Button Grid.Column="1" 
+                                        Content="Выбрать" 
+                                        Style="{StaticResource SecondaryButtonStyle}" 
+                                        Width="100" 
+                                        Height="44" 
+                                        Margin="10,0,0,0"
+                                        Click="SelectGuestButton_Click"/>
                                 </Grid>
-                                <TextBlock Text="Привязка к текущему бронированию будет произведена автоматически" 
-                                           Style="{StaticResource CaptionTextStyle}" 
-                                           TextWrapping="Wrap"
-                                           Margin="0,5,0,15"/>
-
-                                <TextBlock Text="Степень повреждения:" Style="{StaticResource LabelTextStyle}"/>
-                                <ComboBox x:Name="SeverityComboBox" 
-                                          Style="{StaticResource FilterComboBoxStyle}" 
-                                          Margin="0,0,0,15">
-                                    <ComboBoxItem Content="Незначительное"/>
-                                    <ComboBoxItem Content="Среднее"/>
-                                    <ComboBoxItem Content="Серьезное"/>
-                                    <ComboBoxItem Content="Критическое"/>
-                                </ComboBox>
                             </StackPanel>
-                        </Grid>
+                        </Border>
+                    </Grid>
 
-                        <TextBlock Text="Описание повреждения:" Style="{StaticResource LabelTextStyle}" Margin="0,10,0,6"/>
-                        <TextBox x:Name="DescriptionTextBox" 
+                    <!-- Description -->
+                    <Border Style="{StaticResource CardStyle}" Margin="0,15,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Описание повреждения" 
+                                   Style="{StaticResource SectionHeaderStyle}" 
+                                   Margin="0,0,0,10"/>
+
+                            <TextBox x:Name="DescriptionTextBox" 
                                  Style="{StaticResource DefaultTextBoxStyle}" 
-                                 Height="120"
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"
-                                 VerticalContentAlignment="Top"
+                                 Height="100"
                                  VerticalScrollBarVisibility="Auto"
-                                 Padding="12,8"/>
-
-                        <TextBlock Text="Дополнительные примечания:" Style="{StaticResource LabelTextStyle}" Margin="0,15,0,6"/>
-                        <TextBox x:Name="NotesTextBox" 
-                                 Style="{StaticResource DefaultTextBoxStyle}" 
-                                 Height="80"
-                                 TextWrapping="Wrap"
-                                 AcceptsReturn="True"
                                  VerticalContentAlignment="Top"
-                                 VerticalScrollBarVisibility="Auto"
-                                 Padding="12,8"/>
+                                 Padding="12"/>
+                        </StackPanel>
+                    </Border>
 
-                        <TextBlock x:Name="ValidationMessageTextBlock" 
-                                   Text="" 
-                                   Foreground="{StaticResource ErrorColor}" 
-                                   TextWrapping="Wrap"
-                                   Margin="0,15,0,0"
-                                   Visibility="Collapsed"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+                    <!-- Photos -->
+                    <Border Style="{StaticResource CardStyle}" Margin="0,15,0,0">
+                        <StackPanel>
+                            <Grid>
+                                <TextBlock Text="Фотографии повреждения" 
+                                       Style="{StaticResource SectionHeaderStyle}" 
+                                       Margin="0,0,0,10"
+                                       HorizontalAlignment="Left"/>
+
+                                <Button x:Name="AddPhotoButton" 
+                                    Content="Добавить фото" 
+                                    Style="{StaticResource SecondaryButtonStyle}" 
+                                    Width="150" 
+                                    Height="35" 
+                                    HorizontalAlignment="Right"
+                                    Click="AddPhotoButton_Click"/>
+                            </Grid>
+
+                            <ListBox x:Name="PhotosListBox" 
+                                 Background="Transparent" 
+                                 BorderThickness="0" 
+                                 Height="200" 
+                                 Margin="0,10,0,0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{StaticResource BorderColor}" 
+                                            BorderThickness="1" 
+                                            Margin="5"
+                                            Padding="5">
+                                            <Grid Width="150" Height="180">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Image Source="{Binding ImageSource}" 
+                                                   Grid.Row="0"
+                                                   Stretch="Uniform"
+                                                   Margin="0,0,0,5"/>
+
+                                                <TextBox Grid.Row="1" 
+                                                     Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" 
+                                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                                     Height="30"
+                                                     FontSize="11"
+                                                     Margin="0,0,0,5"
+                                                     ToolTip="Описание"/>
+
+                                                <StackPanel Grid.Row="2" 
+                                                        Orientation="Horizontal" 
+                                                        HorizontalAlignment="Center">
+                                                    <Button Content="Просмотр" 
+                                                        Style="{StaticResource TextButtonStyle}"
+                                                        Padding="5,3"
+                                                        Margin="0,0,5,0"
+                                                        Click="ViewPhotoButton_Click"
+                                                        Tag="{Binding}"/>
+                                                    <Button Content="Удалить" 
+                                                        Style="{StaticResource TextButtonStyle}"
+                                                        Foreground="{StaticResource ErrorColor}"
+                                                        Padding="5,3"
+                                                        Click="RemovePhotoButton_Click"
+                                                        Tag="{Binding}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <TextBlock x:Name="NoPhotosTextBlock" 
+                                   Text="Нет прикрепленных фотографий" 
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,50,0,10" 
+                                   Foreground="{StaticResource TextTertiaryColor}"
+                                   FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
 
             <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
+                    <TextBlock x:Name="ValidationMessageTextBlock" 
+                           Text="" 
+                           Foreground="{StaticResource ErrorColor}" 
+                           VerticalAlignment="Center"
+                           FontWeight="Medium"
+                           Visibility="Collapsed"
+                           HorizontalAlignment="Left"/>
+
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="CancelButton" 
-                                Content="Отмена" 
-                                Style="{StaticResource SecondaryButtonStyle}" 
-                                Width="120" 
-                                Margin="0,0,10,0"
-                                Click="CancelButton_Click"/>
+                            Content="Отмена" 
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            Width="120" 
+                            Margin="0,0,10,0"
+                            Click="CancelButton_Click"/>
 
                         <Button x:Name="SaveButton" 
-                                Content="Сохранить" 
-                                Style="{StaticResource PrimaryButtonStyle}" 
-                                Width="120" 
-                                Click="SaveButton_Click"/>
+                            Content="Сохранить" 
+                            Style="{StaticResource PrimaryButtonStyle}" 
+                            Width="150" 
+                            Click="SaveButton_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>

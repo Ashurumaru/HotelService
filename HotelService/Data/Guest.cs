@@ -35,6 +35,8 @@ namespace HotelService.Data
         public Nullable<int> GroupId { get; set; }
         public string Notes { get; set; }
         public int CurrentPoints { get; set; }
+        public string Gender { get; set; }
+        public string BirthPlace { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Booking> Booking { get; set; }

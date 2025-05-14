@@ -20,6 +20,9 @@ namespace HotelService.Data
         public string DocumentPath { get; set; }
         public Nullable<System.DateTime> IssueDate { get; set; }
         public Nullable<System.DateTime> ExpiryDate { get; set; }
+        public string DocumentSeries { get; set; }
+        public string DocumentNumber { get; set; }
+        public string IssuedBy { get; set; }
         public System.DateTime UploadedAt { get; set; }
         public Nullable<int> UploadedBy { get; set; }
     

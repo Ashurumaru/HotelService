@@ -45,27 +45,14 @@
             </Border>
 
             <!-- Booking summary panel -->
-            <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="20,15,20,0">
+            <Border Grid.Row="1"  Margin="20,15,20,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" 
-                            Width="60" 
-                            Height="60" 
-                            Background="{StaticResource PrimaryColor}" 
-                            CornerRadius="30">
-                        <TextBlock x:Name="BookingNumberTextBlock" 
-                                   Text="1" 
-                                   Foreground="White" 
-                                   FontSize="28" 
-                                   FontWeight="Bold" 
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Border>
-
+                   
                     <Grid Grid.Column="1" Margin="15,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -759,25 +746,37 @@ Margin="0,8,0,10"/>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                     <Button Width="30" Height="30" 
-                                                            Style="{StaticResource InfoButtonIconStyle}"
-                                                            ToolTip="Просмотреть"
-                                                            Margin="0,0,5,0"
-                                                            Click="ViewDamageReportButton_Click">
+                        Style="{StaticResource InfoButtonIconStyle}"
+                        ToolTip="Просмотреть"
+                        Margin="0,0,5,0"
+                        Click="ViewDamageReportButton_Click">
                                                         <Path Data="M1,8 C1,8 3,3 8,3 C13,3 15,8 15,8 C15,8 13,13 8,13 C3,13 1,8 1,8 Z M8,10 C9.1,10 10,9.1 10,8 C10,6.9 9.1,6 8,6 C6.9,6 6,6.9 6,8 C6,9.1 6.9,10 8,10 Z" 
-                                                              Fill="White" 
-                                                              Stretch="Uniform" 
-                                                              Width="14" Height="14"/>
+                          Fill="White" 
+                          Stretch="Uniform" 
+                          Width="14" Height="14"/>
                                                     </Button>
                                                     <Button Width="30" Height="30" 
-                                                            Style="{StaticResource ActionButtonIconStyle}"
-                                                            ToolTip="Редактировать"
-                                                            Click="EditDamageReportButton_Click">
+                        Style="{StaticResource ActionButtonIconStyle}"
+                        ToolTip="Редактировать"
+                        Margin="0,0,5,0"
+                        Click="EditDamageReportButton_Click">
                                                         <Path Data="M12,2 L2,12 L1,15 L4,14 L14,4 L12,2 M12,2 L14,4" 
-                                                              Stroke="White" 
-                                                              StrokeThickness="1.5"
-                                                              StrokeEndLineCap="Round"
-                                                              StrokeStartLineCap="Round"
-                                                              Width="14" Height="14"/>
+                          Stroke="White" 
+                          StrokeThickness="1.5"
+                          StrokeEndLineCap="Round"
+                          StrokeStartLineCap="Round"
+                          Width="14" Height="14"/>
+                                                    </Button>
+                                                    <Button Width="30" Height="30" 
+                        Style="{StaticResource DeleteButtonIconStyle}"
+                        ToolTip="Удалить"
+                        Click="DeleteDamageReportButton_Click">
+                                                        <Path Data="M2,4 H14 M12,4 V14 C12,15 11,16 10,16 H6 C5,16 4,15 4,14 V4 M6,2 H10" 
+                          Stroke="White" 
+                          StrokeThickness="1.5"
+                          StrokeEndLineCap="Round"
+                          StrokeStartLineCap="Round"
+                          Width="14" Height="14"/>
                                                     </Button>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -818,21 +817,6 @@ Margin="0,8,0,10"/>
                                         <TextBlock Text="Программа лояльности"
                                Style="{StaticResource SectionHeaderStyle}"
                                Margin="0,0,0,15"/>
-
-                                        <Grid Margin="0,5">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="200"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Гость:"
-                                   Grid.Column="0"
-                                   Foreground="{StaticResource TextTertiaryColor}"/>
-                                            <TextBlock x:Name="LoyaltyGuestNameTextBlock"
-                                   Text="Иванов Иван Иванович"
-                                   Grid.Column="1"
-                                                       Foreground="{StaticResource TextPrimaryColor}"
-                                   FontWeight="Medium"/>
-                                        </Grid>
 
                                         <Grid Margin="0,5">
                                             <Grid.ColumnDefinitions>
@@ -1014,19 +998,27 @@ Margin="0,8,0,10"/>
             <!-- Footer -->
             <Border Grid.Row="3" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
-                    <Button x:Name="EditBookingButton" 
-                            Content="Редактировать бронирование" 
-                            Style="{StaticResource SecondaryButtonStyle}" 
-                            Width="240" 
-                            HorizontalAlignment="Left"
-                            Click="EditBookingButton_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button x:Name="EditBookingButton" 
+                    Content="Редактировать бронирование" 
+                    Style="{StaticResource SecondaryButtonStyle}" 
+                    Width="240" 
+                    Margin="0,0,10,0"
+                    Click="EditBookingButton_Click"/>
+
+                        <Button x:Name="GenerateRegistrationCardButton" 
+                    Content="Регистрационная карта" 
+                    Style="{StaticResource SecondaryButtonStyle}" 
+                    Width="200" 
+                    Click="GenerateRegistrationCardButton_Click"/>
+                    </StackPanel>
 
                     <Button x:Name="CloseButton2" 
-                            Content="Закрыть" 
-                            Style="{StaticResource PrimaryButtonStyle}" 
-                            Width="120" 
-                            HorizontalAlignment="Right"
-                            Click="CloseButton2_Click"/>
+                Content="Закрыть" 
+                Style="{StaticResource PrimaryButtonStyle}" 
+                Width="120" 
+                HorizontalAlignment="Right"
+                Click="CloseButton2_Click"/>
                 </Grid>
             </Border>
         </Grid>

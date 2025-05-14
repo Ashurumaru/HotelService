@@ -149,35 +149,25 @@ namespace HotelService.Views.Windows
 
         private void LoadGuestsContent()
         {
-            //MainContent.Content = new Pages.GuestsPage();
+            MainContent.Content = new Pages.GuestPage();
         }
 
         private void LoadRoomsContent()
         {
-            // MainContent.Content = new Pages.RoomsPage();
-            MessageBox.Show("Модуль 'Номерной фонд' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            MainContent.Content = new Pages.RoomPage();
+           
         }
 
-        private void LoadCheckInContent()
-        {
-            // MainContent.Content = new Pages.CheckInPage();
-            MessageBox.Show("Модуль 'Стойка регистрации' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void LoadPaymentsContent()
-        {
-            // MainContent.Content = new Pages.PaymentsPage();
-            MessageBox.Show("Модуль 'Платежи и счета' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
 
         private void LoadReportsContent()
         {
-            // MainContent.Content = new Pages.ReportsPage();
-            MessageBox.Show("Модуль 'Отчеты и аналитика' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            MainContent.Content = new Pages.ReportPage();
+           
+        }
+
+        private void LoadUserContent()
+        {
+            MainContent.Content = new Pages.UserPage();
         }
 
         private void LoadUsersContent()
@@ -190,19 +180,17 @@ namespace HotelService.Views.Windows
                 _currentActiveButton.Style = (Style)FindResource("MenuButtonStyle");
                 BookingButton.Style = (Style)FindResource("ActiveMenuButtonStyle");
                 _currentActiveButton = BookingButton;
-
                 LoadBookingContent();
+
                 return;
             }
 
-            // MainContent.Content = new Pages.UsersPage();
-            MessageBox.Show("Модуль 'Пользователи системы' находится в разработке.",
-                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadUserContent();
+           
         }
 
         private void LoadHandBookContent()
         {
-            // Проверка прав доступа - только администратор системы и администратор стойки
             if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
             {
                 MessageBox.Show("У вас нет прав доступа к модулю 'Справочники'.",
@@ -223,7 +211,6 @@ namespace HotelService.Views.Windows
 
         private void LoadDashboardContent()
         {
-            // Загружаем страницу бронирований по умолчанию
             MainContent.Content = new Pages.BookingPage();
         }
         #endregion

@@ -1,0 +1,630 @@
+﻿<Page x:Class="HotelService.Views.Pages.ReportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HotelService.Views.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="1200"
+      Title="Отчеты и аналитика">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" 
+                   Text="Отчеты и аналитика"
+                   Style="{StaticResource PageTitleStyle}"
+                   Margin="20,15,20,10"/>
+
+        <TabControl Grid.Row="1" Margin="20,0,20,20" Background="Transparent" Cursor="">
+            <!-- Отчеты о загрузке -->
+            <TabItem Header="Загрузка гостиницы">
+                <Border 
+                        
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Отчеты о загрузке гостиницы" 
+                                   Style="{StaticResource SectionHeaderStyle}" 
+                                   Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Ежедневная загрузка -->
+                            <Border Grid.Column="0" 
+                                    Style="{StaticResource CardStyle}" 
+                                    Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="Ежедневная загрузка"
+                                               Style="{StaticResource TitleTextStyle}"/>
+
+                                    <TextBlock Text="Отчет содержит информацию о загрузке гостиницы на указанную дату. Включает общее количество номеров, количество занятых и свободных номеров, а также процент загрузки."
+                                               Style="{StaticResource BodyTextStyle}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,15"/>
+
+                                    <TextBlock Text="Дата отчета:" 
+                                               Style="{StaticResource LabelTextStyle}"/>
+                                    <DatePicker x:Name="DailyReportDatePicker"
+                                                Height="44" 
+                                                Template="{StaticResource CustomDatePickerTemplate}"
+                                                Background="{StaticResource BackgroundSecondaryColor}"
+                                                BorderBrush="{StaticResource BorderColor}"
+                                                Foreground="{StaticResource TextPrimaryColor}"
+                                                Margin="0,0,0,15"
+                                                />
+
+                                    <Button Content="Экспорт в Word" 
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Click="ExportDailyOccupancyReport_Click"
+                                            HorizontalAlignment="Right"
+                                            Width="150"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Еженедельная загрузка -->
+                            <Border Grid.Column="1" 
+                                    Style="{StaticResource CardStyle}" 
+                                    Margin="10,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="Еженедельная загрузка"
+                                               Style="{StaticResource TitleTextStyle}"/>
+
+                                    <TextBlock Text="Отчет содержит информацию о загрузке гостиницы за неделю. Включает данные о загрузке по дням, количество занятых и свободных номеров, а также средний процент загрузки за неделю."
+                                               Style="{StaticResource BodyTextStyle}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,15"/>
+
+                                    <TextBlock Text="Начало недели:" 
+                                               Style="{StaticResource LabelTextStyle}"/>
+                                    <DatePicker x:Name="WeeklyStartDatePicker"
+                                                Height="44" 
+                                                Template="{StaticResource CustomDatePickerTemplate}"
+                                                Background="{StaticResource BackgroundSecondaryColor}"
+                                                BorderBrush="{StaticResource BorderColor}"
+                                                Foreground="{StaticResource TextPrimaryColor}"
+                                                Margin="0,0,0,10"
+                                               />
+
+                                    <TextBlock Text="Конец недели:" 
+                                               Style="{StaticResource LabelTextStyle}"/>
+                                    <DatePicker x:Name="WeeklyEndDatePicker"
+                                                Height="44" 
+                                                Template="{StaticResource CustomDatePickerTemplate}"
+                                                Background="{StaticResource BackgroundSecondaryColor}"
+                                                BorderBrush="{StaticResource BorderColor}"
+                                                Foreground="{StaticResource TextPrimaryColor}"
+                                                Margin="0,0,0,15"
+                                                />
+
+                                    <Button Content="Экспорт в Word" 
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Click="ExportWeeklyOccupancyReport_Click"
+                                            HorizontalAlignment="Right"
+                                            Width="150"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Ежемесячная загрузка -->
+                            <Border Grid.Column="2" 
+                                    Style="{StaticResource CardStyle}" 
+                                    Margin="10,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Ежемесячная загрузка"
+                                               Style="{StaticResource TitleTextStyle}"/>
+
+                                    <TextBlock Text="Отчет содержит информацию о загрузке гостиницы за месяц. Включает данные о загрузке по дням, количество занятых и свободных номеров, а также средний процент загрузки за месяц."
+                                               Style="{StaticResource BodyTextStyle}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,15"/>
+
+                                    <TextBlock Text="Месяц:" 
+                                               Style="{StaticResource LabelTextStyle}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                        <ComboBox x:Name="MonthComboBox"
+                                                  Style="{StaticResource FilterComboBoxStyle}"
+                                                  Width="150"
+                                                  Margin="0,0,10,0" 
+                                                  SelectionChanged="MonthYearChanged">
+                                            <ComboBoxItem Content="Январь" Tag="1"/>
+                                            <ComboBoxItem Content="Февраль" Tag="2"/>
+                                            <ComboBoxItem Content="Март" Tag="3"/>
+                                            <ComboBoxItem Content="Апрель" Tag="4"/>
+                                            <ComboBoxItem Content="Май" Tag="5"/>
+                                            <ComboBoxItem Content="Июнь" Tag="6"/>
+                                            <ComboBoxItem Content="Июль" Tag="7"/>
+                                            <ComboBoxItem Content="Август" Tag="8"/>
+                                            <ComboBoxItem Content="Сентябрь" Tag="9"/>
+                                            <ComboBoxItem Content="Октябрь" Tag="10"/>
+                                            <ComboBoxItem Content="Ноябрь" Tag="11"/>
+                                            <ComboBoxItem Content="Декабрь" Tag="12"/>
+                                        </ComboBox>
+
+                                        <ComboBox x:Name="YearComboBox"
+                                                  Style="{StaticResource FilterComboBoxStyle}"
+                                                  Width="100"
+                                                  SelectionChanged="MonthYearChanged"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="Период:" Style="{StaticResource CaptionTextStyle}"/>
+                                    <TextBlock x:Name="MonthlyDateRangeText" 
+                                               Text="01.05.2025 - 31.05.2025" 
+                                               Style="{StaticResource BodyTextStyle}"
+                                               Margin="0,0,0,15"/>
+
+                                    <Button Content="Экспорт в Word" 
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Click="ExportMonthlyOccupancyReport_Click"
+                                            HorizontalAlignment="Right"
+                                            Width="150"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <!-- Отчеты о доходах -->
+            <TabItem Header="Финансы">
+                <Border 
+            CornerRadius="8"
+            Padding="20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="Отчеты о финансах" 
+                           Style="{StaticResource SectionHeaderStyle}" 
+                           Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Ежедневный доход -->
+                                <Border Grid.Column="0" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Ежедневный доход"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о доходах гостиницы на указанную дату. Включает общий доход, доход от номеров, доход от услуг, налоги и средний дневной тариф (ADR)."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Дата отчета:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="DailyIncomeReportDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportDailyIncomeReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Еженедельный доход -->
+                                <Border Grid.Column="1" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="10,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Еженедельный доход"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о доходах гостиницы за неделю. Включает общий доход по дням, доход от номеров по дням, доход от услуг по дням, ADR по дням и общий доход за неделю."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Начало недели:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="WeeklyIncomeStartDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Конец недели:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="WeeklyIncomeEndDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportWeeklyIncomeReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Ежемесячный доход -->
+                                <Border Grid.Column="2" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="10,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Ежемесячный доход"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о доходах гостиницы за месяц. Включает общий доход по дням, доход от номеров по дням, доход от услуг по дням, ADR по дням и общий доход за месяц."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Месяц:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                            <ComboBox x:Name="IncomeMonthComboBox"
+                                          Style="{StaticResource FilterComboBoxStyle}"
+                                          Width="150"
+                                          Margin="0,0,10,0"
+                                          SelectionChanged="IncomeMonthYearChanged">
+                                                <ComboBoxItem Content="Январь" Tag="1"/>
+                                                <ComboBoxItem Content="Февраль" Tag="2"/>
+                                                <ComboBoxItem Content="Март" Tag="3"/>
+                                                <ComboBoxItem Content="Апрель" Tag="4"/>
+                                                <ComboBoxItem Content="Май" Tag="5"/>
+                                                <ComboBoxItem Content="Июнь" Tag="6"/>
+                                                <ComboBoxItem Content="Июль" Tag="7"/>
+                                                <ComboBoxItem Content="Август" Tag="8"/>
+                                                <ComboBoxItem Content="Сентябрь" Tag="9"/>
+                                                <ComboBoxItem Content="Октябрь" Tag="10"/>
+                                                <ComboBoxItem Content="Ноябрь" Tag="11"/>
+                                                <ComboBoxItem Content="Декабрь" Tag="12"/>
+                                            </ComboBox>
+
+                                            <ComboBox x:Name="IncomeYearComboBox"
+                                          Style="{StaticResource FilterComboBoxStyle}"
+                                          Width="100"
+                                          SelectionChanged="IncomeMonthYearChanged"/>
+                                        </StackPanel>
+
+                                        <TextBlock Text="Период:" Style="{StaticResource CaptionTextStyle}"/>
+                                        <TextBlock x:Name="IncomeMonthlyDateRangeText" 
+                                       Text="01.05.2025 - 31.05.2025" 
+                                       Style="{StaticResource BodyTextStyle}"
+                                       Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportMonthlyIncomeReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Сводка по платежам -->
+                            <Border Style="{StaticResource CardStyle}" 
+                        Margin="0,20,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Сводка по платежам"
+                                   Style="{StaticResource TitleTextStyle}"/>
+
+                                    <TextBlock Text="Отчет содержит сводную информацию о платежах. Включает общую сумму полученных платежей, платежи по способам оплаты и непогашенные остатки."
+                                   Style="{StaticResource BodyTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,15"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="Период с:" 
+                                           Style="{StaticResource LabelTextStyle}"/>
+                                            <DatePicker x:Name="PaymentSummaryStartDatePicker"
+                                            Height="44" 
+                                            Template="{StaticResource CustomDatePickerTemplate}"
+                                            Background="{StaticResource BackgroundSecondaryColor}"
+                                            BorderBrush="{StaticResource BorderColor}"
+                                            Foreground="{StaticResource TextPrimaryColor}"
+                                            Margin="0,0,0,10"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                            <TextBlock Text="Период по:" 
+                                           Style="{StaticResource LabelTextStyle}"/>
+                                            <DatePicker x:Name="PaymentSummaryEndDatePicker"
+                                            Height="44" 
+                                            Template="{StaticResource CustomDatePickerTemplate}"
+                                            Background="{StaticResource BackgroundSecondaryColor}"
+                                            BorderBrush="{StaticResource BorderColor}"
+                                            Foreground="{StaticResource TextPrimaryColor}"
+                                            Margin="0,0,0,10"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Button Content="Экспорт в Word" 
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="ExportPaymentSummaryReport_Click"
+                                HorizontalAlignment="Right"
+                                Width="150"
+                                Margin="0,15,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Гости">
+                <Border Background="{StaticResource BackgroundSecondaryColor}"
+            BorderBrush="{StaticResource BorderColor}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock Text="Отчеты о гостях" 
+                           Style="{StaticResource SectionHeaderStyle}" 
+                           Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Демография гостей -->
+                                <Border Grid.Column="0" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Демография гостей"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о количестве гостей и средней продолжительности пребывания за указанный период."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Период с:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="GuestDemographicsStartDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Период по:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="GuestDemographicsEndDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportGuestDemographicsReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Статистика по источникам бронирования -->
+                                <Border Grid.Column="1" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="10,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Статистика по источникам бронирования"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о распределении бронирований по различным источникам (телефон, личное обращение и т.д.) за указанный период."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Период с:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="BookingSourcesStartDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Период по:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="BookingSourcesEndDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportBookingSourcesReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Border Style="{StaticResource CardStyle}" 
+                        Margin="0,20,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Анализ гостей по группам"
+                                   Style="{StaticResource TitleTextStyle}"/>
+
+                                    <TextBlock Text="Отчет содержит информацию о распределении гостей по группам (VIP, корпоративные и др.) и их поведении при бронировании."
+                                   Style="{StaticResource BodyTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,15"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="Период с:" 
+                                           Style="{StaticResource LabelTextStyle}"/>
+                                            <DatePicker x:Name="GuestGroupsStartDatePicker"
+                                            Height="44" 
+                                            Template="{StaticResource CustomDatePickerTemplate}"
+                                            Background="{StaticResource BackgroundSecondaryColor}"
+                                            BorderBrush="{StaticResource BorderColor}"
+                                            Foreground="{StaticResource TextPrimaryColor}"
+                                            Margin="0,0,0,10"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                            <TextBlock Text="Период по:" 
+                                           Style="{StaticResource LabelTextStyle}"/>
+                                            <DatePicker x:Name="GuestGroupsEndDatePicker"
+                                            Height="44" 
+                                            Template="{StaticResource CustomDatePickerTemplate}"
+                                            Background="{StaticResource BackgroundSecondaryColor}"
+                                            BorderBrush="{StaticResource BorderColor}"
+                                            Foreground="{StaticResource TextPrimaryColor}"
+                                            Margin="0,0,0,10"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Button Content="Экспорт в Word" 
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="ExportGuestGroupsReport_Click"
+                                HorizontalAlignment="Right"
+                                Width="150"
+                                Margin="0,15,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+            
+            <TabItem Header="Статус уборки">
+                <Border Background="{StaticResource BackgroundSecondaryColor}"
+            BorderBrush="{StaticResource BorderColor}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock Text="Отчеты о статусе уборки номеров" 
+                           Style="{StaticResource SectionHeaderStyle}" 
+                           Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Ежедневный отчет по уборке -->
+                                <Border Grid.Column="0" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Ежедневный отчет по уборке"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о статусе уборки номеров (Убран, Требуется уборка, Проверен) на указанную дату."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Дата отчета:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="DailyCleaningReportDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportDailyCleaningReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Отчет по назначенным задачам -->
+                                <Border Grid.Column="1" 
+                            Style="{StaticResource CardStyle}" 
+                            Margin="10,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Отчет по назначенным задачам"
+                                       Style="{StaticResource TitleTextStyle}"/>
+
+                                        <TextBlock Text="Отчет содержит информацию о номерах, назначенных горничным, и времени выполнения задач за указанный период."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Период с:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="CleaningAssignmentsStartDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Период по:" 
+                                       Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="CleaningAssignmentsEndDatePicker"
+                                        Height="44" 
+                                        Template="{StaticResource CustomDatePickerTemplate}"
+                                        Background="{StaticResource BackgroundSecondaryColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        Foreground="{StaticResource TextPrimaryColor}"
+                                        Margin="0,0,0,15"/>
+
+                                        <Button Content="Экспорт в Word" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="ExportCleaningAssignmentsReport_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Page>

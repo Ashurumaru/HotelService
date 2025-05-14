@@ -64,6 +64,15 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Document.NET, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocX.4.0.25105.5786\lib\net40\Xceed.Document.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Drawing.NET, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocX.4.0.25105.5786\lib\net40\Xceed.Drawing.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Words.NET, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocX.4.0.25105.5786\lib\net40\Xceed.Words.NET.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -170,6 +179,12 @@
     <Compile Include="Data\ServiceCategory.cs">
       <DependentUpon>database.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\sp_helpdiagramdefinition_Result.cs">
+      <DependentUpon>database.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\sp_helpdiagrams_Result.cs">
+      <DependentUpon>database.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\sysdiagrams.cs">
       <DependentUpon>database.tt</DependentUpon>
     </Compile>
@@ -186,12 +201,32 @@
       <DependentUpon>database.tt</DependentUpon>
     </Compile>
     <Compile Include="Utils\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Utils\DamageActTemplateGenerator.cs" />
+    <Compile Include="Utils\ImageHelper.cs" />
     <Compile Include="Utils\InverseBooleanConverter.cs" />
     <Compile Include="Views\Pages\BookingPage.xaml.cs">
       <DependentUpon>BookingPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\GuestPage.xaml.cs">
+      <DependentUpon>GuestPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\HandbookPage.xaml.cs">
       <DependentUpon>HandbookPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\ReportPage.xaml.cs">
+      <DependentUpon>ReportPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\RoomPage.xaml.cs">
+      <DependentUpon>RoomPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\UserPage.xaml.cs">
+      <DependentUpon>UserPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\AmenityEditWindow.xaml.cs">
+      <DependentUpon>AmenityEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\AmenitySelectWindow.xaml.cs">
+      <DependentUpon>AmenitySelectWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\BookingEditWindow.xaml.cs">
       <DependentUpon>BookingEditWindow.xaml</DependentUpon>
@@ -199,11 +234,17 @@
     <Compile Include="Views\Windows\BookingViewWindow.xaml.cs">
       <DependentUpon>BookingViewWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\DamageActGeneratorWindow.xaml.cs">
+      <DependentUpon>DamageActGeneratorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\DamageReportEditWindow.xaml.cs">
       <DependentUpon>DamageReportEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\DamageReportViewWindow.xaml.cs">
       <DependentUpon>DamageReportViewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\DocumentAddWindow.xaml.cs">
+      <DependentUpon>DocumentAddWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\GenericHandbookWindow.xaml.cs">
       <DependentUpon>GenericHandbookWindow.xaml</DependentUpon>
@@ -214,8 +255,14 @@
     <Compile Include="Views\Windows\GuestSelectWindow.xaml.cs">
       <DependentUpon>GuestSelectWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\GuestViewWindow.xaml.cs">
+      <DependentUpon>GuestViewWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\HandbookItemEditWindow.xaml.cs">
       <DependentUpon>HandbookItemEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\ImageViewWindow.xaml.cs">
+      <DependentUpon>ImageViewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
@@ -226,20 +273,35 @@
     <Compile Include="Views\Windows\LoyaltyTransactionWindow.xaml.cs">
       <DependentUpon>LoyaltyTransactionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\MaintenanceTasksWindow.xaml.cs">
+      <DependentUpon>MaintenanceTasksWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\MaintenanceTaskWindow.xaml.cs">
+      <DependentUpon>MaintenanceTaskWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\PaymentEditWindow.xaml.cs">
       <DependentUpon>PaymentEditWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\RoomEditWindow.xaml.cs">
+      <DependentUpon>RoomEditWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\RoomSelectWindow.xaml.cs">
       <DependentUpon>RoomSelectWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\RoomViewWindow.xaml.cs">
+      <DependentUpon>RoomViewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\ServiceEditWindow.xaml.cs">
       <DependentUpon>ServiceEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\ServiceSelectWindow.xaml.cs">
       <DependentUpon>ServiceSelectWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\UserEditWindow.xaml.cs">
+      <DependentUpon>UserEditWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -273,6 +335,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Resources\doc\regcards.docx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -286,7 +351,31 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\GuestPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\HandbookPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\ReportPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\RoomPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\UserPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\AmenityEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\AmenitySelectWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -298,11 +387,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\DamageActGeneratorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\DamageReportEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\DamageReportViewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\DocumentAddWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -318,7 +415,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\GuestViewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\HandbookItemEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\ImageViewWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -334,6 +439,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\MaintenanceTasksWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\MaintenanceTaskWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -342,7 +455,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\RoomEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\RoomSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\RoomViewWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -351,6 +472,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\ServiceSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\UserEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
-        Title="Просмотр отчета о повреждении" 
-        Height="550" 
-        Width="650"
+        Title="Просмотр отчета о повреждениях" 
+        Height="720" 
+        Width="900"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
@@ -17,7 +17,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header -->
@@ -29,7 +29,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" 
-                               Text="Просмотр отчета о повреждении" 
+                               Text="Просмотр отчета о повреждениях" 
                                Foreground="White"
                                FontSize="18" 
                                FontWeight="SemiBold" 
@@ -44,82 +44,32 @@
             </Border>
 
             <!-- Content -->
-            <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="20,15,20,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
+            <ScrollViewer Grid.Row="1" Margin="20,15,20,10" VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Report Details -->
+                    <Border Grid.Row="0" Style="{StaticResource CardStyle}" Margin="0,0,0,15">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0" 
-                                    Width="60" 
-                                    Height="60" 
-                                    Background="{StaticResource ErrorColor}" 
-                                    CornerRadius="30"
-                                    Margin="0,0,15,15">
-                                <TextBlock x:Name="ReportNumberTextBlock" 
-                                           Text="1" 
-                                           Foreground="White" 
-                                           FontSize="24" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel Grid.Column="1" Margin="0,0,0,15">
-                                <TextBlock Text="Отчет о повреждении" 
-                                           Style="{StaticResource SectionHeaderStyle}" 
-                                           Margin="0,0,0,5"/>
-
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Grid.Column="0" 
-                                            Background="{StaticResource AccentColor}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4" 
-                                            Margin="0,0,10,0">
-                                        <TextBlock x:Name="StatusTextBlock" 
-                                                   Text="Создан" 
-                                                   Foreground="White" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"/>
-                                    </Border>
-
-                                    <Border Grid.Column="1" 
-                                            Background="{StaticResource PrimaryLightColor}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <TextBlock x:Name="SeverityTextBlock" 
-                                                   Text="Степень: Незначительная" 
-                                                   Foreground="White" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"/>
-                                    </Border>
-                                </Grid>
-                            </StackPanel>
-                        </Grid>
-
-                        <Grid Margin="0,5">
-                            <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Left Column -->
                             <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Информация о повреждении" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="№ отчета:" 
+                                    <TextBlock Text="Номер отчета:" 
                                                Grid.Column="0" 
                                                Foreground="{StaticResource TextTertiaryColor}"/>
                                     <TextBlock x:Name="ReportIdTextBlock" 
@@ -130,21 +80,7 @@
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Тип повреждения:" 
-                                               Grid.Column="0" 
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="DamageTypeTextBlock" 
-                                               Text="Повреждение мебели" 
-                                               Grid.Column="1" 
-                                               FontWeight="Medium"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Дата отчета:" 
@@ -158,7 +94,55 @@
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Тип повреждения:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="DamageTypeTextBlock" 
+                                               Text="Мебель" 
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Статус:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="StatusTextBlock" 
+                                               Text="Зарегистрирован" 
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Оценка ущерба:" 
+                                               Grid.Column="0" 
+                                               Foreground="{StaticResource TextTertiaryColor}"/>
+                                    <TextBlock x:Name="CostTextBlock" 
+                                               Text="5 000.00 ₽" 
+                                               Grid.Column="1" 
+                                               FontWeight="Medium"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="Связанная информация" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Номер комнаты:" 
@@ -172,114 +156,130 @@
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Стоимость ущерба:" 
-                                               Grid.Column="0" 
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="CostTextBlock" 
-                                               Text="5 000.00 ₽" 
-                                               Grid.Column="1" 
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ErrorColor}"/>
-                                </Grid>
-                            </StackPanel>
-
-                            <!-- Right Column -->
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Статус:" 
-                                               Grid.Column="0" 
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="StatusNameTextBlock" 
-                                               Text="Создан" 
-                                               Grid.Column="1" 
-                                               FontWeight="Medium"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Бронирование:" 
                                                Grid.Column="0" 
                                                Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="BookingTextBlock" 
-                                               Text="Бронирование #123" 
+                                    <TextBlock x:Name="BookingIdTextBlock" 
+                                               Text="#12345" 
                                                Grid.Column="1" 
                                                FontWeight="Medium"/>
                                 </Grid>
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Гость:" 
                                                Grid.Column="0" 
                                                Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="GuestTextBlock" 
-                                               Text="Иванов И.И." 
+                                    <TextBlock x:Name="GuestNameTextBlock" 
+                                               Text="Иванов Иван Иванович" 
                                                Grid.Column="1" 
-                                               FontWeight="Medium"/>
+                                               FontWeight="Medium"
+                                               TextWrapping="Wrap"/>
                                 </Grid>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Степень повреждения:" 
-                                               Grid.Column="0" 
-                                               Foreground="{StaticResource TextTertiaryColor}"/>
-                                    <TextBlock x:Name="SeverityLevelTextBlock" 
-                                               Text="Незначительное" 
-                                               Grid.Column="1" 
-                                               FontWeight="Medium"/>
-                                </Grid>
                             </StackPanel>
                         </Grid>
+                    </Border>
 
-                        <TextBlock Text="Описание повреждения:" 
-                                   Style="{StaticResource SectionHeaderStyle}" 
-                                   Margin="0,20,0,10"
-                                   FontSize="16"/>
+                    <!-- Description and Photos -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock x:Name="DescriptionTextBlock" 
-                                   Text="Описание повреждения будет отображено здесь." 
-                                   TextWrapping="Wrap"
-                                   Margin="5,0,5,15"
-                                   Style="{StaticResource BodyTextStyle}"/>
+                        <!-- Description -->
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                            <StackPanel>
+                                <TextBlock Text="Описание повреждения" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
 
-                        <TextBlock Text="Дополнительные примечания:" 
-                                   Style="{StaticResource SectionHeaderStyle}" 
-                                   Margin="0,10,0,10"
-                                   FontSize="16"/>
+                                <TextBlock x:Name="DescriptionTextBlock" 
+                                           Text="Детальное описание повреждения..." 
+                                           TextWrapping="Wrap"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
 
-                        <TextBlock x:Name="NotesTextBlock" 
-                                   Text="Примечания будут отображены здесь." 
-                                   TextWrapping="Wrap"
-                                   Margin="5,0,5,0"
-                                   Style="{StaticResource BodyTextStyle}"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+                        <!-- Photos -->
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Фотографии повреждения" 
+                                           Style="{StaticResource SectionHeaderStyle}" 
+                                           Margin="0,0,0,10"/>
+
+                                <ListBox x:Name="PhotosListBox" 
+                                         Background="Transparent" 
+                                         BorderThickness="0" 
+                                         Height="250" 
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{StaticResource BorderColor}" 
+                                                    BorderThickness="1" 
+                                                    Margin="5"
+                                                    Padding="0">
+                                                <Grid>
+                                                    <Image Source="{Binding ImageSource}" 
+                                                           Width="150" 
+                                                           Height="150"
+                                                           Stretch="UniformToFill"
+                                                           Margin="0"/>
+                                                    <Button Content="Увеличить" 
+                                                            Style="{StaticResource TextButtonStyle}"
+                                                            HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Bottom"
+                                                            Margin="0,0,0,5"
+                                                            Click="ViewFullImage_Click"
+                                                            Tag="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBlock x:Name="NoPhotosTextBlock" 
+                                           Text="Нет прикрепленных фотографий" 
+                                           HorizontalAlignment="Center" 
+                                           Margin="0,50,0,0" 
+                                           Foreground="{StaticResource TextTertiaryColor}"
+                                           FontStyle="Italic"
+                                           Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
 
             <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
-                    <Button x:Name="EditButton" 
-                            Content="Редактировать" 
-                            Style="{StaticResource SecondaryButtonStyle}" 
-                            Width="140" 
-                            HorizontalAlignment="Left"
-                            Click="EditButton_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button x:Name="EditReportButton" 
+                                Content="Редактировать" 
+                                Style="{StaticResource SecondaryButtonStyle}" 
+                                Width="150" 
+                                Margin="0,0,10,0"
+                                Click="EditReportButton_Click"/>
+
+                        <Button x:Name="GenerateActButton" 
+                                Content="Сформировать акт" 
+                                Style="{StaticResource PrimaryButtonStyle}" 
+                                Width="180" 
+                                Click="GenerateActButton_Click"/>
+                    </StackPanel>
 
                     <Button x:Name="CloseButton2" 
                             Content="Закрыть" 

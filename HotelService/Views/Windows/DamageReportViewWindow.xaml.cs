@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Input;
+using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity;
-using HotelService.Data;
-using System.Windows.Media;
-using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Data.Entity;
+using System.IO;
+using HotelService.Data;
 
 namespace HotelService.Views.Windows
 {
@@ -14,26 +16,45 @@ namespace HotelService.Views.Windows
     {
         private readonly int _reportId;
         private DamageReport _damageReport;
-        private bool _isDataLoaded = false;
+        private string _projectRootPath;
+
+        public class PhotoItem
+        {
+            public int EvidenceId { get; set; }
+            public string FilePath { get; set; }
+            public ImageSource ImageSource { get; set; }
+            public string Description { get; set; }
+        }
 
         public DamageReportViewWindow(int reportId)
         {
             InitializeComponent();
             _reportId = reportId;
-            LoadData();
-
-            if (!_isDataLoaded)
-            {
-                Close();
-            }
-
-            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
-            {
-                EditButton.Visibility = Visibility.Collapsed;
-            }
+            _projectRootPath = GetProjectRootPath();
+            LoadDamageReportData();
         }
 
-        private void LoadData()
+        private string GetProjectRootPath()
+        {
+            // Start with the directory where the executable is located
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Typically, the executable is in bin/Debug or bin/Release
+            // So we need to go up two directories to reach the project root
+            for (int i = 0; i < 2; i++)
+            {
+                directory = Directory.GetParent(directory)?.FullName;
+                if (directory == null)
+                {
+                    // If we can't go up, just use the current directory
+                    return AppDomain.CurrentDomain.BaseDirectory;
+                }
+            }
+
+            return directory;
+        }
+
+        private void LoadDamageReportData()
         {
             try
             {
@@ -41,25 +62,25 @@ namespace HotelService.Views.Windows
 
                 using (var context = new HotelServiceEntities())
                 {
-                    var report = context.DamageReport
+                    _damageReport = context.DamageReport
                         .Include(dr => dr.DamageType)
-                        .Include(dr => dr.TaskStatus)
                         .Include(dr => dr.Room)
                         .Include(dr => dr.Guest)
                         .Include(dr => dr.Booking)
+                        .Include(dr => dr.TaskStatus)
+                        .Include(dr => dr.DamageEvidence)
                         .FirstOrDefault(dr => dr.ReportId == _reportId);
 
-                    if (report == null)
+                    if (_damageReport == null)
                     {
                         MessageBox.Show("Отчет о повреждении не найден.", "Ошибка",
                             MessageBoxButton.OK, MessageBoxImage.Error);
+                        Close();
                         return;
                     }
 
-                    _damageReport = report;
-                    _isDataLoaded = true;
-
-                    DisplayReportData();
+                    DisplayDamageReportData();
+                    LoadPhotos();
                 }
             }
             catch (Exception ex)
@@ -73,14 +94,13 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void DisplayReportData()
+        private void DisplayDamageReportData()
         {
-            ReportNumberTextBlock.Text = _damageReport.ReportId.ToString();
+            // Основная информация
             ReportIdTextBlock.Text = _damageReport.ReportId.ToString();
-
+            ReportDateTextBlock.Text = _damageReport.ReportDate.ToString("dd.MM.yyyy HH:mm");
             DamageTypeTextBlock.Text = _damageReport.DamageType?.TypeName ?? "Не указан";
-            ReportDateTextBlock.Text = _damageReport.ReportDate.ToString("dd.MM.yyyy");
-            RoomNumberTextBlock.Text = _damageReport.Room?.RoomNumber ?? "Не указан";
+            StatusTextBlock.Text = _damageReport.TaskStatus?.StatusName ?? "Не указан";
 
             if (_damageReport.Cost.HasValue)
             {
@@ -91,134 +111,120 @@ namespace HotelService.Views.Windows
                 CostTextBlock.Text = "Не определена";
             }
 
-            StatusTextBlock.Text = _damageReport.TaskStatus?.StatusName ?? "Не указан";
-            StatusNameTextBlock.Text = _damageReport.TaskStatus?.StatusName ?? "Не указан";
+            // Связанная информация
+            RoomNumberTextBlock.Text = _damageReport.Room?.RoomNumber ?? "Не указан";
 
-            // Set status color based on status
-            if (_damageReport.TaskStatus != null)
+            if (_damageReport.BookingId.HasValue)
             {
-                SolidColorBrush statusBrush;
-                switch (_damageReport.StatusId)
-                {
-                    case 1: // Assuming 1 means "New"
-                        statusBrush = FindResource("InfoColor") as SolidColorBrush;
-                        break;
-                    case 2: // Assuming 2 means "In Progress"
-                        statusBrush = FindResource("WarningColor") as SolidColorBrush;
-                        break;
-                    case 3: // Assuming 3 means "Completed"
-                        statusBrush = FindResource("SuccessColor") as SolidColorBrush;
-                        break;
-                    case 4: // Assuming 4 means "Cancelled"
-                        statusBrush = FindResource("ErrorColor") as SolidColorBrush;
-                        break;
-                    default:
-                        statusBrush = FindResource("AccentColor") as SolidColorBrush;
-                        break;
-                }
-
-                var border = (StatusTextBlock.Parent as Border);
-                if (border != null)
-                {
-                    border.Background = statusBrush;
-                }
-            }
-
-            if (_damageReport.Booking != null)
-            {
-                BookingTextBlock.Text = $"Бронирование #{_damageReport.Booking.BookingId}";
+                BookingIdTextBlock.Text = $"#{_damageReport.BookingId.Value}";
             }
             else
             {
-                BookingTextBlock.Text = "Не привязано к бронированию";
+                BookingIdTextBlock.Text = "Не связано";
             }
 
             if (_damageReport.Guest != null)
             {
-                string shortName = _damageReport.Guest.LastName;
-
-                if (!string.IsNullOrEmpty(_damageReport.Guest.FirstName) && _damageReport.Guest.FirstName.Length > 0)
-                    shortName += " " + _damageReport.Guest.FirstName[0] + ".";
-
-                if (!string.IsNullOrEmpty(_damageReport.Guest.MiddleName) && _damageReport.Guest.MiddleName.Length > 0)
-                    shortName += _damageReport.Guest.MiddleName[0] + ".";
-
-                GuestTextBlock.Text = shortName;
+                string fullName = $"{_damageReport.Guest.LastName} {_damageReport.Guest.FirstName} {_damageReport.Guest.MiddleName}".Trim();
+                GuestNameTextBlock.Text = fullName;
             }
             else
             {
-                GuestTextBlock.Text = "Не указан";
+                GuestNameTextBlock.Text = "Не указан";
             }
 
-            // Extract severity from description
-            string severityLevel = "Незначительное";
-            if (!string.IsNullOrEmpty(_damageReport.Description))
-            {
-                var match = Regex.Match(_damageReport.Description, @"Степень повреждения:\s*(\w+)");
-                if (match.Success && match.Groups.Count > 1)
-                {
-                    severityLevel = match.Groups[1].Value;
-                }
 
-                // Clean description by removing the severity prefix
-                string cleanDescription = Regex.Replace(_damageReport.Description, @"Степень повреждения:\s*\w+\.\s*", "");
-                DescriptionTextBlock.Text = cleanDescription;
-            }
-            else
-            {
-                DescriptionTextBlock.Text = "Описание отсутствует";
-            }
-
-            SeverityLevelTextBlock.Text = severityLevel;
-            SeverityTextBlock.Text = $"Степень: {severityLevel}";
-
-            // Set severity color based on level
-            SolidColorBrush severityBrush;
-            switch (severityLevel.ToLower())
-            {
-                case "критическое":
-                    severityBrush = FindResource("ErrorColor") as SolidColorBrush;
-                    break;
-                case "серьезное":
-                    severityBrush = FindResource("WarningColor") as SolidColorBrush;
-                    break;
-                case "среднее":
-                    severityBrush = FindResource("InfoColor") as SolidColorBrush;
-                    break;
-                default: // Незначительное
-                    severityBrush = FindResource("PrimaryLightColor") as SolidColorBrush;
-                    break;
-            }
-
-            var severityBorder = (SeverityTextBlock.Parent as Border);
-            if (severityBorder != null)
-            {
-                severityBorder.Background = severityBrush;
-            }
-
-            NotesTextBlock.Text = !string.IsNullOrEmpty(_damageReport.Notes) ? _damageReport.Notes : "Нет примечаний";
+            DescriptionTextBlock.Text = _damageReport.Description ?? "Описание отсутствует";
         }
 
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void LoadPhotos()
         {
-            if (_damageReport?.Booking != null)
+            var photos = new List<PhotoItem>();
+
+            if (_damageReport.DamageEvidence != null && _damageReport.DamageEvidence.Any())
             {
-                var editWindow = new DamageReportEditWindow(_damageReport.BookingId.Value, _damageReport.ReportId);
-                if (editWindow.ShowDialog() == true)
+                foreach (var evidence in _damageReport.DamageEvidence)
                 {
-                    LoadData();
+                    try
+                    {
+                        // Convert relative path to absolute path
+                        string relativePath = evidence.FilePath;
+                        string fullPath = Path.Combine(_projectRootPath, relativePath);
+                        BitmapImage imageSource = null;
+
+                        if (File.Exists(fullPath))
+                        {
+                            imageSource = new BitmapImage();
+                            imageSource.BeginInit();
+                            imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                            imageSource.UriSource = new Uri(fullPath);
+                            imageSource.EndInit();
+                        }
+
+                        photos.Add(new PhotoItem
+                        {
+                            EvidenceId = evidence.EvidenceId,
+                            FilePath = fullPath,
+                            ImageSource = imageSource,
+                            Description = evidence.Description
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle errors loading images
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Предупреждение",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
+
+                PhotosListBox.ItemsSource = photos;
+                NoPhotosTextBlock.Visibility = Visibility.Collapsed;
             }
             else
             {
-                MessageBox.Show("Невозможно редактировать отчет, не привязанный к бронированию.", "Информация",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                NoPhotosTextBlock.Visibility = Visibility.Visible;
             }
         }
 
-        private void CloseButton2_Click(object sender, RoutedEventArgs e)
+        private void ViewFullImage_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            var button = (Button)sender;
+            var photoItem = (PhotoItem)button.Tag;
+
+            if (photoItem != null && photoItem.ImageSource != null)
+            {
+                var imageViewWindow = new ImageViewWindow(photoItem.ImageSource, photoItem.Description);
+                imageViewWindow.ShowDialog();
+            }
+        }
+
+        private void EditReportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для редактирования отчетов о повреждениях.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var editWindow = new DamageReportEditWindow(_reportId);
+            if (editWindow.ShowDialog() == true)
+            {
+                LoadDamageReportData();
+            }
+        }
+
+        private void GenerateActButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для формирования акта.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var actWindow = new DamageActGeneratorWindow(_reportId);
+            actWindow.ShowDialog();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -235,6 +241,11 @@ namespace HotelService.Views.Windows
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void CloseButton2_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }

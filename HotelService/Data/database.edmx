@@ -138,6 +138,8 @@
           <Property Name="GroupId" Type="int" />
           <Property Name="Notes" Type="nvarchar" MaxLength="1000" />
           <Property Name="CurrentPoints" Type="int" Nullable="false" />
+          <Property Name="Gender" Type="nvarchar" MaxLength="10" />
+          <Property Name="BirthPlace" Type="nvarchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="GuestDocument">
           <Key>
@@ -149,6 +151,9 @@
           <Property Name="DocumentPath" Type="nvarchar" MaxLength="255" />
           <Property Name="IssueDate" Type="date" />
           <Property Name="ExpiryDate" Type="date" />
+          <Property Name="DocumentSeries" Type="nvarchar" MaxLength="50" />
+          <Property Name="DocumentNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="IssuedBy" Type="nvarchar" MaxLength="255" />
           <Property Name="UploadedAt" Type="datetime" Nullable="false" />
           <Property Name="UploadedBy" Type="int" />
         </EntityType>
@@ -809,6 +814,37 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+        <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="version" Type="int" Mode="In" />
+          <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+        </Function>
+        <Function Name="sp_creatediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="version" Type="int" Mode="In" />
+          <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+        </Function>
+        <Function Name="sp_dropdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_helpdiagramdefinition" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_helpdiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_renamediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="new_diagramname" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="sp_upgraddiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="Хранилище HotelServiceModelContainer">
           <EntitySet Name="Amenity" EntityType="Self.Amenity" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AmenityCategory" EntityType="Self.AmenityCategory" Schema="dbo" store:Type="Tables" />
@@ -1192,6 +1228,36 @@
             <End Role="ServiceCategory" EntitySet="ServiceCategory" />
             <End Role="Service" EntitySet="Service" />
           </AssociationSet>
+          <FunctionImport Name="sp_alterdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_creatediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_dropdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagramdefinition" ReturnType="Collection(HotelServiceModel.sp_helpdiagramdefinition_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagrams" ReturnType="Collection(HotelServiceModel.sp_helpdiagrams_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_renamediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="new_diagramname" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="sp_upgraddiagrams" />
         </EntityContainer>
         <EntityType Name="Amenity">
           <Key>
@@ -1356,6 +1422,8 @@
           <Property Name="GroupId" Type="Int32" />
           <Property Name="Notes" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="CurrentPoints" Type="Int32" Nullable="false" />
+          <Property Name="Gender" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="BirthPlace" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Booking" Relationship="HotelServiceModel.FK_Booking_Guest" FromRole="Guest" ToRole="Booking" />
           <NavigationProperty Name="DamageReport" Relationship="HotelServiceModel.FK_DamageReport_Guest" FromRole="Guest" ToRole="DamageReport" />
           <NavigationProperty Name="GuestGroup" Relationship="HotelServiceModel.FK_Guest_GuestGroup" FromRole="Guest" ToRole="GuestGroup" />
@@ -1372,6 +1440,9 @@
           <Property Name="DocumentPath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="IssueDate" Type="DateTime" Precision="0" />
           <Property Name="ExpiryDate" Type="DateTime" Precision="0" />
+          <Property Name="DocumentSeries" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DocumentNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IssuedBy" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="UploadedAt" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UploadedBy" Type="Int32" />
           <NavigationProperty Name="DocumentType" Relationship="HotelServiceModel.FK_GuestDocument_DocumentType" FromRole="GuestDocument" ToRole="DocumentType" />
@@ -2075,6 +2146,17 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="sp_helpdiagramdefinition_Result">
+          <Property Type="Int32" Name="version" Nullable="true" />
+          <Property Type="Binary" Name="definition" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="sp_helpdiagrams_Result">
+          <Property Type="String" Name="Database" Nullable="true" MaxLength="128" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="128" />
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
+          <Property Type="Int32" Name="OwnerID" Nullable="false" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2212,6 +2294,8 @@
           <EntitySetMapping Name="Guest">
             <EntityTypeMapping TypeName="HotelServiceModel.Guest">
               <MappingFragment StoreEntitySet="Guest">
+                <ScalarProperty Name="BirthPlace" ColumnName="BirthPlace" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
                 <ScalarProperty Name="CurrentPoints" ColumnName="CurrentPoints" />
                 <ScalarProperty Name="Notes" ColumnName="Notes" />
                 <ScalarProperty Name="GroupId" ColumnName="GroupId" />
@@ -2232,6 +2316,9 @@
               <MappingFragment StoreEntitySet="GuestDocument">
                 <ScalarProperty Name="UploadedBy" ColumnName="UploadedBy" />
                 <ScalarProperty Name="UploadedAt" ColumnName="UploadedAt" />
+                <ScalarProperty Name="IssuedBy" ColumnName="IssuedBy" />
+                <ScalarProperty Name="DocumentNumber" ColumnName="DocumentNumber" />
+                <ScalarProperty Name="DocumentSeries" ColumnName="DocumentSeries" />
                 <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
                 <ScalarProperty Name="IssueDate" ColumnName="IssueDate" />
                 <ScalarProperty Name="DocumentPath" ColumnName="DocumentPath" />
@@ -2448,6 +2535,30 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_alterdiagram" FunctionName="Хранилище HotelServiceModel.sp_alterdiagram" />
+          <FunctionImportMapping FunctionImportName="sp_creatediagram" FunctionName="Хранилище HotelServiceModel.sp_creatediagram" />
+          <FunctionImportMapping FunctionImportName="sp_dropdiagram" FunctionName="Хранилище HotelServiceModel.sp_dropdiagram" />
+          <FunctionImportMapping FunctionImportName="sp_helpdiagramdefinition" FunctionName="Хранилище HotelServiceModel.sp_helpdiagramdefinition">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HotelServiceModel.sp_helpdiagramdefinition_Result">
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_helpdiagrams" FunctionName="Хранилище HotelServiceModel.sp_helpdiagrams">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HotelServiceModel.sp_helpdiagrams_Result">
+                <ScalarProperty Name="Database" ColumnName="Database" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Owner" ColumnName="Owner" />
+                <ScalarProperty Name="OwnerID" ColumnName="OwnerID" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="Хранилище HotelServiceModel.sp_renamediagram" />
+          <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="Хранилище HotelServiceModel.sp_upgraddiagrams" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

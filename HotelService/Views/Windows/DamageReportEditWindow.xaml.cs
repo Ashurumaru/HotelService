@@ -1,44 +1,134 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
-using System.Windows.Input;
-using System.Text.RegularExpressions;
-using System.Globalization;
-using HotelService.Data;
-using System.Data.Entity;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using Microsoft.Win32;
+using System.Data.Entity;
+using HotelService.Data;
 
 namespace HotelService.Views.Windows
 {
-    public partial class DamageReportEditWindow : Window
+    public partial class DamageReportEditWindow : Window, INotifyPropertyChanged
     {
-        private readonly int _bookingId;
         private readonly int? _reportId;
-        private Booking _booking;
         private DamageReport _damageReport;
+        private Room _selectedRoom;
+        private Booking _selectedBooking;
         private Guest _selectedGuest;
-        private bool _isEditing;
+        private readonly ObservableCollection<PhotoItem> _photos = new ObservableCollection<PhotoItem>();
+        private readonly string _photoTempDir;
+        private List<string> _photosToDelete = new List<string>();
 
-        public DamageReportEditWindow(int bookingId, int? reportId = null)
+        private readonly string _evidenceRelativePath = "Resources\\Images\\evidence";
+        private string _projectRootPath;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public class PhotoItem : INotifyPropertyChanged
+        {
+            private string _description;
+
+            public int? EvidenceId { get; set; }
+            public string FilePath { get; set; }
+            public ImageSource ImageSource { get; set; }
+            public bool IsNew { get; set; }
+
+            public string Description
+            {
+                get => _description;
+                set
+                {
+                    if (_description != value)
+                    {
+                        _description = value;
+                        OnPropertyChanged(nameof(Description));
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected void OnPropertyChanged(string propertyName)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public DamageReportEditWindow(int? reportId = null)
         {
             InitializeComponent();
-            _bookingId = bookingId;
             _reportId = reportId;
-            _isEditing = _reportId.HasValue;
+            _photoTempDir = Path.Combine(Path.GetTempPath(), "HotelServicePhotos", Guid.NewGuid().ToString());
 
-            if (_isEditing)
+            // Get project root path by going up from the executable directory
+            _projectRootPath = GetProjectRootPath();
+
+            if (!Directory.Exists(_photoTempDir))
+            {
+                Directory.CreateDirectory(_photoTempDir);
+            }
+
+            // Ensure evidence directory exists
+            string evidenceFullPath = Path.Combine(_projectRootPath, _evidenceRelativePath);
+            if (!Directory.Exists(evidenceFullPath))
+            {
+                Directory.CreateDirectory(evidenceFullPath);
+            }
+
+            if (_reportId.HasValue)
             {
                 WindowTitleTextBlock.Text = "Редактирование отчета о повреждении";
             }
+            else
+            {
+                WindowTitleTextBlock.Text = "Новый отчет о повреждении";
+            }
 
-            ReportDatePicker.SelectedDate = DateTime.Today;
-            SeverityComboBox.SelectedIndex = 0;
+            PhotosListBox.ItemsSource = _photos;
+            LoadReferenceData();
 
-            LoadData();
+            if (_reportId.HasValue)
+            {
+                LoadDamageReportData();
+            }
+            else
+            {
+                InitializeNewReport();
+            }
+
+            UpdatePhotosVisibility();
         }
 
-        private void LoadData()
+        private string GetProjectRootPath()
+        {
+            // Start with the directory where the executable is located
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Typically, the executable is in bin/Debug or bin/Release
+            // So we need to go up two directories to reach the project root
+            for (int i = 0; i < 2; i++)
+            {
+                directory = Directory.GetParent(directory)?.FullName;
+                if (directory == null)
+                {
+                    // If we can't go up, just use the current directory
+                    return AppDomain.CurrentDomain.BaseDirectory;
+                }
+            }
+
+            return directory;
+        }
+
+        private void LoadReferenceData()
         {
             try
             {
@@ -46,104 +136,83 @@ namespace HotelService.Views.Windows
 
                 using (var context = new HotelServiceEntities())
                 {
-                    _booking = context.Booking
-                        .Include(b => b.Guest)
-                        .Include(b => b.Room)
-                        .FirstOrDefault(b => b.BookingId == _bookingId);
+                    var damageTypes = context.DamageType.OrderBy(dt => dt.TypeName).ToList();
+                    DamageTypeComboBox.ItemsSource = damageTypes;
 
-                    if (_booking == null)
+                    var statuses = context.TaskStatus.OrderBy(s => s.StatusId).ToList();
+                    StatusComboBox.ItemsSource = statuses;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке справочных данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
+        private void LoadDamageReportData()
+        {
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                using (var context = new HotelServiceEntities())
+                {
+                    _damageReport = context.DamageReport
+                        .Include(dr => dr.DamageType)
+                        .Include(dr => dr.Room)
+                        .Include(dr => dr.Guest)
+                        .Include(dr => dr.Booking)
+                        .Include(dr => dr.TaskStatus)
+                        .Include(dr => dr.DamageEvidence)
+                        .FirstOrDefault(dr => dr.ReportId == _reportId.Value);
+
+                    if (_damageReport == null)
                     {
-                        MessageBox.Show("Бронирование не найдено.", "Ошибка",
+                        MessageBox.Show("Отчет о повреждении не найден.", "Ошибка",
                             MessageBoxButton.OK, MessageBoxImage.Error);
-                        DialogResult = false;
                         Close();
                         return;
                     }
 
-                    if (_booking.Guest != null)
+                    // Заполнение полей формы
+                    DamageTypeComboBox.SelectedValue = _damageReport.DamageTypeId;
+                    StatusComboBox.SelectedValue = _damageReport.StatusId;
+                    ReportDatePicker.SelectedDate = _damageReport.ReportDate;
+
+                    if (_damageReport.Cost.HasValue)
                     {
-                        _selectedGuest = _booking.Guest;
-                        GuestTextBox.Text = $"{_booking.Guest.LastName} {_booking.Guest.FirstName} {_booking.Guest.MiddleName}".Trim();
+                        CostTextBox.Text = _damageReport.Cost.Value.ToString("F2");
                     }
 
-                    var damageTypes = context.DamageType.OrderBy(dt => dt.TypeName).ToList();
-                    DamageTypeComboBox.ItemsSource = damageTypes;
+                    DescriptionTextBox.Text = _damageReport.Description;
 
-                    if (damageTypes.Any())
+                    // Связанная информация
+                    _selectedRoom = _damageReport.Room;
+                    if (_selectedRoom != null)
                     {
-                        DamageTypeComboBox.SelectedIndex = 0;
+                        RoomNumberTextBox.Text = _selectedRoom.RoomNumber;
                     }
 
-                    var statuses = context.TaskStatus.OrderBy(ts => ts.StatusId).ToList();
-                    StatusComboBox.ItemsSource = statuses;
-
-                    if (statuses.Any())
+                    _selectedBooking = _damageReport.Booking;
+                    if (_selectedBooking != null)
                     {
-                        StatusComboBox.SelectedIndex = 0;
+                        BookingTextBox.Text = $"#{_selectedBooking.BookingId}";
                     }
 
-                    var rooms = context.Room.OrderBy(r => r.RoomNumber).ToList();
-                    RoomComboBox.ItemsSource = rooms;
-
-                    if (_booking.RoomId.HasValue)
+                    _selectedGuest = _damageReport.Guest;
+                    if (_selectedGuest != null)
                     {
-                        RoomComboBox.SelectedValue = _booking.RoomId.Value;
-                    }
-                    else if (rooms.Any())
-                    {
-                        RoomComboBox.SelectedIndex = 0;
+                        string fullName = $"{_selectedGuest.LastName} {_selectedGuest.FirstName} {_selectedGuest.MiddleName}".Trim();
+                        GuestTextBox.Text = fullName;
                     }
 
-                    if (_isEditing && _reportId.HasValue)
-                    {
-                        _damageReport = context.DamageReport
-                            .Include(dr => dr.DamageType)
-                            .Include(dr => dr.TaskStatus)
-                            .Include(dr => dr.Room)
-                            .Include(dr => dr.GuestId)
-                            .FirstOrDefault(dr => dr.ReportId == _reportId.Value);
-
-                        if (_damageReport != null && _damageReport.BookingId == _bookingId)
-                        {
-                            DamageTypeComboBox.SelectedValue = _damageReport.DamageTypeId;
-                            StatusComboBox.SelectedValue = _damageReport.StatusId;
-                            ReportDatePicker.SelectedDate = _damageReport.ReportDate;
-                            RoomComboBox.SelectedValue = _damageReport.RoomId;
-
-                            if (_damageReport.Cost.HasValue)
-                            {
-                                CostTextBox.Text = _damageReport.Cost.Value.ToString("F2");
-                            }
-
-                            DescriptionTextBox.Text = _damageReport.Description;
-                            NotesTextBox.Text = _damageReport.Notes;
-
-                            if (_damageReport.Guest != null)
-                            {
-                                _selectedGuest = _damageReport.Guest;
-                                GuestTextBox.Text = $"{_damageReport.Guest.LastName} {_damageReport.Guest.FirstName} {_damageReport.Guest.MiddleName}".Trim();
-                            }
-
-                            // Set severity level
-                            // Assuming severity is encoded in the description or handled separately
-                            // This is a simplified approach; adjust based on your actual data model
-                            if (_damageReport.Description.Contains("Критическое"))
-                                SeverityComboBox.SelectedIndex = 3;
-                            else if (_damageReport.Description.Contains("Серьезное"))
-                                SeverityComboBox.SelectedIndex = 2;
-                            else if (_damageReport.Description.Contains("Среднее"))
-                                SeverityComboBox.SelectedIndex = 1;
-                            else
-                                SeverityComboBox.SelectedIndex = 0;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Отчет о повреждении не найден или не относится к данному бронированию.", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
-                            DialogResult = false;
-                            Close();
-                        }
-                    }
+                    // Загрузка фотографий
+                    LoadPhotos();
                 }
             }
             catch (Exception ex)
@@ -157,59 +226,212 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void SelectGuestButton_Click(object sender, RoutedEventArgs e)
+        private void LoadPhotos()
         {
-            var guestSelectWindow = new GuestSelectWindow();
-            if (guestSelectWindow.ShowDialog() == true)
+            if (_damageReport.DamageEvidence != null && _damageReport.DamageEvidence.Any())
             {
-                _selectedGuest = guestSelectWindow.SelectedGuest;
-                if (_selectedGuest != null)
+                foreach (var evidence in _damageReport.DamageEvidence)
                 {
-                    GuestTextBox.Text = $"{_selectedGuest.LastName} {_selectedGuest.FirstName} {_selectedGuest.MiddleName}".Trim();
+                    try
+                    {
+                        // Convert relative path to absolute path
+                        string relativePath = evidence.FilePath;
+                        string fullPath = Path.Combine(_projectRootPath, relativePath);
+                        string tempPath = Path.Combine(_photoTempDir, Path.GetFileName(relativePath));
+
+                        if (File.Exists(fullPath))
+                        {
+                            File.Copy(fullPath, tempPath, true);
+
+                            var imageSource = new BitmapImage();
+                            imageSource.BeginInit();
+                            imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                            imageSource.UriSource = new Uri(tempPath);
+                            imageSource.EndInit();
+
+                            _photos.Add(new PhotoItem
+                            {
+                                EvidenceId = evidence.EvidenceId,
+                                FilePath = tempPath,
+                                ImageSource = imageSource,
+                                Description = evidence.Description,
+                                IsNew = false
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Предупреждение",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
             }
         }
 
-        private bool ValidateForm()
+        private void InitializeNewReport()
         {
-            List<string> errors = new List<string>();
+            ReportDatePicker.SelectedDate = DateTime.Today;
+
+            // Выберем первые элементы из справочников
+            if (DamageTypeComboBox.Items.Count > 0)
+                DamageTypeComboBox.SelectedIndex = 0;
+
+            if (StatusComboBox.Items.Count > 0)
+                StatusComboBox.SelectedIndex = 0;
+
+            CostTextBox.Text = "0.00";
+        }
+
+        private void AddPhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Изображения|*.jpg;*.jpeg;*.png;*.bmp|Все файлы|*.*",
+                Multiselect = true,
+                Title = "Выберите изображения"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                foreach (string filePath in openFileDialog.FileNames)
+                {
+                    try
+                    {
+                        string fileName = Path.GetFileName(filePath);
+                        string destPath = Path.Combine(_photoTempDir, fileName);
+                        File.Copy(filePath, destPath, true);
+
+                        var imageSource = new BitmapImage();
+                        imageSource.BeginInit();
+                        imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                        imageSource.UriSource = new Uri(destPath);
+                        imageSource.EndInit();
+
+                        _photos.Add(new PhotoItem
+                        {
+                            FilePath = destPath,
+                            ImageSource = imageSource,
+                            Description = "",
+                            IsNew = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при добавлении изображения {Path.GetFileName(filePath)}: {ex.Message}",
+                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+
+                UpdatePhotosVisibility();
+            }
+        }
+
+        private void ViewPhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var photoItem = (PhotoItem)button.Tag;
+
+            if (photoItem != null && photoItem.ImageSource != null)
+            {
+                var imageViewWindow = new ImageViewWindow(photoItem.ImageSource, photoItem.Description);
+                imageViewWindow.ShowDialog();
+            }
+        }
+
+        private void RemovePhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var photoItem = (PhotoItem)button.Tag;
+
+            if (photoItem != null)
+            {
+                if (photoItem.EvidenceId.HasValue)
+                {
+                    _photosToDelete.Add(photoItem.FilePath);
+                }
+
+                _photos.Remove(photoItem);
+                UpdatePhotosVisibility();
+            }
+        }
+
+        private void UpdatePhotosVisibility()
+        {
+            NoPhotosTextBlock.Visibility = _photos.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void SelectRoomButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectWindow = new RoomSelectWindow(DateTime.Today, DateTime.Today.AddDays(1));
+            if (selectWindow.ShowDialog() == true)
+            {
+                _selectedRoom = selectWindow.SelectedRoom;
+                if (_selectedRoom != null)
+                {
+                    RoomNumberTextBox.Text = _selectedRoom.RoomNumber;
+                }
+            }
+        }
+
+        private void SelectBookingButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Here you would open a booking selection window
+            MessageBox.Show("Функциональность выбора бронирования будет реализована позже.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void SelectGuestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectWindow = new GuestSelectWindow();
+            if (selectWindow.ShowDialog() == true)
+            {
+                _selectedGuest = selectWindow.SelectedGuest;
+                if (_selectedGuest != null)
+                {
+                    string fullName = $"{_selectedGuest.LastName} {_selectedGuest.FirstName} {_selectedGuest.MiddleName}".Trim();
+                    GuestTextBox.Text = fullName;
+                }
+            }
+        }
+
+        private bool ValidateReport()
+        {
+            var errors = new List<string>();
 
             if (DamageTypeComboBox.SelectedItem == null)
             {
-                errors.Add("Необходимо выбрать тип повреждения.");
+                errors.Add("Не выбран тип повреждения");
             }
 
             if (StatusComboBox.SelectedItem == null)
             {
-                errors.Add("Необходимо выбрать статус отчета.");
+                errors.Add("Не выбран статус отчета");
             }
 
-            if (!ReportDatePicker.SelectedDate.HasValue)
+            if (ReportDatePicker.SelectedDate == null)
             {
-                errors.Add("Необходимо выбрать дату отчета.");
+                errors.Add("Не указана дата обнаружения");
             }
 
-            if (RoomComboBox.SelectedItem == null)
+            if (_selectedRoom == null)
             {
-                errors.Add("Необходимо выбрать номер комнаты.");
+                errors.Add("Не выбран номер");
             }
 
             if (string.IsNullOrWhiteSpace(DescriptionTextBox.Text))
             {
-                errors.Add("Необходимо добавить описание повреждения.");
+                errors.Add("Не указано описание повреждения");
             }
 
-            if (!string.IsNullOrWhiteSpace(CostTextBox.Text))
+            decimal cost;
+            if (!decimal.TryParse(CostTextBox.Text, out cost) || cost < 0)
             {
-                if (!decimal.TryParse(CostTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out decimal cost) || cost < 0)
-                {
-                    errors.Add("Стоимость ущерба должна быть неотрицательным числом.");
-                }
+                errors.Add("Неверно указана оценка ущерба");
             }
 
             if (errors.Count > 0)
             {
-                ValidationMessageTextBlock.Text = string.Join("\n", errors);
+                ValidationMessageTextBlock.Text = string.Join(", ", errors);
                 ValidationMessageTextBlock.Visibility = Visibility.Visible;
                 return false;
             }
@@ -218,7 +440,7 @@ namespace HotelService.Views.Windows
             return true;
         }
 
-        private void SaveDamageReport()
+        private void SaveReport()
         {
             try
             {
@@ -226,34 +448,14 @@ namespace HotelService.Views.Windows
 
                 using (var context = new HotelServiceEntities())
                 {
-                    int damageTypeId = (int)DamageTypeComboBox.SelectedValue;
-                    int statusId = (int)StatusComboBox.SelectedValue;
-                    DateTime reportDate = ReportDatePicker.SelectedDate.Value;
-                    int roomId = (int)RoomComboBox.SelectedValue;
-                    string description = DescriptionTextBox.Text;
-                    string notes = NotesTextBox.Text;
-                    string severityText = (SeverityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Незначительное";
-
-                    // Add severity to description if not already included
-                    if (!description.Contains($"Степень повреждения: {severityText}"))
-                    {
-                        description = $"Степень повреждения: {severityText}. {description}";
-                    }
-
-                    decimal? cost = null;
-                    if (!string.IsNullOrWhiteSpace(CostTextBox.Text))
-                    {
-                        cost = decimal.Parse(CostTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture);
-                    }
-
                     DamageReport reportToSave;
 
-                    if (_isEditing && _reportId.HasValue)
+                    if (_reportId.HasValue)
                     {
                         reportToSave = context.DamageReport.Find(_reportId.Value);
-                        if (reportToSave == null || reportToSave.BookingId != _bookingId)
+                        if (reportToSave == null)
                         {
-                            MessageBox.Show("Отчет о повреждении не найден или не относится к данному бронированию.", "Ошибка",
+                            MessageBox.Show("Отчет о повреждении не найден в базе данных.", "Ошибка",
                                 MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
@@ -261,25 +463,98 @@ namespace HotelService.Views.Windows
                     else
                     {
                         reportToSave = new DamageReport();
-                        reportToSave.BookingId = _bookingId;
                         context.DamageReport.Add(reportToSave);
                     }
 
-                    reportToSave.DamageTypeId = damageTypeId;
-                    reportToSave.StatusId = statusId;
-                    reportToSave.ReportDate = reportDate;
-                    reportToSave.RoomId = roomId;
-                    reportToSave.Description = description;
-                    reportToSave.Notes = notes;
-                    reportToSave.Cost = cost;
+                    // Основные данные
+                    reportToSave.DamageTypeId = (int)DamageTypeComboBox.SelectedValue;
+                    reportToSave.StatusId = (int)StatusComboBox.SelectedValue;
+                    reportToSave.ReportDate = ReportDatePicker.SelectedDate.Value;
+
+                    decimal cost;
+                    if (decimal.TryParse(CostTextBox.Text, out cost))
+                    {
+                        reportToSave.Cost = cost;
+                    }
+
+                    reportToSave.Description = DescriptionTextBox.Text;
+
+                    // Связанные данные
+                    reportToSave.RoomId = _selectedRoom.RoomId;
+
+                    if (_selectedBooking != null)
+                    {
+                        reportToSave.BookingId = _selectedBooking.BookingId;
+                    }
 
                     if (_selectedGuest != null)
                     {
                         reportToSave.GuestId = _selectedGuest.GuestId;
                     }
-                    else if (_booking.Guest != null)
+
+                    // Сохраняем отчет для получения ID
+                    context.SaveChanges();
+
+                    // Удаление фотографий, которые были отмечены для удаления
+                    if (_reportId.HasValue && _photosToDelete.Count > 0)
                     {
-                        reportToSave.GuestId = _booking.Guest.GuestId;
+                        var evidenceToDelete = context.DamageEvidence
+                            .Where(de => de.ReportId == reportToSave.ReportId)
+                            .ToList();
+
+                        foreach (var evidence in evidenceToDelete)
+                        {
+                            if (_photosToDelete.Contains(evidence.FilePath))
+                            {
+                                context.DamageEvidence.Remove(evidence);
+                            }
+                        }
+                    }
+
+                    // Create directory structure for this report's photos
+                    string reportFolderRelative = Path.Combine(_evidenceRelativePath, reportToSave.ReportId.ToString());
+                    string reportFolderAbsolute = Path.Combine(_projectRootPath, reportFolderRelative);
+
+                    if (!Directory.Exists(reportFolderAbsolute))
+                    {
+                        Directory.CreateDirectory(reportFolderAbsolute);
+                    }
+
+                    // Save/update photos
+                    foreach (var photo in _photos)
+                    {
+                        string fileName = Path.GetFileName(photo.FilePath);
+                        string relativeFilePath = Path.Combine(reportFolderRelative, fileName);
+                        string absoluteFilePath = Path.Combine(_projectRootPath, relativeFilePath);
+
+                        // Copy file to storage location
+                        if (File.Exists(photo.FilePath))
+                        {
+                            File.Copy(photo.FilePath, absoluteFilePath, true);
+                        }
+
+                        if (photo.IsNew)
+                        {
+                            // Add new photo evidence
+                            var evidence = new DamageEvidence
+                            {
+                                ReportId = reportToSave.ReportId,
+                                FilePath = relativeFilePath,  // Store relative path in DB
+                                Description = photo.Description
+                            };
+
+                            context.DamageEvidence.Add(evidence);
+                        }
+                        else if (photo.EvidenceId.HasValue)
+                        {
+                            // Update existing photo evidence
+                            var evidence = context.DamageEvidence.Find(photo.EvidenceId.Value);
+                            if (evidence != null)
+                            {
+                                evidence.FilePath = relativeFilePath;  // Store relative path in DB
+                                evidence.Description = photo.Description;
+                            }
+                        }
                     }
 
                     context.SaveChanges();
@@ -289,7 +564,7 @@ namespace HotelService.Views.Windows
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении отчета о повреждении: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка при сохранении отчета: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -298,36 +573,23 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void DecimalValidationTextBox(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex(@"[^0-9\,\.]+");
-            bool isMatch = regex.IsMatch(e.Text);
-
-            if (!isMatch)
-            {
-                var textBox = sender as System.Windows.Controls.TextBox;
-                if (textBox != null)
-                {
-                    string futureText = textBox.Text.Insert(textBox.CaretIndex, e.Text);
-                    isMatch = futureText.Count(c => c == ',' || c == '.') > 1;
-                }
-            }
-
-            e.Handled = isMatch;
-        }
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ValidateForm())
+            if (ValidateReport())
             {
-                SaveDamageReport();
+                SaveReport();
             }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
-            Close();
+        }
+
+        private void DecimalValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex(@"^[0-9]*(?:\,[0-9]*)?$");
+            e.Handled = !regex.IsMatch(((TextBox)sender).Text + e.Text);
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -347,6 +609,11 @@ namespace HotelService.Views.Windows
         {
             DialogResult = false;
             Close();
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

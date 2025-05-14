@@ -7,6 +7,12 @@ using System.Collections.Generic;
 using HotelService.Data;
 using System.Windows.Media;
 using System.Windows.Controls;
+using System.IO;
+using System.Data;
+using Xceed.Document.NET;
+using Xceed.Words.NET;
+using Color = Xceed.Drawing.Color;
+using Microsoft.Win32;
 
 namespace HotelService.Views.Windows
 {
@@ -170,7 +176,6 @@ namespace HotelService.Views.Windows
 
                 // Display guest name
                 string fullName = $"{guest.LastName} {guest.FirstName} {guest.MiddleName}".Trim();
-                LoyaltyGuestNameTextBlock.Text = fullName;
 
                 // Display current points balance
                 LoyaltyPointsBalanceTextBlock.Text = $"{guest.CurrentPoints} баллов";
@@ -791,7 +796,6 @@ namespace HotelService.Views.Windows
         private void DisplayBookingData()
         {
             // Основная информация о бронировании
-            BookingNumberTextBlock.Text = _booking.BookingId.ToString();
             BookingTitleTextBlock.Text = $"Бронирование #{_booking.BookingId}";
 
             StatusTextBlock.Text = _booking.BookingStatus?.StatusName ?? "Не указан";
@@ -834,6 +838,7 @@ namespace HotelService.Views.Windows
                     : FindResource("TextSecondaryColor") as SolidColorBrush;
 
                 GuestPointsTextBlock.Text = _booking.Guest.CurrentPoints.ToString();
+                LoyaltyPointsBalanceTextBlock.Text = _booking.Guest.CurrentPoints.ToString();
             }
             else
             {
@@ -1156,16 +1161,13 @@ namespace HotelService.Views.Windows
 
                     if (damageReport != null)
                     {
-                        var damageReportEditWindow = new DamageReportEditWindow(_bookingId, damageReport.ReportId);
-                        if (damageReportEditWindow.ShowDialog() == true)
+                        var editWindow = new DamageReportEditWindow(damageReport.ReportId);
+                        if (editWindow.ShowDialog() == true)
                         {
-                            LoadDamageReports(context);
+
+                                LoadDamageReports(context);
+                            
                         }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Не удалось найти данный отчет в базе данных.", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -1442,7 +1444,455 @@ namespace HotelService.Views.Windows
             }
         }
 
+        private void GenerateRegistrationCardButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (var context = new HotelServiceEntities())
+                {
+                    var guest = context.Guest.FirstOrDefault(g => g.GuestId == _booking.GuestId);
+                    if (guest == null)
+                    {
+                        MessageBox.Show("Информация о госте не найдена.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
+                    var guestDocument = context.GuestDocument
+                        .Include(gd => gd.DocumentType)
+                        .Where(gd => gd.GuestId == guest.GuestId)
+                        .OrderByDescending(gd => gd.UploadedAt)
+                        .FirstOrDefault();
+
+                    if (guestDocument == null)
+                    {
+                        MessageBox.Show("Документы гостя не найдены.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    SaveFileDialog saveDialog = new SaveFileDialog
+                    {
+                        Filter = "Word документы (*.docx)|*.docx",
+                        FileName = $"Регистрационная_карта_{guest.LastName}_{DateTime.Now:yyyy-MM-dd}",
+                        Title = "Сохранить регистрационную карту"
+                    };
+
+                    if (saveDialog.ShowDialog() == true)
+                    {
+                        string filePath = saveDialog.FileName;
+                        GenerateGuestRegistrationCard(guest, guestDocument, filePath);
+
+                        MessageBox.Show($"Регистрационная карта успешно создана и сохранена в:\n{filePath}",
+                            "Успешно", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Опционально: открыть созданный файл
+                        if (MessageBox.Show("Открыть созданный документ?", "Просмотр документа",
+                            MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        {
+                            try
+                            {
+                                System.Diagnostics.Process.Start(filePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка",
+                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void GenerateGuestRegistrationCard(Guest guest, GuestDocument guestDocument, string filePath)
+        {
+            using (var doc = DocX.Create(filePath))
+            {
+                // Установка полей страницы
+                doc.MarginTop = 20;
+                doc.MarginRight = 20;
+                doc.MarginBottom = 20;
+                doc.MarginLeft = 20;
+
+                // Определение шрифтов и размеров
+                var standardFont = "Times New Roman";
+                var standardFontSize = 12;
+                var smallFontSize = 9;
+                var signatureFontSize = 11;
+
+                // Заголовок
+                var title = doc.InsertParagraph()
+                    .Append("РЕГИСТРАЦИОННАЯ КАРТА ГОСТЯ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .Bold();
+                title.Alignment = Alignment.right;
+
+                // Информация о гостинице
+                var hotelName = doc.InsertParagraph()
+                    .Append("Гостиница Улан-Удэ Адрес")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                hotelName.Alignment = Alignment.right;
+
+                var hotelAddress = doc.InsertParagraph()
+                    .Append("Республика Бурятия, г. Улан-Удэ, ул. Загородная, д. 20")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                hotelAddress.Alignment = Alignment.right;
+
+                // Контактная информация
+                var contactInfo = doc.InsertParagraph()
+                    .Append("Тел.: +7 (9834) 320-007\n")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("E-Mail: bronir.osiz@mail.ru\n")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("ИНН 7610051111")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                contactInfo.Alignment = Alignment.right;
+
+                // Разделительная строка
+                doc.InsertParagraph().SpacingAfter(5);
+
+                // Заголовок секции данных о госте
+                var sectionTitle = doc.InsertParagraph()
+                    .Append("Сведения о ЗАКАЗЧИКЕ:")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .Bold();
+
+                // 1. Фамилия
+                var pLastName = doc.InsertParagraph();
+                pLastName.Append("1. Фамилия: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var lastNameField = pLastName.Append($"{guest.LastName}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pLastName.Append(new string('_', 50))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 2. Имя/Отчество
+                var pNames = doc.InsertParagraph();
+                pNames.Append("2. Имя/Отчество: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var namesField = pNames.Append($"{guest.FirstName} {guest.MiddleName}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pNames.Append(new string('_', 50))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 3. Дата рождения
+                var pBirthDate = doc.InsertParagraph();
+                pBirthDate.Append("3. Дата рождения ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var birthDateField = pBirthDate.Append($"{guest.DateOfBirth?.ToString("dd.MM.yyyy")} г")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pBirthDate.Append(new string('_', 50))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 4. Пол
+                var pGender = doc.InsertParagraph();
+                pGender.Append("4. Пол ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var genderField = pGender.Append($"{(guest.Gender)}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pGender.Append(new string('_', 70))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 5. Место рождения
+                var pBirthPlace = doc.InsertParagraph();
+                pBirthPlace.Append("5. Место рождения: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var birthPlaceField = pBirthPlace.Append($"{guest.BirthPlace}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pBirthPlace.Append(new string('_', 50))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 6. Документ
+                var pDocType = doc.InsertParagraph();
+                pDocType.Append("6. Документ, удостоверяющий личность: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var docTypeField = pDocType.Append($"{guestDocument.DocumentType.TypeName}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pDocType.Append(new string('_', 30))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // Серия/номер, дата выдачи
+                var pDocDetails = doc.InsertParagraph();
+                pDocDetails.Append("Серия/номер: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var docNumberField = pDocDetails.Append($"{guestDocument.DocumentSeries} {guestDocument.DocumentNumber}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pDocDetails.Append(new string('_', 15))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pDocDetails.Append(" Дата выдачи ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var issueDateField = pDocDetails.Append($"{guestDocument.IssueDate?.ToString("dd.MM.yyyy")} г.")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pDocDetails.Append(new string('_', 15))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // Кем выдан
+                var pIssuedBy = doc.InsertParagraph();
+                pIssuedBy.Append("Кем выдан: ")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+                var issuedByField = pIssuedBy.Append($"{guestDocument.IssuedBy}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pIssuedBy.Append(new string('_', 50))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // 7. Адрес
+                var pAddressLabel = doc.InsertParagraph()
+                    .Append("7. Адрес места жительства (регистрации):")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize);
+
+                // Строка адреса 1
+                var pAddressLine1 = doc.InsertParagraph();
+                var addressField = pAddressLine1.Append($"{guest.Address}")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+                pAddressLine1.Append(new string('_', 70))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // Строка адреса 2 (пустая подчеркнутая строка)
+                var pAddressLine2 = doc.InsertParagraph();
+                var emptyAddressLine = pAddressLine2.Append(new string('_', 100))
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .UnderlineStyle(UnderlineStyle.singleLine);
+
+                // Пустая строка с отступом
+                doc.InsertParagraph().SpacingAfter(10);
+
+                // Информация о цене
+                var priceInfo = doc.InsertParagraph()
+                    .Append("Цена размещения определяется согласно текущему прейскуранту")
+                    .Font(standardFont)
+                    .FontSize(standardFontSize)
+                    .Bold();
+
+                // Условия и положения
+                var termsP1 = doc.InsertParagraph()
+                    .Append("Ознакомлен/на с Правилами предоставления гостиничных услуг в ООО «Гостиница Улан-Удэ», сроками и условиями ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("проживания, а также с правилами пожарной безопасности.")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                var termsP2 = doc.InsertParagraph()
+                    .Append("Согласен/на с условиями договора на предоставление гостиничных услуг Гостиницы.")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                var termsP3 = doc.InsertParagraph()
+                    .Append("Согласен/на на обработку моих персональных данных.")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                var termsP4 = doc.InsertParagraph()
+                    .Append("Проинформирован/на о том, что на всей территории ООО «Гостиница Улан-Удэ» (гостиничные номера, точки питания, ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("общественные зоны) курение запрещено, за исключением специально отведенных мест, а также запрещено использование ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("пиротехнических средств.")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                var termsP5 = doc.InsertParagraph()
+                    .Append("Проинформирован/на о том, что Гостиница не несет ответственности за ценности, если они не были помещены в сейф.")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                // Поле для подписи
+                doc.InsertParagraph().SpacingAfter(20);
+
+                var signatureLine = doc.InsertParagraph()
+                    .Append("_________/__________________/")
+                    .Font(standardFont)
+                    .FontSize(signatureFontSize);
+                signatureLine.Alignment = Alignment.right;
+
+                var signatureLabel = doc.InsertParagraph()
+                    .Append("                                                                                                (подпись, расшифровка)")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                signatureLabel.Alignment = Alignment.right;
+
+                // Согласие на маркетинг
+                doc.InsertParagraph().SpacingAfter(15);
+
+                var marketingConsent = doc.InsertParagraph()
+                    .Append("Я согласен получать информацию о специальных предложениях и новостях отеля по ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("e-mail")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append(" или ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize)
+                    .Append("sms")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                // Поля для контактов
+                var emailField = doc.InsertParagraph();
+                emailField.Append("Электронный адрес: ")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                var emailValue = emailField.Append(new string('_', 60))
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+
+                var phoneField = doc.InsertParagraph();
+                phoneField.Append("Телефон (моб.): +")
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                var phoneValue = phoneField.Append(new string('_', 60))
+                    .Font(standardFont)
+                    .FontSize(smallFontSize);
+                // Сохранение документа
+                doc.Save();
+            }
+        }
+        private void DeleteDamageReportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
+            {
+                MessageBox.Show("У вас нет прав для удаления отчетов о повреждениях.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var reportViewModel = (sender as Button)?.DataContext as DamageReportViewModel;
+            if (reportViewModel == null) return;
+
+            MessageBoxResult result = MessageBox.Show(
+                $"Вы действительно хотите удалить отчет о повреждении \"{reportViewModel.DamageTypeName}\"?",
+                "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var context = new HotelServiceEntities())
+                    {
+                        // Получаем все отчеты для данного бронирования
+                        var damageReports = context.DamageReport
+                            .Include(dr => dr.DamageType)
+                            .Where(dr => dr.BookingId == _bookingId)
+                            .ToList();
+
+                        // Используем метод расширения для работы с датами, а не LINQ to Entities
+                        var damageReport = damageReports.FirstOrDefault(dr =>
+                            dr.DamageType.TypeName == reportViewModel.DamageTypeName &&
+                            dr.ReportDate.Year == reportViewModel.ReportDate.Year &&
+                            dr.ReportDate.Month == reportViewModel.ReportDate.Month &&
+                            dr.ReportDate.Day == reportViewModel.ReportDate.Day);
+
+                        if (damageReport != null)
+                        {
+                            // Проверяем зависимости перед удалением
+                            var hasDependencies = context.BookingItem.Any(bi => bi.DamageReportId == damageReport.ReportId) ||
+                                                 context.RoomMaintenance.Any(rm => rm.DamageReportId == damageReport.ReportId);
+
+                            if (hasDependencies)
+                            {
+                                MessageBox.Show("Невозможно удалить отчет, так как с ним связаны другие записи в системе.",
+                                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                                return;
+                            }
+
+                            // Удаляем связанные записи
+                            var evidence = context.DamageEvidence.Where(de => de.ReportId == damageReport.ReportId).ToList();
+                            foreach (var item in evidence)
+                            {
+                                context.DamageEvidence.Remove(item);
+                            }
+
+                            // Удаляем сам отчет
+                            context.DamageReport.Remove(damageReport);
+                            context.SaveChanges();
+
+                            LoadDamageReports(context);
+
+                            MessageBox.Show("Отчет о повреждении успешно удален.", "Успех",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Не удалось найти данный отчет в базе данных.", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении отчета: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
 
         private void EditBookingButton_Click(object sender, RoutedEventArgs e)
         {

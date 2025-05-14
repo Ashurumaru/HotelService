@@ -143,31 +143,19 @@ namespace HotelService.Views.Windows
 
         private void AddGuestButton_Click(object sender, RoutedEventArgs e)
         {
-            var guestEditWindow = new GuestEditWindow();
-            if (guestEditWindow.ShowDialog() == true)
+            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
             {
-                SelectedGuest = guestEditWindow.CreatedGuest;
+                MessageBox.Show("У вас нет прав для добавления гостей.", "Доступ запрещен",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
+            var dialog = new Windows.GuestEditWindow();
+            if (dialog.ShowDialog() == true)
+            {
                 LoadData();
-
-                if (SelectedGuest != null)
-                {
-                    foreach (var item in GuestsDataGrid.Items)
-                    {
-                        if (item is Guest guest && guest.GuestId == SelectedGuest.GuestId)
-                        {
-                            GuestsDataGrid.SelectedItem = item;
-                            GuestsDataGrid.ScrollIntoView(item);
-                            break;
-                        }
-                    }
-                }
-
-                DialogResult = true;
-                Close();
             }
         }
-
         private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
             SelectGuest();
