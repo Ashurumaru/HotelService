@@ -1486,7 +1486,6 @@ namespace HotelService.Views.Windows
                         MessageBox.Show($"Регистрационная карта успешно создана и сохранена в:\n{filePath}",
                             "Успешно", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        // Опционально: открыть созданный файл
                         if (MessageBox.Show("Открыть созданный документ?", "Просмотр документа",
                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         {

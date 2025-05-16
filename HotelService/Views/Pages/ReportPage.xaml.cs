@@ -343,22 +343,16 @@ namespace HotelService.Views.Pages
 
         private void GenerateDailyOccupancyReport(HotelServiceEntities context, DateTime reportDate, string filePath)
         {
-            // Получаем данные о загрузке на указанную дату
             OccupancyData data = GetOccupancyData(context, reportDate);
-
             using (var doc = DocX.Create(filePath))
             {
-                // Настройка параметров документа
                 SetupDocument(doc);
-
-                // Добавляем заголовок отчета
                 var title = doc.InsertParagraph()
                     .Append($"ОТЧЕТ О ЗАГРУЗКЕ ГОСТИНИЦЫ")
                     .Font("Times New Roman")
                     .FontSize(14)
                     .Bold();
                 title.Alignment = Xceed.Document.NET.Alignment.center;
-
                 var subtitle = doc.InsertParagraph()
                     .Append($"на {reportDate:dd.MM.yyyy}")
                     .Font("Times New Roman")
@@ -366,73 +360,47 @@ namespace HotelService.Views.Pages
                     .Bold();
                 subtitle.Alignment = Xceed.Document.NET.Alignment.center;
                 subtitle.SpacingAfter(20);
-
-                // Создаем таблицу для основных показателей
                 var mainTable = doc.AddTable(5, 2);
                 mainTable.Design = Xceed.Document.NET.TableDesign.TableGrid;
                 mainTable.Alignment = Xceed.Document.NET.Alignment.center;
                 mainTable.AutoFit = Xceed.Document.NET.AutoFit.Contents;
-
-                // Заголовок таблицы
                 var mainTableTitle = doc.InsertParagraph()
                     .Append("Основные показатели загрузки")
                     .Font("Times New Roman")
                     .FontSize(12)
                     .Bold();
                 mainTableTitle.SpacingBefore(10).SpacingAfter(5);
-
-                // Настраиваем заголовок таблицы
                 SetupTableHeader(mainTable, "Показатель", "Значение");
-
-                // Заполняем строки таблицы данными
                 int rowIndex = 1;
-
                 AddRowToTable(mainTable, rowIndex++, "Общее количество номеров", data.TotalRooms.ToString());
                 AddRowToTable(mainTable, rowIndex++, "Занятые номера", data.OccupiedRooms.ToString());
                 AddRowToTable(mainTable, rowIndex++, "Свободные номера", data.FreeRooms.ToString());
                 AddRowToTable(mainTable, rowIndex++, "Процент загрузки", $"{data.OccupancyPercentage:F2}%");
-
-                // Добавляем таблицу в документ
                 doc.InsertParagraph().InsertTableAfterSelf(mainTable);
-
-                // Создаем таблицу для статусов номеров
                 var statusTableTitle = doc.InsertParagraph()
                     .Append("Распределение номеров по статусам")
                     .Font("Times New Roman")
                     .FontSize(12)
                     .Bold();
                 statusTableTitle.SpacingBefore(15).SpacingAfter(5);
-
                 var statusTable = doc.AddTable(data.RoomStatusCounts.Count + 1, 2);
                 statusTable.Design = Xceed.Document.NET.TableDesign.TableGrid;
                 statusTable.Alignment = Xceed.Document.NET.Alignment.center;
                 statusTable.AutoFit = Xceed.Document.NET.AutoFit.Contents;
-
-                // Настраиваем заголовок таблицы статусов
                 SetupTableHeader(statusTable, "Статус номера", "Количество");
-
-                // Заполняем таблицу статусов
                 rowIndex = 1;
                 foreach (var status in data.RoomStatusCounts)
                 {
                     AddRowToTable(statusTable, rowIndex++, status.Key, status.Value.ToString());
                 }
-
-                // Добавляем таблицу статусов в документ
                 doc.InsertParagraph().InsertTableAfterSelf(statusTable);
-
-                // Добавляем нижний колонтитул с датой формирования отчета
                 var footer = doc.InsertParagraph()
                     .Append($"Отчет сформирован: {DateTime.Now:dd.MM.yyyy HH:mm}")
                     .Font("Times New Roman")
                     .FontSize(10);
                 footer.Alignment = Xceed.Document.NET.Alignment.right;
                 footer.SpacingBefore(20);
-
-                // Добавляем подпись
                 AddSignature(doc);
-
-                // Сохраняем документ
                 doc.Save();
             }
         }

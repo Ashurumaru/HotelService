@@ -133,7 +133,10 @@ namespace HotelService.Views.Windows
                 SelectGuest();
             }
         }
-
+        private void SelectButton_Click(object sender, RoutedEventArgs e)
+        {
+            SelectGuest();
+        }
         private void SelectGuest()
         {
             SelectedGuest = GuestsDataGrid.SelectedItem as Guest;
@@ -156,10 +159,7 @@ namespace HotelService.Views.Windows
                 LoadData();
             }
         }
-        private void SelectButton_Click(object sender, RoutedEventArgs e)
-        {
-            SelectGuest();
-        }
+
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

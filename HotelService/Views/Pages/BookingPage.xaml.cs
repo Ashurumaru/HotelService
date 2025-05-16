@@ -68,10 +68,7 @@ namespace HotelService.Views.Pages
         {
             try
             {
-                Mouse.OverrideCursor = Cursors.Wait;
-
                 _context = new HotelServiceEntities();
-
                 if (StatusFilterComboBox.Items.Count <= 1)
                 {
                     var statuses = _context.BookingStatus.ToList();
@@ -92,15 +89,10 @@ namespace HotelService.Views.Pages
                     .Include(b => b.BookingStatus)
                     .Include(b => b.BookingSource)
                     .AsNoTracking();
-
-                // Convert to view model
                 _allBookings = bookingsQuery.ToList().Select(b => new BookingViewModel(b)).ToList();
-
                 _bookingsView = CollectionViewSource.GetDefaultView(_allBookings);
                 _bookingsView.Filter = ApplyFilters;
-
                 BookingsDataGrid.ItemsSource = _bookingsView;
-
             }
             catch (Exception ex)
             {
