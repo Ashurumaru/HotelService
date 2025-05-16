@@ -55,7 +55,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBox x:Name="SearchTextBox" 
-                             Style="{StaticResource SearchTextBoxStyle}" 
+                             Style="{StaticResource DefaultTextBoxStyle}" 
                              Height="40"
                              TextChanged="SearchTextBox_TextChanged"
                              KeyDown="SearchTextBox_KeyDown"

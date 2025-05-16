@@ -376,10 +376,7 @@
             </TabItem>
 
             <TabItem Header="Гости">
-                <Border Background="{StaticResource BackgroundSecondaryColor}"
-            BorderBrush="{StaticResource BorderColor}"
-            BorderThickness="1"
-            CornerRadius="8"
+                <Border 
             Padding="20">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
@@ -532,10 +529,7 @@
             </TabItem>
             
             <TabItem Header="Статус уборки">
-                <Border Background="{StaticResource BackgroundSecondaryColor}"
-            BorderBrush="{StaticResource BorderColor}"
-            BorderThickness="1"
-            CornerRadius="8"
+                <Border 
             Padding="20">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>

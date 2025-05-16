@@ -158,7 +158,7 @@ __DamageDescription_____________________________________________________________
                     damagedItems);
 
                 // Формируем имя файла для сохранения
-                string fileName = $"Акт_повреждения_{actNumber}_{actDate:dd.MM.yyyy}.docx";
+                string fileName = $"Акт_повреждения_{actNumber}_{actDate:dd.MM.yyyy}.doc";
                 string savePath = Path.Combine(Path.GetTempPath(), fileName);
 
                 // Записываем сгенерированный документ во временный файл

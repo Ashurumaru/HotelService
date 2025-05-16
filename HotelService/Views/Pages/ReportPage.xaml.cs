@@ -2121,35 +2121,7 @@ namespace HotelService.Views.Pages
                 // Add table to document
                 doc.InsertParagraph().InsertTableAfterSelf(breakdownTable);
 
-                // Add country breakdown
-                if (data.GuestsByCountry.Any())
-                {
-                    var countryTitle = doc.InsertParagraph()
-                        .Append("Гости по странам")
-                        .Font("Times New Roman")
-                        .FontSize(12)
-                        .Bold();
-                    countryTitle.SpacingBefore(15).SpacingAfter(5);
-
-                    var countryTable = doc.AddTable(data.GuestsByCountry.Count + 1, 2);
-                    countryTable.Design = Xceed.Document.NET.TableDesign.TableGrid;
-                    countryTable.Alignment = Xceed.Document.NET.Alignment.center;
-                    countryTable.AutoFit = Xceed.Document.NET.AutoFit.Contents;
-
-                    // Setup table header
-                    SetupTableHeader(countryTable, "Страна", "Количество гостей");
-
-                    // Fill table with data
-                    rowIndex = 1;
-                    foreach (var country in data.GuestsByCountry)
-                    {
-                        AddRowToTable(countryTable, rowIndex++, country.Key, country.Value.ToString());
-                    }
-
-                    // Add table to document
-                    doc.InsertParagraph().InsertTableAfterSelf(countryTable);
-                }
-
+              
                 // Add footer with report generation date
                 var footer = doc.InsertParagraph()
                     .Append($"Отчет сформирован: {DateTime.Now:dd.MM.yyyy HH:mm}")

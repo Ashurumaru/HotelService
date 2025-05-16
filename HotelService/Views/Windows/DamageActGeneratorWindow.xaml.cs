@@ -4,13 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.IO;
-using System.Text;
 using Microsoft.Win32;
 using System.Data.Entity;
 using HotelService.Data;
 using HotelService.Utils;
 using System.Globalization;
-// Добавьте using для System.Diagnostics, если его еще нет
 using System.Diagnostics;
 
 namespace HotelService.Views.Windows
@@ -26,7 +24,6 @@ namespace HotelService.Views.Windows
             _reportId = reportId;
             LoadDamageReportData();
 
-            // По умолчанию устанавливаем текущую дату
             ActDatePicker.SelectedDate = DateTime.Today;
         }
 
@@ -71,7 +68,7 @@ namespace HotelService.Views.Windows
                     {
                         string receiverName = $"{App.CurrentUser.LastName} {App.CurrentUser.FirstName} {App.CurrentUser.MiddleName}".Trim();
                         ReceiverNameTextBox.Text = receiverName;
-                        ReceiverPositionTextBox.Text = "Администратор"; // Или другая логика для определения должности
+                        ReceiverPositionTextBox.Text = "Администратор"; 
                     }
                 }
             }
@@ -98,8 +95,7 @@ namespace HotelService.Views.Windows
             if (string.IsNullOrWhiteSpace(ReceiverPositionTextBox.Text)) errors.Add("Не указана должность принявшего");
             if (string.IsNullOrWhiteSpace(ReceiverNameTextBox.Text)) errors.Add("Не указано ФИО принявшего");
             if (string.IsNullOrWhiteSpace(DamageDescriptionTextBox.Text)) errors.Add("Не указано описание повреждения");
-            // Дополнительная валидация для DamagedItemsTextBox, если это поле обязательно
-            // if (string.IsNullOrWhiteSpace(DamagedItemsTextBox.Text)) errors.Add("Не указаны испорченные вещи");
+
 
 
             if (errors.Count > 0)
@@ -117,7 +113,7 @@ namespace HotelService.Views.Windows
         {
             try
             {
-                string hotelName = "Улан-Удэ"; // Рекомендуется вынести в настройки или получить из другого источника
+                string hotelName = "Улан-Удэ"; 
 
                 string actNumber = ActNumberTextBox.Text;
                 DateTime actDate = ActDatePicker.SelectedDate.Value;
@@ -126,9 +122,8 @@ namespace HotelService.Views.Windows
                 decimal totalAmount = decimal.Parse(TotalAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture);
                 string receiverPosition = ReceiverPositionTextBox.Text;
                 string receiverFIO = ReceiverNameTextBox.Text;
-                string damagedItems = DamagedItemsTextBox.Text; // Убедитесь, что это поле используется
+                string damagedItems = DamagedItemsTextBox.Text; 
 
-                // Вызываем обновленный метод из DamageActTemplateGenerator
                 string tempFilePath = DamageActTemplateGenerator.CreateTemporaryActFile(
                     hotelName,
                     actNumber,
@@ -150,16 +145,13 @@ namespace HotelService.Views.Windows
             }
         }
 
-        // Метод GetMonthName здесь больше не нужен, так как он есть в DamageActTemplateGenerator
-        // и будет использоваться там при формировании документа.
-
         private void SaveActDocument(string tempFilePath)
         {
             var saveFileDialog = new SaveFileDialog
             {
-                FileName = Path.GetFileName(tempFilePath), // Имя файла будет уже с .docx
-                DefaultExt = ".docx", // Изменено на .docx
-                Filter = "Документы Word (*.docx)|*.docx|Все файлы (*.*)|*.*", // Изменено на .docx
+                FileName = Path.GetFileName(tempFilePath), 
+                DefaultExt = ".doc", 
+                Filter = "Документы Word (*.doc)|*.doc|Все файлы (*.*)|*.*", 
                 Title = "Сохранить акт о повреждении"
             };
 
@@ -229,8 +221,6 @@ namespace HotelService.Views.Windows
                     var report = context.DamageReport.Find(_reportId);
                     if (report != null)
                     {
-                        // Если у вашей модели DamageReport есть поле для пути к файлу, раскомментируйте и используйте его
-                        // report.ActFilePath = actPath; 
                         context.SaveChanges();
                     }
                 }
@@ -257,7 +247,7 @@ namespace HotelService.Views.Windows
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
-            Close(); // Добавил Close() для согласованности с CloseButton_Click
+            Close(); 
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
