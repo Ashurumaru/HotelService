@@ -67,13 +67,11 @@ namespace HotelService.Views.Windows
 
                 using (var context = new HotelServiceEntities())
                 {
-                    // Load guest groups
                     var groups = context.GuestGroup.OrderBy(g => g.GroupName).ToList();
                     GroupComboBox.ItemsSource = groups;
                     GroupComboBox.DisplayMemberPath = "GroupName";
                     GroupComboBox.SelectedValuePath = "GroupId";
 
-                    // If there are no groups, add at least one default group
                     if (groups.Count == 0)
                     {
                         var defaultGroup = new GuestGroup
@@ -85,13 +83,14 @@ namespace HotelService.Views.Windows
                         context.GuestGroup.Add(defaultGroup);
                         context.SaveChanges();
 
-                        // Refresh the groups list
                         groups = context.GuestGroup.OrderBy(g => g.GroupName).ToList();
                         GroupComboBox.ItemsSource = groups;
                     }
 
                     GroupComboBox.SelectedIndex = 0;
                 }
+
+                GenderComboBox.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -125,19 +124,30 @@ namespace HotelService.Views.Windows
                         return;
                     }
 
-                    // Fill personal data
                     LastNameTextBox.Text = _guest.LastName;
                     FirstNameTextBox.Text = _guest.FirstName;
                     MiddleNameTextBox.Text = _guest.MiddleName;
+
+                    if (!string.IsNullOrEmpty(_guest.Gender))
+                    {
+                        foreach (ComboBoxItem item in GenderComboBox.Items)
+                        {
+                            if (item.Tag?.ToString() == _guest.Gender)
+                            {
+                                GenderComboBox.SelectedItem = item;
+                                break;
+                            }
+                        }
+                    }
 
                     if (_guest.DateOfBirth.HasValue)
                     {
                         DateOfBirthPicker.SelectedDate = _guest.DateOfBirth.Value;
                     }
 
+                    BirthPlaceTextBox.Text = _guest.BirthPlace;
                     IsVIPCheckBox.IsChecked = _guest.IsVIP;
 
-                    // Set group
                     if (_guest.GroupId.HasValue)
                     {
                         foreach (var item in GroupComboBox.Items)
@@ -151,22 +161,15 @@ namespace HotelService.Views.Windows
                         }
                     }
 
-                    // Fill contact info
                     PhoneTextBox.Text = _guest.Phone;
                     EmailTextBox.Text = _guest.Email;
                     AddressTextBox.Text = _guest.Address;
                     NotesTextBox.Text = _guest.Notes;
 
-                    // Fill loyalty points
                     PointsTextBlock.Text = _guest.CurrentPoints.ToString();
 
-                    // Load documents
                     LoadDocuments(context);
-
-                    // Load bookings history
                     LoadBookingHistory(context);
-
-                    // Load loyalty transactions
                     LoadLoyaltyTransactions(context);
                 }
             }
@@ -246,11 +249,10 @@ namespace HotelService.Views.Windows
 
         private void InitializeNewGuest()
         {
-            // Initialize with default values
             DateOfBirthPicker.SelectedDate = null;
             IsVIPCheckBox.IsChecked = false;
+            GenderComboBox.SelectedIndex = 0;
 
-            // Hide history tabs for new guests
             TabControl tabControl = this.FindName("TabControl") as TabControl;
             if (tabControl != null && tabControl.Items.Count > 2)
             {
@@ -264,12 +266,10 @@ namespace HotelService.Views.Windows
                     loyaltyTab.Visibility = Visibility.Collapsed;
             }
 
-            // Hide related UI elements
             NoBookingsTextBlock.Visibility = Visibility.Visible;
             NoTransactionsTextBlock.Visibility = Visibility.Visible;
             NoDocumentsTextBlock.Visibility = Visibility.Visible;
 
-            // Set default points
             PointsTextBlock.Text = "0";
         }
 
@@ -328,7 +328,6 @@ namespace HotelService.Views.Windows
 
                     if (_guestId.HasValue)
                     {
-                        // Editing existing guest
                         guestToSave = context.Guest.Find(_guestId.Value);
                         if (guestToSave == null)
                         {
@@ -339,26 +338,29 @@ namespace HotelService.Views.Windows
                     }
                     else
                     {
-                        // Creating new guest
                         guestToSave = new Guest();
                         context.Guest.Add(guestToSave);
                         guestToSave.CurrentPoints = 0;
                     }
 
-                    // Update fields
                     guestToSave.LastName = LastNameTextBox.Text.Trim();
                     guestToSave.FirstName = FirstNameTextBox.Text.Trim();
                     guestToSave.MiddleName = string.IsNullOrWhiteSpace(MiddleNameTextBox.Text) ? null : MiddleNameTextBox.Text.Trim();
+
+                    if (GenderComboBox.SelectedItem is ComboBoxItem selectedGender)
+                    {
+                        guestToSave.Gender = selectedGender.Tag?.ToString();
+                    }
+
                     guestToSave.DateOfBirth = DateOfBirthPicker.SelectedDate;
+                    guestToSave.BirthPlace = string.IsNullOrWhiteSpace(BirthPlaceTextBox.Text) ? null : BirthPlaceTextBox.Text.Trim();
                     guestToSave.IsVIP = IsVIPCheckBox.IsChecked ?? false;
 
-                    // Set group
                     if (GroupComboBox.SelectedItem is GuestGroup selectedGroup)
                     {
                         guestToSave.GroupId = selectedGroup.GroupId;
                     }
 
-                    // Update contact info
                     guestToSave.Phone = string.IsNullOrWhiteSpace(PhoneTextBox.Text) ? null : PhoneTextBox.Text.Trim();
                     guestToSave.Email = string.IsNullOrWhiteSpace(EmailTextBox.Text) ? null : EmailTextBox.Text.Trim();
                     guestToSave.Address = string.IsNullOrWhiteSpace(AddressTextBox.Text) ? null : AddressTextBox.Text.Trim();
@@ -366,7 +368,6 @@ namespace HotelService.Views.Windows
 
                     context.SaveChanges();
 
-                    // If this is a new guest, update the guest ID for documents
                     if (!_guestId.HasValue)
                     {
                         _guest = guestToSave;
@@ -403,7 +404,6 @@ namespace HotelService.Views.Windows
 
                     if (documentTypes.Count == 0)
                     {
-                        // Add default document types if none exist
                         var defaultTypes = new List<DocumentType>
                         {
                             new DocumentType { DocumentTypeId = 1, TypeName = "Паспорт РФ", Description = "Паспорт гражданина Российской Федерации" },
@@ -425,13 +425,15 @@ namespace HotelService.Views.Windows
                         {
                             GuestId = _guestId ?? _guest.GuestId,
                             DocumentTypeId = documentAddWindow.SelectedDocumentTypeId,
+                            DocumentSeries = documentAddWindow.DocumentSeries,
+                            DocumentNumber = documentAddWindow.DocumentNumber,
+                            IssuedBy = documentAddWindow.IssuedBy,
                             IssueDate = documentAddWindow.IssueDate,
                             ExpiryDate = documentAddWindow.ExpiryDate,
                             UploadedAt = DateTime.Now,
                             UploadedBy = App.CurrentUser?.UserId
                         };
 
-                        // Handle document file
                         if (!string.IsNullOrEmpty(documentAddWindow.SelectedFilePath))
                         {
                             string fileExt = Path.GetExtension(documentAddWindow.SelectedFilePath);
@@ -445,7 +447,6 @@ namespace HotelService.Views.Windows
                         context.GuestDocument.Add(newDocument);
                         context.SaveChanges();
 
-                        // Refresh documents list
                         LoadDocuments(context);
                     }
                 }
@@ -503,7 +504,6 @@ namespace HotelService.Views.Windows
                         var docToDelete = context.GuestDocument.Find(document.DocumentId);
                         if (docToDelete != null)
                         {
-                            // Delete the file if it exists
                             try
                             {
                                 if (!string.IsNullOrEmpty(docToDelete.DocumentPath) && File.Exists(docToDelete.DocumentPath))
@@ -517,11 +517,9 @@ namespace HotelService.Views.Windows
                                     "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                             }
 
-                            // Delete the database record
                             context.GuestDocument.Remove(docToDelete);
                             context.SaveChanges();
 
-                            // Refresh the documents list
                             LoadDocuments(context);
                         }
                     }
@@ -552,33 +550,8 @@ namespace HotelService.Views.Windows
                 return;
             }
 
-            var loyaltyWindow = new LoyaltyTransactionWindow(_guestId.Value, null, 1);
-            if (loyaltyWindow.ShowDialog() == true)
-            {
-                try
-                {
-                    using (var context = new HotelServiceEntities())
-                    {
-                        var guest = context.Guest.Find(_guestId.Value);
-                        if (guest == null)
-                        {
-                            MessageBox.Show("Гость не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
-
-                        // Update UI
-                        PointsTextBlock.Text = guest.CurrentPoints.ToString();
-
-                        // Refresh transactions list
-                        LoadLoyaltyTransactions(context);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при обновлении данных: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            MessageBox.Show("Функция добавления баллов лояльности будет реализована позже.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

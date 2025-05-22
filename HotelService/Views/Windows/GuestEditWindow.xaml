@@ -20,7 +20,6 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -44,9 +43,7 @@
                 </Grid>
             </Border>
 
-            <!-- Tabs Section -->
             <TabControl Grid.Row="1" Margin="20,15,20,10" BorderThickness="0" Background="Transparent">
-                <!-- Основные данные вкладка -->
                 <TabItem Header="Основные данные">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -54,7 +51,6 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Левая колонка - Личные данные -->
                         <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
                             <StackPanel>
                                 <TextBlock Text="Личные данные" 
@@ -76,14 +72,38 @@
                                          Style="{StaticResource DefaultTextBoxStyle}" 
                                          Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Дата рождения:" Style="{StaticResource LabelTextStyle}"/>
-                                <DatePicker x:Name="DateOfBirthPicker" 
-                                            Margin="0,0,0,15"
-                                            Height="44" 
-                                            Template="{StaticResource CustomDatePickerTemplate}"
-                                            Background="{StaticResource BackgroundSecondaryColor}"
-                                            BorderBrush="{StaticResource BorderColor}"
-                                            Foreground="{StaticResource TextPrimaryColor}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,7.5,0">
+                                        <TextBlock Text="Пол:" Style="{StaticResource LabelTextStyle}"/>
+                                        <ComboBox x:Name="GenderComboBox" 
+                                                  Style="{StaticResource FilterComboBoxStyle}" 
+                                                  Margin="0,0,0,15">
+                                            <ComboBoxItem Content="Мужской" Tag="М"/>
+                                            <ComboBoxItem Content="Женский" Tag="Ж"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="7.5,0,0,0">
+                                        <TextBlock Text="Дата рождения:" Style="{StaticResource LabelTextStyle}"/>
+                                        <DatePicker x:Name="DateOfBirthPicker" 
+                                                    Margin="0,0,0,15"
+                                                    Height="44" 
+                                                    Template="{StaticResource CustomDatePickerTemplate}"
+                                                    Background="{StaticResource BackgroundSecondaryColor}"
+                                                    BorderBrush="{StaticResource BorderColor}"
+                                                    Foreground="{StaticResource TextPrimaryColor}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Место рождения:" Style="{StaticResource LabelTextStyle}"/>
+                                <TextBox x:Name="BirthPlaceTextBox" 
+                                         Style="{StaticResource DefaultTextBoxStyle}" 
+                                         Margin="0,0,0,15"/>
 
                                 <CheckBox x:Name="IsVIPCheckBox" 
                                           Content="VIP гость" 
@@ -96,7 +116,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Правая колонка - Контактная информация -->
                         <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
                             <StackPanel>
                                 <TextBlock Text="Контактная информация" 
@@ -135,7 +154,6 @@
                     </Grid>
                 </TabItem>
 
-                <!-- Вкладка с документами -->
                 <TabItem Header="Документы">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -171,8 +189,10 @@
                                       RowHeight="40">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Тип документа" Binding="{Binding DocumentType.TypeName}" Width="*"/>
-                                    <DataGridTextColumn Header="Дата загрузки" Binding="{Binding UploadedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
-                                    <DataGridTextColumn Header="Дата выдачи" Binding="{Binding IssueDate, StringFormat=dd.MM.yyyy}" Width="120"/>
+                                    <DataGridTextColumn Header="Серия" Binding="{Binding DocumentSeries}" Width="80"/>
+                                    <DataGridTextColumn Header="Номер" Binding="{Binding DocumentNumber}" Width="120"/>
+                                    <DataGridTextColumn Header="Кем выдан" Binding="{Binding IssuedBy}" Width="150"/>
+                                    <DataGridTextColumn Header="Дата выдачи" Binding="{Binding IssueDate, StringFormat=dd.MM.yyyy}" Width="100"/>
                                     <DataGridTextColumn Header="Дата истечения" Binding="{Binding ExpiryDate, StringFormat=dd.MM.yyyy}" Width="120"/>
                                     <DataGridTemplateColumn Header="Действия" Width="120">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -219,7 +239,6 @@
                     </Border>
                 </TabItem>
 
-                <!-- Вкладка с историей проживания -->
                 <TabItem Header="История проживания">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -281,7 +300,6 @@
                     </Border>
                 </TabItem>
 
-                <!-- Вкладка с программой лояльности -->
                 <TabItem Header="Программа лояльности">
                     <Border Style="{StaticResource CardStyle}">
                         <Grid>
@@ -340,7 +358,7 @@
                                     RowHeight="40">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Дата" Binding="{Binding TransactionDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
-                                    <DataGridTextColumn Header="Тип" Binding="{Binding Type.TypeName}" Width="180"/>
+                                    <DataGridTextColumn Header="Тип" Binding="{Binding TransactionType.TypeName}" Width="180"/>
                                     <DataGridTextColumn Header="Баллы" Binding="{Binding Points}" Width="80"/>
                                     <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
                                     <DataGridTextColumn Header="Бронирование" Binding="{Binding BookingId}" Width="120"/>
@@ -360,7 +378,6 @@
                 </TabItem>
             </TabControl>
 
-            <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource BackgroundSecondaryColor}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" Padding="20,15" CornerRadius="0,0,10,10">
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">

@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:HotelService.Views.Windows"
         mc:Ignorable="d"
         Title="Добавление документа" 
-        Height="450" 
-        Width="600"
+        Height="620" 
+        Width="650"
         WindowStartupLocation="CenterScreen"
         Style="{DynamicResource CustomWindowStyle}"
         MouseDown="Window_MouseDown">
@@ -20,7 +20,6 @@
                 <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="10,10,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -43,13 +42,41 @@
                 </Grid>
             </Border>
 
-            <!-- Content -->
             <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="20,15,20,0">
                 <StackPanel>
                     <TextBlock Text="Тип документа:" Style="{StaticResource LabelTextStyle}"/>
                     <ComboBox x:Name="DocumentTypeComboBox" 
                               Style="{StaticResource FilterComboBoxStyle}" 
                               Margin="0,0,0,15"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,7.5,0">
+                            <TextBlock Text="Серия документа:" Style="{StaticResource LabelTextStyle}"/>
+                            <TextBox x:Name="DocumentSeriesTextBox" 
+                                     Style="{StaticResource DefaultTextBoxStyle}" 
+                                     Margin="0,0,0,15"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="7.5,0,0,0">
+                            <TextBlock Text="Номер документа:" Style="{StaticResource LabelTextStyle}"/>
+                            <TextBox x:Name="DocumentNumberTextBox" 
+                                     Style="{StaticResource DefaultTextBoxStyle}" 
+                                     Margin="0,0,0,15"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Кем выдан:" Style="{StaticResource LabelTextStyle}"/>
+                    <TextBox x:Name="IssuedByTextBox" 
+                             Style="{StaticResource DefaultTextBoxStyle}" 
+                             Margin="0,0,0,15"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Height="60"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -123,8 +150,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- Footer -->
-            <Border Grid.Row="2"  Margin="0 0 20 0">
+            <Border Grid.Row="2" Margin="0,0,20,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="CancelButton" 

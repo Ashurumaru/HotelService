@@ -14,6 +14,9 @@ namespace HotelService.Views.Windows
     public partial class DocumentAddWindow : Window
     {
         public int SelectedDocumentTypeId { get; private set; }
+        public string DocumentSeries { get; private set; }
+        public string DocumentNumber { get; private set; }
+        public string IssuedBy { get; private set; }
         public DateTime? IssueDate { get; private set; }
         public DateTime? ExpiryDate { get; private set; }
         public string SelectedFilePath { get; private set; }
@@ -22,7 +25,6 @@ namespace HotelService.Views.Windows
         {
             InitializeComponent();
 
-            // Initialize document types
             DocumentTypeComboBox.ItemsSource = documentTypes;
             DocumentTypeComboBox.DisplayMemberPath = "TypeName";
             DocumentTypeComboBox.SelectedValuePath = "DocumentTypeId";
@@ -32,9 +34,8 @@ namespace HotelService.Views.Windows
                 DocumentTypeComboBox.SelectedIndex = 0;
             }
 
-            // Set default dates
             IssueDatePicker.SelectedDate = DateTime.Today;
-            ExpiryDatePicker.SelectedDate = DateTime.Today.AddYears(10); // Default 10-year validity
+            ExpiryDatePicker.SelectedDate = DateTime.Today.AddYears(10);
         }
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -52,7 +53,6 @@ namespace HotelService.Views.Windows
                 SelectedFilePath = openFileDialog.FileName;
                 FilePathTextBox.Text = SelectedFilePath;
 
-                // Show preview for images
                 if (IsImageFile(SelectedFilePath))
                 {
                     try
@@ -103,24 +103,45 @@ namespace HotelService.Views.Windows
         private bool ValidateInput()
         {
             ValidationMessageTextBlock.Text = "";
+            List<string> errors = new List<string>();
 
             if (DocumentTypeComboBox.SelectedItem == null)
             {
-                ValidationMessageTextBlock.Text = "Выберите тип документа.";
-                ValidationMessageTextBlock.Visibility = Visibility.Visible;
-                return false;
+                errors.Add("Выберите тип документа.");
+            }
+
+            if (string.IsNullOrWhiteSpace(DocumentSeriesTextBox.Text))
+            {
+                errors.Add("Введите серию документа.");
+            }
+
+            if (string.IsNullOrWhiteSpace(DocumentNumberTextBox.Text))
+            {
+                errors.Add("Введите номер документа.");
+            }
+
+            if (string.IsNullOrWhiteSpace(IssuedByTextBox.Text))
+            {
+                errors.Add("Введите информацию о том, кем выдан документ.");
+            }
+
+            if (!IssueDatePicker.SelectedDate.HasValue)
+            {
+                errors.Add("Выберите дату выдачи документа.");
             }
 
             if (string.IsNullOrEmpty(SelectedFilePath))
             {
-                ValidationMessageTextBlock.Text = "Выберите файл документа.";
-                ValidationMessageTextBlock.Visibility = Visibility.Visible;
-                return false;
+                errors.Add("Выберите файл документа.");
+            }
+            else if (!File.Exists(SelectedFilePath))
+            {
+                errors.Add("Выбранный файл не существует.");
             }
 
-            if (!File.Exists(SelectedFilePath))
+            if (errors.Count > 0)
             {
-                ValidationMessageTextBlock.Text = "Выбранный файл не существует.";
+                ValidationMessageTextBlock.Text = string.Join("\n", errors);
                 ValidationMessageTextBlock.Visibility = Visibility.Visible;
                 return false;
             }
@@ -134,6 +155,9 @@ namespace HotelService.Views.Windows
             if (ValidateInput())
             {
                 SelectedDocumentTypeId = (int)DocumentTypeComboBox.SelectedValue;
+                DocumentSeries = DocumentSeriesTextBox.Text.Trim();
+                DocumentNumber = DocumentNumberTextBox.Text.Trim();
+                IssuedBy = IssuedByTextBox.Text.Trim();
                 IssueDate = IssueDatePicker.SelectedDate;
                 ExpiryDate = ExpiryDatePicker.SelectedDate;
 

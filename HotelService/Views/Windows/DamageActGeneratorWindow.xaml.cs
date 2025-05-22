@@ -68,7 +68,7 @@ namespace HotelService.Views.Windows
                     {
                         string receiverName = $"{App.CurrentUser.LastName} {App.CurrentUser.FirstName} {App.CurrentUser.MiddleName}".Trim();
                         ReceiverNameTextBox.Text = receiverName;
-                        ReceiverPositionTextBox.Text = "Администратор"; 
+                        ReceiverPositionTextBox.Text = "Администратор";
                     }
                 }
             }
@@ -96,8 +96,6 @@ namespace HotelService.Views.Windows
             if (string.IsNullOrWhiteSpace(ReceiverNameTextBox.Text)) errors.Add("Не указано ФИО принявшего");
             if (string.IsNullOrWhiteSpace(DamageDescriptionTextBox.Text)) errors.Add("Не указано описание повреждения");
 
-
-
             if (errors.Count > 0)
             {
                 ValidationMessageTextBlock.Text = string.Join(Environment.NewLine, errors);
@@ -113,7 +111,7 @@ namespace HotelService.Views.Windows
         {
             try
             {
-                string hotelName = "Улан-Удэ"; 
+                string hotelName = "Улан-Удэ";
 
                 string actNumber = ActNumberTextBox.Text;
                 DateTime actDate = ActDatePicker.SelectedDate.Value;
@@ -122,9 +120,9 @@ namespace HotelService.Views.Windows
                 decimal totalAmount = decimal.Parse(TotalAmountTextBox.Text, NumberStyles.Any, CultureInfo.CurrentCulture);
                 string receiverPosition = ReceiverPositionTextBox.Text;
                 string receiverFIO = ReceiverNameTextBox.Text;
-                string damagedItems = DamagedItemsTextBox.Text; 
+                string damagedItems = DamagedItemsTextBox.Text;
 
-                string tempFilePath = DamageActTemplateGenerator.CreateTemporaryActFile(
+                string tempFilePath = DamageActTemplateGenerator.CreateDamageActDocx(
                     hotelName,
                     actNumber,
                     actDate,
@@ -149,9 +147,9 @@ namespace HotelService.Views.Windows
         {
             var saveFileDialog = new SaveFileDialog
             {
-                FileName = Path.GetFileName(tempFilePath), 
-                DefaultExt = ".doc", 
-                Filter = "Документы Word (*.doc)|*.doc|Все файлы (*.*)|*.*", 
+                FileName = Path.GetFileNameWithoutExtension(tempFilePath) + ".docx",
+                DefaultExt = ".docx",
+                Filter = "Документы Word (*.docx)|*.docx|Все файлы (*.*)|*.*",
                 Title = "Сохранить акт о повреждении"
             };
 
@@ -168,7 +166,6 @@ namespace HotelService.Views.Windows
                     if (MessageBox.Show("Открыть сформированный акт?", "Вопрос",
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        // Используем Process.Start для открытия файла
                         Process.Start(new ProcessStartInfo(saveFileDialog.FileName) { UseShellExecute = true });
                     }
                     DialogResult = true;
@@ -180,7 +177,6 @@ namespace HotelService.Views.Windows
                 }
                 finally
                 {
-                    // Попытаемся удалить временный файл
                     try
                     {
                         if (File.Exists(tempFilePath))
@@ -190,14 +186,12 @@ namespace HotelService.Views.Windows
                     }
                     catch (Exception exDel)
                     {
-                        // Ошибку удаления временного файла можно залогировать, но не обязательно показывать пользователю
                         Debug.WriteLine($"Ошибка при удалении временного файла: {exDel.Message}");
                     }
                 }
             }
             else
             {
-                // Если пользователь отменил сохранение, также удаляем временный файл
                 try
                 {
                     if (File.Exists(tempFilePath))
@@ -247,7 +241,7 @@ namespace HotelService.Views.Windows
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
-            Close(); 
+            Close();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

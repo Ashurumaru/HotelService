@@ -5,9 +5,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Data.Entity;
-using System.Windows.Media;
 using HotelService.Data;
+using Microsoft.Win32;
 using System.IO;
+using System.Windows.Media;
 
 namespace HotelService.Views.Windows
 {
@@ -21,6 +22,7 @@ namespace HotelService.Views.Windows
         {
             InitializeComponent();
             _guestId = guestId;
+
             InitializeDocumentsDirectory();
             LoadGuestData();
         }
@@ -46,6 +48,14 @@ namespace HotelService.Views.Windows
                 {
                     _guest = context.Guest
                         .Include(g => g.GuestGroup)
+                        .Include(g => g.GuestDocument)
+                        .Include(g => g.GuestDocument.Select(d => d.DocumentType))
+                        .Include(g => g.Booking)
+                        .Include(g => g.Booking.Select(b => b.Room))
+                        .Include(g => g.Booking.Select(b => b.Room.RoomType))
+                        .Include(g => g.Booking.Select(b => b.BookingStatus))
+                        .Include(g => g.LoyaltyTransaction)
+                        .Include(g => g.LoyaltyTransaction.Select(t => t.TransactionType))
                         .FirstOrDefault(g => g.GuestId == _guestId);
 
                     if (_guest == null)
@@ -55,13 +65,10 @@ namespace HotelService.Views.Windows
                         return;
                     }
 
-                    // Display guest data
-                    DisplayGuestInfo();
-
-                    // Load related data
-                    LoadDocuments(context);
-                    LoadBookingHistory(context);
-                    LoadLoyaltyTransactions(context);
+                    DisplayGuestData();
+                    LoadDocuments();
+                    LoadBookingHistory();
+                    LoadLoyaltyTransactions();
                 }
             }
             catch (Exception ex)
@@ -75,52 +82,64 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void DisplayGuestInfo()
+        private void DisplayGuestData()
         {
+            string fullName = _guest.LastName + " " + _guest.FirstName + " " + _guest.MiddleName;
+            GuestNameTextBlock.Text = fullName.Trim();
 
-            GuestNameTextBlock.Text = $"{_guest.LastName} {_guest.FirstName} {(_guest.MiddleName ?? "")}".Trim();
-
-            // Set initials
-            string initials = "";
-            if (_guest.FirstName.Length > 0)
-                initials += _guest.FirstName[0];
-            if (_guest.LastName.Length > 0)
-                initials += _guest.LastName[0];
-
-            // Points
-            PointsTextBlock.Text = _guest.CurrentPoints.ToString();
-            LoyaltyPointsTextBlock.Text = _guest.CurrentPoints.ToString();
-
-            // Personal data
-            LastNameTextBlock.Text = _guest.LastName;
-            FirstNameTextBlock.Text = _guest.FirstName;
+            LastNameTextBlock.Text = _guest.LastName ?? "Не указана";
+            FirstNameTextBlock.Text = _guest.FirstName ?? "Не указано";
             MiddleNameTextBlock.Text = _guest.MiddleName ?? "Не указано";
-            DateOfBirthTextBlock.Text = _guest.DateOfBirth.HasValue ? _guest.DateOfBirth.Value.ToString("dd.MM.yyyy") : "Не указано";
+
+            if (!string.IsNullOrEmpty(_guest.Gender))
+            {
+                string genderDisplay = _guest.Gender == "М" ? "Мужской" :
+                                      _guest.Gender == "Ж" ? "Женский" : _guest.Gender;
+                GenderDisplayTextBlock.Text = genderDisplay;
+            }
+            else
+            {
+                GenderDisplayTextBlock.Text = "Не указан";
+            }
+
+            if (_guest.DateOfBirth.HasValue)
+            {
+                DateOfBirthTextBlock.Text = _guest.DateOfBirth.Value.ToString("dd.MM.yyyy");
+            }
+            else
+            {
+                DateOfBirthTextBlock.Text = "Не указана";
+            }
+
+            BirthPlaceTextBlock.Text = _guest.BirthPlace ?? "Не указано";
+
             VIPStatusTextBlock.Text = _guest.IsVIP ? "Да" : "Нет";
             VIPStatusTextBlock.Foreground = _guest.IsVIP
                 ? FindResource("AccentColor") as SolidColorBrush
                 : FindResource("TextSecondaryColor") as SolidColorBrush;
-            GuestGroupTextBlock.Text = _guest.GuestGroup?.GroupName ?? "Не назначена";
 
-            // Contact info
+            VIPBadge.Visibility = _guest.IsVIP ? Visibility.Visible : Visibility.Collapsed;
+
+            GuestGroupTextBlock.Text = _guest.GuestGroup?.GroupName ?? "Не указана";
+
             PhoneTextBlock.Text = _guest.Phone ?? "Не указан";
             EmailTextBlock.Text = _guest.Email ?? "Не указан";
             AddressTextBlock.Text = _guest.Address ?? "Не указан";
 
-            // Notes
-            if (string.IsNullOrWhiteSpace(_guest.Notes))
+            if (!string.IsNullOrEmpty(_guest.Notes))
+            {
+                NotesTextBlock.Text = _guest.Notes;
+                NoNotesTextBlock.Visibility = Visibility.Collapsed;
+            }
+            else
             {
                 NotesTextBlock.Visibility = Visibility.Collapsed;
                 NoNotesTextBlock.Visibility = Visibility.Visible;
             }
-            else
-            {
-                NotesTextBlock.Text = _guest.Notes;
-                NotesTextBlock.Visibility = Visibility.Visible;
-                NoNotesTextBlock.Visibility = Visibility.Collapsed;
-            }
 
-            // Check permissions
+            PointsTextBlock.Text = _guest.CurrentPoints.ToString();
+            LoyaltyPointsTextBlock.Text = _guest.CurrentPoints.ToString();
+
             if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
             {
                 EditGuestButton.Visibility = Visibility.Collapsed;
@@ -131,17 +150,11 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void LoadDocuments(HotelServiceEntities context)
+        private void LoadDocuments()
         {
             try
             {
-                var documents = context.GuestDocument
-                    .Include(d => d.DocumentType)
-                    .Include(d => d.User)
-                    .Where(d => d.GuestId == _guestId)
-                    .OrderByDescending(d => d.UploadedAt)
-                    .ToList();
-
+                var documents = _guest.GuestDocument.OrderByDescending(d => d.UploadedAt).ToList();
                 DocumentsDataGrid.ItemsSource = documents;
                 NoDocumentsTextBlock.Visibility = documents.Any() ? Visibility.Collapsed : Visibility.Visible;
             }
@@ -152,18 +165,11 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void LoadBookingHistory(HotelServiceEntities context)
+        private void LoadBookingHistory()
         {
             try
             {
-                var bookings = context.Booking
-                    .Include(b => b.Room)
-                    .Include(b => b.Room.RoomType)
-                    .Include(b => b.BookingStatus)
-                    .Where(b => b.GuestId == _guestId)
-                    .OrderByDescending(b => b.CheckInDate)
-                    .ToList();
-
+                var bookings = _guest.Booking.OrderByDescending(b => b.CheckInDate).ToList();
                 BookingsDataGrid.ItemsSource = bookings;
                 NoBookingsTextBlock.Visibility = bookings.Any() ? Visibility.Collapsed : Visibility.Visible;
             }
@@ -174,16 +180,11 @@ namespace HotelService.Views.Windows
             }
         }
 
-        private void LoadLoyaltyTransactions(HotelServiceEntities context)
+        private void LoadLoyaltyTransactions()
         {
             try
             {
-                var transactions = context.LoyaltyTransaction
-                    .Include(t => t.TransactionType)
-                    .Where(t => t.GuestId == _guestId)
-                    .OrderByDescending(t => t.TransactionDate)
-                    .ToList();
-
+                var transactions = _guest.LoyaltyTransaction.OrderByDescending(t => t.TransactionDate).ToList();
                 TransactionsDataGrid.ItemsSource = transactions;
                 NoTransactionsTextBlock.Visibility = transactions.Any() ? Visibility.Collapsed : Visibility.Visible;
             }
@@ -204,7 +205,6 @@ namespace HotelService.Views.Windows
 
                     if (documentTypes.Count == 0)
                     {
-                        // Add default document types if none exist
                         var defaultTypes = new List<DocumentType>
                         {
                             new DocumentType { DocumentTypeId = 1, TypeName = "Паспорт РФ", Description = "Паспорт гражданина Российской Федерации" },
@@ -226,13 +226,15 @@ namespace HotelService.Views.Windows
                         {
                             GuestId = _guestId,
                             DocumentTypeId = documentAddWindow.SelectedDocumentTypeId,
+                            DocumentSeries = documentAddWindow.DocumentSeries,
+                            DocumentNumber = documentAddWindow.DocumentNumber,
+                            IssuedBy = documentAddWindow.IssuedBy,
                             IssueDate = documentAddWindow.IssueDate,
                             ExpiryDate = documentAddWindow.ExpiryDate,
                             UploadedAt = DateTime.Now,
                             UploadedBy = App.CurrentUser?.UserId
                         };
 
-                        // Handle document file
                         if (!string.IsNullOrEmpty(documentAddWindow.SelectedFilePath))
                         {
                             string fileExt = Path.GetExtension(documentAddWindow.SelectedFilePath);
@@ -246,8 +248,7 @@ namespace HotelService.Views.Windows
                         context.GuestDocument.Add(newDocument);
                         context.SaveChanges();
 
-                        // Refresh documents list
-                        LoadDocuments(context);
+                        LoadGuestData();
                     }
                 }
             }
@@ -288,13 +289,6 @@ namespace HotelService.Views.Windows
 
         private void DeleteDocumentButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
-            {
-                MessageBox.Show("У вас нет прав для удаления документов.", "Доступ запрещен",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             var document = (sender as Button)?.DataContext as GuestDocument;
             if (document == null) return;
 
@@ -311,7 +305,6 @@ namespace HotelService.Views.Windows
                         var docToDelete = context.GuestDocument.Find(document.DocumentId);
                         if (docToDelete != null)
                         {
-                            // Delete the file if it exists
                             try
                             {
                                 if (!string.IsNullOrEmpty(docToDelete.DocumentPath) && File.Exists(docToDelete.DocumentPath))
@@ -325,12 +318,10 @@ namespace HotelService.Views.Windows
                                     "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                             }
 
-                            // Delete the database record
                             context.GuestDocument.Remove(docToDelete);
                             context.SaveChanges();
 
-                            // Refresh the documents list
-                            LoadDocuments(context);
+                            LoadGuestData();
                         }
                     }
                 }
@@ -371,97 +362,20 @@ namespace HotelService.Views.Windows
             }
 
             var bookingWindow = new BookingEditWindow();
-
-            try
+            if (bookingWindow.ShowDialog() == true)
             {
-                using (var context = new HotelServiceEntities())
-                {
-                    // Pre-select the current guest
-                    var guest = context.Guest.Find(_guestId);
-                    if (guest != null)
-                    {
-                        // The booking window should have a method to pre-select a guest
-                        // For now, we'll just open the window and let the user select the guest
-                        if (bookingWindow.ShowDialog() == true)
-                        {
-                            LoadBookingHistory(context);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при подготовке к созданию бронирования: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadGuestData();
             }
         }
 
         private void AddLoyaltyPointsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
-            {
-                MessageBox.Show("У вас нет прав для управления баллами лояльности.", "Доступ запрещен",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Show context menu with loyalty operations
-            var contextMenu = new ContextMenu();
-
-            var earnItem = new MenuItem { Header = "Начисление баллов" };
-            earnItem.Click += (s, args) => OpenLoyaltyTransaction(1); // Type 1 = EARNING
-            contextMenu.Items.Add(earnItem);
-
-            var redeemItem = new MenuItem { Header = "Списание баллов" };
-            redeemItem.Click += (s, args) => OpenLoyaltyTransaction(2); // Type 2 = REDEEMING
-            contextMenu.Items.Add(redeemItem);
-
-            var adjustItem = new MenuItem { Header = "Корректировка баллов" };
-            adjustItem.Click += (s, args) => OpenLoyaltyTransaction(3); // Type 3 = ADJUSTMENT
-            contextMenu.Items.Add(adjustItem);
-
-            contextMenu.IsOpen = true;
-        }
-
-        private void OpenLoyaltyTransaction(int transactionTypeId)
-        {
-            var loyaltyWindow = new LoyaltyTransactionWindow(_guestId, null, transactionTypeId);
-            if (loyaltyWindow.ShowDialog() == true)
-            {
-                try
-                {
-                    using (var context = new HotelServiceEntities())
-                    {
-                        var guest = context.Guest.Find(_guestId);
-                        if (guest == null)
-                        {
-                            MessageBox.Show("Гость не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
-
-                        PointsTextBlock.Text = guest.CurrentPoints.ToString();
-                        LoyaltyPointsTextBlock.Text = guest.CurrentPoints.ToString();
-
-                        LoadLoyaltyTransactions(context);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при обновлении данных: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            MessageBox.Show("Функция добавления баллов лояльности будет реализована позже.",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void EditGuestButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentUser.RoleId != 1 && App.CurrentUser.RoleId != 2)
-            {
-                MessageBox.Show("У вас нет прав для редактирования гостей.", "Доступ запрещен",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             var editWindow = new GuestEditWindow(_guestId);
             if (editWindow.ShowDialog() == true)
             {
